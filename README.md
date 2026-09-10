@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/readme/sih-logo.png" alt="Smart India Hackathon 2026" height="84" />
+<img src="docs/assets/readme/header.svg" alt="Smart India Hackathon 2026 · MediKiosk · PS 26047 Patient Case-Taking Software · Team Taraket" width="100%" />
 
 <br/><br/>
 
