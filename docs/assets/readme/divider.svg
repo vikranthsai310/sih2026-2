@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="40" viewBox="0 0 1200 40" role="img" aria-label="heartbeat divider">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#FF9933"/>
+      <stop offset=".5" stop-color="#FF4D6D"/>
+      <stop offset="1" stop-color="#2E9E4F"/>
+    </linearGradient>
+    <filter id="glow" x="-10%" y="-200%" width="120%" height="500%">
+      <feGaussianBlur stdDeviation="2.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <path d="M0 22 H540 l10 -4 l8 8 l10 -18 l12 26 l10 -14 l8 2 H1200" fill="none" stroke="#7F8FA8" stroke-opacity=".35" stroke-width="2"/>
+  <path d="M0 22 H540 l10 -4 l8 8 l10 -18 l12 26 l10 -14 l8 2 H1200" fill="none" stroke="url(#g)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" pathLength="1000" stroke-dasharray="160 840" filter="url(#glow)">
+    <animate attributeName="stroke-dashoffset" from="1000" to="0" dur="2.6s" repeatCount="indefinite"/>
+  </path>
+</svg>
