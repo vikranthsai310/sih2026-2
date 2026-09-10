@@ -1,0 +1,11 @@
+# PowerPoint files (all formats + Office lock files)
+*.ppt
+*.pptx
+*.pptm
+*.pot
+*.potx
+*.potm
+*.pps
+*.ppsx
+*.ppsm
+~$*
