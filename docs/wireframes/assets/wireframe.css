@@ -172,7 +172,7 @@ html[data-viewport="desktop"] .anno-panel { margin: 16px 16px 16px 0; }
   font: 700 12px/24px var(--font-sans); text-align: center; box-shadow: 0 0 0 2px rgba(0,0,0,.5); cursor: pointer; border: 0; padding: 0;
   top: -12px; right: -12px;
 }
-[data-anno] { position: relative; }
+:where(body [data-anno]) { position: relative; }
 html[data-anno="off"] .anno-pin, html[data-anno="off"] .anno-panel { display: none; }
 @media (max-width: 1100px) { .stage { flex-wrap: wrap; } .anno-panel { width: 100%; position: static; max-height: none; } html[data-viewport="desktop"] .anno-panel { margin: 16px; } }
 

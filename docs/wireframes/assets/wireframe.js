@@ -222,7 +222,7 @@
 
   /* ---------------- annotations ---------------- */
   function buildAnnotations() {
-    var items = document.querySelectorAll("[data-anno]");
+    var items = document.body.querySelectorAll("[data-anno]");
     var panelItems = document.querySelectorAll(".anno-panel li");
     for (var i = 0; i < items.length; i++) {
       var n = items[i].getAttribute("data-anno");
