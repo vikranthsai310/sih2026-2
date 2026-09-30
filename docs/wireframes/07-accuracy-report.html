@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en" data-theme="field" data-viewport="desktop">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accuracy Report · Drishti3D wireframe</title>
+<link rel="stylesheet" href="assets/wireframe.css">
+<script src="assets/wireframe.js"></script>
+</head>
+<body>
+<div class="stage">
+<div class="device">
+<div class="app">
+  <header class="topbar">
+    <a class="brand" href="01-missions.html" aria-label="Drishti3D, Missions"><i data-icon="logo"></i><span class="wm">Drishti<b>3D</b></span></a>
+    <nav class="crumb" aria-label="Breadcrumb"><a class="crumb-root" href="01-missions.html"><i data-icon="chevl"></i><span data-i18n="nav.missions">Missions</span></a><span class="crumb-root">/</span><strong>Bridge-Recon-07</strong></nav>
+    <span class="spacer"></span>
+    <div class="sys"><span class="chip"><i data-icon="wifioff"></i><span data-i18n="system.offline">Offline</span></span><span class="chip gpu"><i data-icon="cpu"></i>GPU 12 GB</span><span class="chip disk"><i data-icon="disk"></i>Disk 571 GB</span></div>
+    <div class="tb-actions">
+      <button type="button" class="btn btn-ghost lang-btn" data-action="lang" style="min-width:64px">EN | <span lang="hi">हि</span></button>
+      <button type="button" class="btn btn-ghost btn-icon" data-action="theme" aria-label="Toggle theme"><svg class="ic" aria-hidden="true"><use href="#i-sun"/></svg></button>
+    </div>
+  </header>
+  <nav class="mtabs" aria-label="Mission sections">
+    <a href="03-ingest-check.html"><span data-i18n="tab.ingest">Ingest</span></a>
+    <a href="04-processing.html"><span data-i18n="tab.processing">Processing</span></a>
+    <a href="05-viewer-3d.html"><span data-i18n="tab.viewer">3D Viewer</span></a>
+    <a href="07-accuracy-report.html" aria-current="page"><span data-i18n="tab.accuracy">Accuracy</span></a>
+    <a href="08-export.html"><span data-i18n="tab.exports">Exports</span></a>
+  </nav>
+
+  <main class="content">
+    <div class="content-narrow">
+      <div class="page-head" style="margin-bottom:var(--sp-4)">
+        <div style="margin-right:auto">
+          <h1 data-i18n="accuracy.title">Accuracy Report</h1>
+          <div class="muted sm">Run <span class="mono">20261114-051205-7c2e91</span> (r-0003) · ASPRS Positional Accuracy Standards Ed. 2 (2023) method</div>
+        </div>
+        <div class="row-wrap" data-anno="1">
+          <button type="button" class="btn btn-sm" data-toast="report.pdf saved (GET /api/v1/runs/{id}/report?format=pdf).|ok"><i data-icon="download"></i>PDF</button>
+          <button type="button" class="btn btn-sm" data-toast="report.html saved (self-contained, no external resources).|ok"><i data-icon="download"></i>HTML</button>
+          <button type="button" class="btn btn-sm" data-toast="accuracy.json saved.|ok"><i data-icon="download"></i>JSON</button>
+        </div>
+      </div>
+
+      <div class="banner ok card" style="margin-bottom:var(--sp-3)" data-anno="2"><i data-icon="target"></i><span><strong>Verified with 34 independent checkpoints</strong> (not used in processing) · surveyed with RTK, ± 0.02 m · checkpoint error folded into the reported accuracy.</span></div>
+      <div class="banner warn card" style="margin-bottom:var(--sp-7)"><i data-icon="alert"></i><span><span class="tag example">example</span>&nbsp; All numbers on this screen are illustrative placeholders until our own flight (M3). Layout and rules are final.</span></div>
+
+      <section aria-labelledby="sum-t" data-anno="3">
+        <h2 id="sum-t" class="overline" style="margin-bottom:var(--sp-4)">Summary · anchored (ortho + DSM)</h2>
+        <div class="grid g-4" style="gap:var(--sp-4)">
+          <div class="stat"><span class="s-label">Absolute horizontal · CE90</span><span class="s-val">0.74<small>m</small></span><span class="s-ctx">target ≤ 1 m</span><span class="pass"><i data-icon="check"></i> PASS</span></div>
+          <div class="stat"><span class="s-label">Absolute vertical · LE90</span><span class="s-val">0.77<small>m</small></span><span class="s-ctx">target ≤ 1 m</span><span class="pass"><i data-icon="check"></i> PASS</span></div>
+          <div class="stat"><span class="s-label">Relative length error (max)</span><span class="s-val">0.25<small>%</small></span><span class="s-ctx">target ≤ 0.5 %</span><span class="pass"><i data-icon="check"></i> PASS</span></div>
+          <div class="stat"><span class="s-label">Doming (peak, 1 km)</span><span class="s-val">0.12<small>m</small></span><span class="s-ctx">target ≤ 0.2 m</span><span class="pass"><i data-icon="check"></i> PASS</span></div>
+        </div>
+      </section>
+
+      <section class="card" style="margin-top:var(--sp-7);padding:0" aria-labelledby="tbl-t" data-anno="4">
+        <div class="card-head" style="padding:var(--sp-5) var(--sp-6) 0"><h2 id="tbl-t" class="overline">Before / after anchoring</h2><span class="tag example">example</span></div>
+        <div style="overflow-x:auto">
+        <table class="t">
+          <thead><tr><th scope="col">Metric</th><th scope="col" class="r">GNSS only (S4a)</th><th scope="col" class="r">Anchored ortho + DSM</th><th scope="col" class="r">Target (charter)</th><th scope="col">Status</th></tr></thead>
+          <tbody>
+            <tr><th scope="row" class="rh">RMSE<sub>x</sub></th><td class="r">1.62 m</td><td class="r">0.33 m</td><td class="r">—</td><td></td></tr>
+            <tr><th scope="row" class="rh">RMSE<sub>y</sub></th><td class="r">1.71 m</td><td class="r">0.36 m</td><td class="r">—</td><td></td></tr>
+            <tr><th scope="row" class="rh">RMSE<sub>H</sub></th><td class="r">2.36 m</td><td class="r">0.49 m</td><td class="r">—</td><td></td></tr>
+            <tr><th scope="row" class="rh">RMSE<sub>z</sub></th><td class="r">3.88 m</td><td class="r">0.47 m</td><td class="r">—</td><td></td></tr>
+            <tr class="hl"><th scope="row" class="rh">CE90</th><td class="r">3.58 m</td><td class="r"><strong>0.74 m</strong></td><td class="r">≤ 1 m</td><td><span class="pass"><i data-icon="check"></i> PASS</span></td></tr>
+            <tr class="hl"><th scope="row" class="rh">LE90</th><td class="r">6.38 m</td><td class="r"><strong>0.77 m</strong></td><td class="r">≤ 1 m</td><td><span class="pass"><i data-icon="check"></i> PASS</span></td></tr>
+            <tr><th scope="row" class="rh">Relative length</th><td class="r">0.21 %</td><td class="r">0.21 %</td><td class="r">≤ 0.5 %</td><td><span class="pass"><i data-icon="check"></i> PASS</span></td></tr>
+            <tr><th scope="row" class="rh">Doming (peak)</th><td class="r">—</td><td class="r">0.12 m / 1 km</td><td class="r">≤ 0.2 m</td><td><span class="pass"><i data-icon="check"></i> PASS</span></td></tr>
+            <tr><th scope="row" class="rh">Completeness</th><td class="r">94 %</td><td class="r">94 %</td><td class="r">≥ 90 %</td><td><span class="pass"><i data-icon="check"></i> PASS</span></td></tr>
+          </tbody>
+          <caption>Illustrative placeholder values. CE90 = 2.146 × RMSE<sub>x</sub> when RMSE<sub>x</sub> ≈ RMSE<sub>y</sub> (≈ 1.5175 × RMSE<sub>H</sub>); LE90 = 1.6449 × RMSE<sub>z</sub> (charter §6). Status is always icon + word: ✓ PASS · ✗ FAIL · ~ INDICATIVE (&lt; 30 checkpoints).</caption>
+        </table>
+        </div>
+      </section>
+
+      <div class="grid g-2" style="margin-top:var(--sp-7)">
+        <section class="card" aria-labelledby="bn-t" data-anno="5">
+          <div class="card-head"><h2 id="bn-t" class="overline"><span data-i18n="accuracy.bias">Bias</span> vs <span data-i18n="accuracy.noise">noise</span> · per axis</h2><span class="tag example">example</span></div>
+          <p class="sm muted" style="margin-bottom:var(--sp-3)">GNSS error is almost all bias, which one anchor removes. Bar = RMSE; segments split RMSE² = bias² + σ².</p>
+          <svg class="chart" viewBox="0 0 480 250" role="img" aria-label="Bias versus noise. GNSS only: east RMSE 1.62 m, 92 percent bias; north 1.71 m, 93 percent bias; up 3.88 m, 98 percent bias. Anchored: east 0.33 m, north 0.36 m, up 0.47 m, mostly noise.">
+            <defs><pattern id="noiseH" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)"><rect width="6" height="6" style="fill:var(--surface)"/><rect width="2.5" height="6" style="fill:var(--text-muted)"/></pattern></defs>
+            <g class="grid"><line x1="60" y1="20" x2="60" y2="222"/><line x1="160" y1="20" x2="160" y2="222"/><line x1="260" y1="20" x2="260" y2="222"/><line x1="360" y1="20" x2="360" y2="222"/><line x1="460" y1="20" x2="460" y2="222"/></g>
+            <text x="60" y="238" text-anchor="middle">0</text><text x="160" y="238" text-anchor="middle">1</text><text x="260" y="238" text-anchor="middle">2</text><text x="360" y="238" text-anchor="middle">3</text><text x="460" y="238" text-anchor="middle">4 m</text>
+            <text class="t-strong" x="0" y="14">GNSS only</text>
+            <text x="44" y="37" text-anchor="end">E</text><rect class="s-gnss" x="60" y="26" width="148" height="16" rx="2"><title>E: RMSE 1.62 m · bias 1.55 m · σ 0.45 m</title></rect><rect x="210" y="26" width="14" height="16" fill="url(#noiseH)"/><text x="230" y="38">1.62 m · 92 % bias</text>
+            <text x="44" y="63" text-anchor="end">N</text><rect class="s-gnss" x="60" y="52" width="159" height="16" rx="2"><title>N: RMSE 1.71 m · bias 1.65 m · σ 0.42 m</title></rect><rect x="221" y="52" width="12" height="16" fill="url(#noiseH)"/><text x="239" y="64">1.71 m · 93 % bias</text>
+            <text x="44" y="89" text-anchor="end">U</text><rect class="s-gnss" x="60" y="78" width="382" height="16" rx="2"><title>U: RMSE 3.88 m · bias 3.85 m · σ 0.48 m</title></rect><rect x="444" y="78" width="6" height="16" fill="url(#noiseH)"/><text x="436" y="110" text-anchor="end">3.88 m · 98 % bias</text>
+            <text class="t-strong" x="0" y="134">Anchored</text>
+            <text x="44" y="157" text-anchor="end">E</text><rect class="s-anch" x="60" y="146" width="4.4" height="16"><title>E: RMSE 0.33 m · bias 0.12 m · σ 0.31 m</title></rect><rect x="66" y="146" width="28.6" height="16" fill="url(#noiseH)"/><text x="100" y="158">0.33 m · 13 % bias</text>
+            <text x="44" y="183" text-anchor="end">N</text><rect class="s-anch" x="60" y="172" width="2.8" height="16"><title>N: RMSE 0.36 m · bias 0.10 m · σ 0.35 m</title></rect><rect x="64.8" y="172" width="33.2" height="16" fill="url(#noiseH)"/><text x="104" y="184">0.36 m · 8 % bias</text>
+            <text x="44" y="209" text-anchor="end">U</text><rect class="s-anch" x="60" y="198" width="4.8" height="16"><title>U: RMSE 0.47 m · bias 0.15 m · σ 0.45 m</title></rect><rect x="66.8" y="198" width="42.2" height="16" fill="url(#noiseH)"/><text x="115" y="210">0.47 m · 10 % bias</text>
+            <line x1="60" y1="20" x2="60" y2="222" style="stroke:var(--chart-axis)"/>
+          </svg>
+          <div class="chart-legend"><span><i style="background:var(--series-gnss)"></i>bias, GNSS only</span><span><i style="background:var(--series-anchored)"></i>bias, anchored</span><span><i style="background:repeating-linear-gradient(45deg,var(--text-muted) 0 2px,var(--surface) 2px 5px)"></i>noise (σ)</span></div>
+        </section>
+
+        <section class="card" aria-labelledby="rm-t" data-anno="6">
+          <div class="card-head"><h2 id="rm-t" class="overline">Checkpoint residual map</h2><span class="muted sm">vectors ×20</span></div>
+          <div class="map show-cp show-track" data-map="viewer" data-view="0 60 1000 520" data-label="Checkpoint positions with residual vectors, exaggerated 20 times, along the flight track" style="height:300px;border-radius:var(--r-sm);overflow:hidden;background:var(--map-bg)"></div>
+          <div class="chart-legend"><span><svg class="ic ic-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6"/></svg>checkpoint</span><span><i style="background:var(--danger);height:3px"></i>horizontal residual ×20 (0.5 m ⟶ 10 px)</span><span><i style="background:var(--accent);height:3px"></i>flight track</span></div>
+          <p class="sm muted" style="margin-top:var(--sp-3)">Click a point to highlight its row in the residual table (in the product).</p>
+        </section>
+
+        <section class="card" aria-labelledby="dm-t" data-anno="7">
+          <div class="card-head"><h2 id="dm-t" class="overline">Doming · DSM − reference along track</h2><span class="tag example">example</span></div>
+          <svg class="chart" viewBox="0 0 480 210" role="img" aria-label="Doming plot: height difference along the 1 km track stays within plus or minus 0.2 metres; peak 0.12 metres near the centre.">
+            <rect x="50" y="46" width="420" height="104" style="fill:var(--ok);fill-opacity:.08"/>
+            <g class="grid"><line x1="50" y1="46" x2="470" y2="46"/><line x1="50" y1="150" x2="470" y2="150"/></g>
+            <line class="target" x1="50" y1="46" x2="470" y2="46"/><line class="target" x1="50" y1="150" x2="470" y2="150"/>
+            <text x="466" y="40" text-anchor="end" class="t-strong">target ±0.2 m</text>
+            <g class="axis"><line x1="50" y1="98" x2="470" y2="98"/></g>
+            <text x="44" y="50" text-anchor="end">+0.2</text><text x="44" y="102" text-anchor="end">0</text><text x="44" y="154" text-anchor="end">−0.2</text>
+            <text x="50" y="186" text-anchor="middle">0</text><text x="155" y="186" text-anchor="middle">250</text><text x="260" y="186" text-anchor="middle">500</text><text x="365" y="186" text-anchor="middle">750</text><text x="470" y="186" text-anchor="middle">1000 m</text>
+            <text x="260" y="204" text-anchor="middle">Along track (m)</text>
+            <path class="s-band" d="M50 90 C 120 110, 200 132, 260 136 S 400 112, 470 92 L 470 108 C 400 128, 330 150, 260 150 S 120 124, 50 104 Z"/>
+            <path class="s-line" d="M50 97 C 120 117, 200 140, 260 143 S 400 120, 470 100"/>
+            <circle class="peak" cx="260" cy="143" r="5"><title>Peak −0.12 m at 510 m</title></circle><text x="268" y="166">peak −0.12 m</text>
+          </svg>
+          <div class="btn-group" role="group" aria-label="Doming view" style="margin-top:var(--sp-3)"><button type="button" class="btn btn-sm" aria-pressed="true">Along track</button><button type="button" class="btn btn-sm" aria-pressed="false">Across track</button><button type="button" class="btn btn-sm" aria-pressed="false">Map</button></div>
+        </section>
+
+        <section class="card" aria-labelledby="lt-t" style="padding:0" data-anno="8">
+          <div class="card-head" style="padding:var(--sp-5) var(--sp-6) 0"><h2 id="lt-t" class="overline">Relative length test · known distances</h2><span class="tag example">example</span></div>
+          <table class="t">
+            <thead><tr><th>ID</th><th class="r">Truth (m)</th><th class="r">Model (m)</th><th class="r">Error (m)</th><th class="r">Error %</th></tr></thead>
+            <tbody>
+              <tr><td>L1</td><td class="r">20.00</td><td class="r">20.03</td><td class="r">+0.03</td><td class="r">0.15 %</td></tr>
+              <tr><td>L2</td><td class="r">52.40</td><td class="r">52.31</td><td class="r">−0.09</td><td class="r">0.17 %</td></tr>
+              <tr><td>L3</td><td class="r">118.2</td><td class="r">118.5</td><td class="r">+0.3</td><td class="r">0.25 %</td></tr>
+            </tbody>
+            <caption>Max 0.25 % (target ≤ 0.5 %) <span class="pass"><i data-icon="check"></i> PASS</span></caption>
+          </table>
+        </section>
+      </div>
+
+      <section class="card" style="margin-top:var(--sp-7)" aria-labelledby="pv-t">
+        <div class="card-head"><h2 id="pv-t" class="overline">Conditions &amp; provenance</h2></div>
+        <div class="grid g-3" style="gap:var(--sp-2) var(--sp-7)">
+          <dl class="kv"><dt>Drone / camera</dt><dd>DJI M3E wide</dd><dt>Altitude</dt><dd>78–96 m AGL</dd><dt>Speed</dt><dd>4.1 m/s</dd><dt>Gimbal</dt><dd>−90° → −62°</dd></dl>
+          <dl class="kv"><dt>Time offset</dt><dd>+0.37 s (auto)</dd><dt>Rolling shutter</dt><dd>on · 30 ms est.</dd><dt>Intrinsics</dt><dd>fixed · calib 2026-11-02</dd><dt>Anchors</dt><dd>ref ortho 30 cm + DSM 1 m</dd></dl>
+          <dl class="kv"><dt>Software</dt><dd class="mono">drishti 0.4.0</dd><dt>Config hash</dt><dd class="mono">sha256:9f1c…a07e</dd><dt>Ingest warnings</dt><dd>GPS dropout 12 s · 7 % blurred</dd><dt>Confidence</dt><dd>71 / 21 / 8 %</dd></dl>
+        </div>
+      </section>
+
+      <div class="row-wrap" style="border-top:1px solid var(--border);padding-top:var(--sp-5);margin-top:var(--sp-7)">
+        <a class="btn" href="05-viewer-3d.html"><i data-icon="chevl"></i>Back to 3D Viewer</a>
+        <a class="btn" href="11-states.html#no-checkpoints">See "no checkpoints" state</a>
+        <span class="spacer"></span>
+        <a class="btn btn-primary lg rw-only" href="08-export.html"><i data-icon="download"></i><span data-i18n="export.title">Export</span><i data-icon="arrowr"></i></a>
+      </div>
+    </div>
+  </main>
+</div>
+</div>
+
+<aside class="anno-panel" aria-label="Annotations">
+  <h2>07 · Accuracy Report (S9)</h2>
+  <div class="anno-sub">09 §5.6 · Personas: analyst, commander · <span class="mono">GET /api/v1/runs/{id}/report?format=json|html|pdf</span>, <span class="mono">/files/runs/{id}/09_qa/accuracy.json</span></div>
+  <ol>
+    <li><strong>Downloads</strong> in PDF, self-contained HTML and JSON. The PDF has a bilingual title block.</li>
+    <li><strong>Method statement first</strong>: number of checkpoints, their survey accuracy, independence. Under 30 → ⚠ "indicative only, not ASPRS Ed.2 compliant". No checkpoints → see <a href="11-states.html#no-checkpoints">states</a>.</li>
+    <li><strong>KPI tiles</strong>: the number stays in text colour; status is the icon + word beneath. Absolute and relative accuracy are separate tiles (charter principle 2).</li>
+    <li><strong>Before/after table</strong>: the core proof. Formulas in the caption. PASS is never shown without checkpoints.</li>
+    <li><strong>Bias vs noise</strong> on a shared 0–4 m axis so the reduction is seen at true size. Bar = RMSE; bias solid, noise hatched (share of RMSE²). Hover a bar for exact values.</li>
+    <li><strong>Residual map</strong>: vectors with their exaggeration factor and a scale; checkpoints link to table rows.</li>
+    <li><strong>Doming</strong>: line with its ± band against dashed, labelled target lines (not coloured as pass/fail).</li>
+    <li><strong>Relative length test</strong> reported separately from absolute placement.</li>
+  </ol>
+  <p class="anno-sub" style="margin-top:8px">Next: <a href="08-export.html">Export dialog →</a></p>
+</aside>
+</div>
+</body>
+</html>

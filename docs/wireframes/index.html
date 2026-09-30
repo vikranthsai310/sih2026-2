@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en" data-theme="field" data-viewport="desktop">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Drishti3D Wireframes</title>
+<link rel="stylesheet" href="assets/wireframe.css">
+<script src="assets/wireframe.js"></script>
+</head>
+<body>
+<div class="stage">
+<div class="device">
+<div class="app">
+  <header class="topbar">
+    <span class="brand"><i data-icon="logo"></i><span class="wm">Drishti<b>3D</b></span></span>
+    <span class="muted sm phone-hide">Clickable wireframes · SIH 2026 · PS 26158 (NTRO)</span>
+    <span class="spacer"></span>
+    <div class="tb-actions">
+      <button type="button" class="btn btn-ghost lang-btn" data-action="lang" style="min-width:64px">EN | <span lang="hi">हि</span></button>
+      <button type="button" class="btn btn-ghost btn-icon" data-action="theme" aria-label="Toggle theme"><svg class="ic" aria-hidden="true"><use href="#i-sun"/></svg></button>
+    </div>
+  </header>
+  <main class="content">
+    <div class="content-narrow stack-lg">
+      <section>
+        <p class="overline">Screen gallery · Draft v1.0 · 2026-09-30</p>
+        <h1 style="font-size:var(--fs-display);line-height:var(--lh-display);margin-top:var(--sp-2)">One pass. One video. A measurable 3D world.</h1>
+        <p class="muted" style="max-width:760px;margin-top:var(--sp-3)">Mid-fidelity, click-through prototype of the Drishti3D web app (React + CesiumJS in production). It implements the screens in <a href="../09-viewer-and-ui.md">09 · Viewer and UI</a> with the tokens in <a href="../18-design-system.md">18 · Design System</a>. Works offline: open this file directly, no server or network needed.</p>
+        <div class="banner info card" style="margin-top:var(--sp-5);max-width:960px"><i data-icon="info"></i><span>Use the dark bar at the top: <strong>theme</strong> (Field dark / Analyst light), <strong>viewport</strong> (desktop, tablet 1024 px, phone 390 px read-only), <strong>language</strong> (EN / हि for key labels) and <strong>Notes</strong> (numbered annotations). Choices are remembered in this browser. All accuracy numbers are <span class="tag example">example</span> values. Details: <a href="README.md">README</a>.</span></div>
+      </section>
+
+      <section aria-labelledby="flow-t">
+        <h2 id="flow-t" class="overline" style="margin-bottom:var(--sp-4)">Main flow</h2>
+        <div class="flow">
+          <a href="01-missions.html">01 Missions</a><i data-icon="arrowr"></i>
+          <a href="02-new-mission.html">02 New Mission</a><i data-icon="arrowr"></i>
+          <a href="03-ingest-check.html">03 Ingest Check</a><i data-icon="arrowr"></i>
+          <a href="04-processing.html">04 Processing</a><i data-icon="arrowr"></i>
+          <a href="05-viewer-3d.html">05 3D Viewer</a><i data-icon="arrowr"></i>
+          <a href="06-measure.html">06 Measure</a><i data-icon="arrowr"></i>
+          <a href="07-accuracy-report.html">07 Accuracy</a><i data-icon="arrowr"></i>
+          <a href="08-export.html">08 Export</a>
+        </div>
+        <div class="flow" style="margin-top:var(--sp-3)">
+          <span class="muted sm">Side paths:</span>
+          <a href="10-compare.html">10 Compare runs</a>
+          <a href="09-settings.html">09 Settings</a>
+          <a href="11-states.html">11 Empty / error / loading</a>
+        </div>
+      </section>
+
+      <section aria-labelledby="gal-t">
+        <h2 id="gal-t" class="overline" style="margin-bottom:var(--sp-4)">Screens</h2>
+        <div class="gallery">
+          <a class="gcard" href="01-missions.html"><div class="gthumb"><div class="map" data-map="thumb" data-view="330 60 520 320"></div></div><div class="gbody"><span class="gnum">01 · 09 §5.1</span><h3>Missions list</h3><p class="muted sm">Status chips, accuracy badges, one primary action. Operator · analyst · commander.</p></div></a>
+          <a class="gcard" href="02-new-mission.html"><div class="gthumb" style="display:grid;place-items:center"><svg class="ic" style="width:56px;height:56px;color:var(--accent)" aria-hidden="true"><use href="#i-upload"/></svg></div><div class="gbody"><span class="gnum">02 · 09 §5.2</span><h3>New Mission</h3><p class="muted sm">Video + SRT dropzones, optional anchors, profile. Field operator.</p></div></a>
+          <a class="gcard" href="03-ingest-check.html"><div class="gthumb"><div class="map" data-map="gps" data-view="0 100 1000 460"></div></div><div class="gbody"><span class="gnum">03 · 09 §5.3</span><h3>Ingest Check</h3><p class="muted sm">GPS track, time sync, frame quality, checks. Fail early, before compute.</p></div></a>
+          <a class="gcard" href="04-processing.html"><div class="gthumb"><div class="map" data-map="mosaic" data-view="0 150 800 450"></div></div><div class="gbody"><span class="gnum">04 · 09 §5.4</span><h3>Processing</h3><p class="muted sm">S0–S9 + P stage list, live 2D preview, key numbers, logs.</p></div></a>
+          <a class="gcard" href="05-viewer-3d.html"><div class="gthumb"><div class="map show-conf" data-map="viewer" data-view="330 60 520 320"></div></div><div class="gbody"><span class="gnum">05 · 09 §5.5</span><h3>3D Viewer</h3><p class="muted sm">Layers, confidence overlay, toolbar, inspector, status bar.</p></div></a>
+          <a class="gcard" href="06-measure.html"><div class="gthumb"><div class="map" data-map="viewer" data-view="330 60 520 320"></div></div><div class="gbody"><span class="gnum">06 · 09 §5.5 + §6</span><h3>Measurement tools</h3><p class="muted sm">Distance, height, area, volume, profile, coordinates, clip, with ± uncertainty.</p></div></a>
+          <a class="gcard" href="07-accuracy-report.html"><div class="gthumb"><div class="map show-cp show-track" data-map="viewer" data-view="0 60 1000 520"></div></div><div class="gbody"><span class="gnum">07 · 09 §5.6</span><h3>Accuracy Report</h3><p class="muted sm">CE90 / LE90, before/after table, bias vs noise, doming, residuals.</p></div></a>
+          <a class="gcard" href="08-export.html"><div class="gthumb" style="display:grid;place-items:center"><svg class="ic" style="width:56px;height:56px;color:var(--accent)" aria-hidden="true"><use href="#i-download"/></svg></div><div class="gbody"><span class="gnum">08 · 09 §5.7</span><h3>Export dialog</h3><p class="muted sm">LAZ, GLB/OBJ, 3D Tiles, COG, report, manifest, classification.</p></div></a>
+          <a class="gcard" href="09-settings.html"><div class="gthumb" style="display:grid;place-items:center"><svg class="ic" style="width:56px;height:56px;color:var(--accent)" aria-hidden="true"><use href="#i-sliders"/></svg></div><div class="gbody"><span class="gnum">09 · 09 §5.8</span><h3>Settings</h3><p class="muted sm">Language, theme, touch mode, units &amp; CRS, uncertainty level.</p></div></a>
+          <a class="gcard" href="10-compare.html"><div class="gthumb"><div class="map" data-map="offset" data-view="200 60 600 360"></div></div><div class="gbody"><span class="gnum">10 · 09 §5.5 compare</span><h3>Compare runs</h3><p class="muted sm">GNSS-only vs anchored: swipe, side-by-side, difference DSM. Demo centrepiece.</p></div></a>
+          <a class="gcard" href="11-states.html"><div class="gthumb" style="display:grid;place-items:center"><svg class="ic" style="width:56px;height:56px;color:var(--warn)" aria-hidden="true"><use href="#i-alert"/></svg></div><div class="gbody"><span class="gnum">11 · 09 §12</span><h3>Empty, error &amp; loading</h3><p class="muted sm">All 09 §12 situations with copy and primary action.</p></div></a>
+        </div>
+      </section>
+
+      <section aria-labelledby="tok-t">
+        <h2 id="tok-t" class="overline" style="margin-bottom:var(--sp-4)">Key tokens (live for the current theme)</h2>
+        <div class="swatches">
+          <div class="swatch"><i style="background:var(--accent)"></i><div><strong>accent</strong><code>--accent</code></div></div>
+          <div class="swatch"><i style="background:var(--ok)"></i><div><strong>ok</strong><code>--ok</code></div></div>
+          <div class="swatch"><i style="background:var(--warn)"></i><div><strong>warn</strong><code>--warn</code></div></div>
+          <div class="swatch"><i style="background:var(--danger)"></i><div><strong>danger</strong><code>--danger</code></div></div>
+          <div class="swatch"><i style="background:var(--info)"></i><div><strong>info</strong><code>--info</code></div></div>
+          <div class="swatch"><i style="background:var(--conf-high)"></i><div><strong data-i18n="conf.observedHigh">Observed – high</strong><code>#0072B2</code></div></div>
+          <div class="swatch"><i style="background:color-mix(in srgb,var(--conf-low) 60%,transparent);outline:2px dotted var(--text);outline-offset:-2px"></i><div><strong data-i18n="conf.observedLow">Observed – low</strong><code>#E69F00</code></div></div>
+          <div class="swatch"><i style="background:var(--hatch-inf)"></i><div><strong data-i18n="conf.inferred">Inferred</strong><code>#CC79A7 + hatch</code></div></div>
+        </div>
+        <p class="muted sm" style="margin-top:var(--sp-4)">Full token tables with WCAG contrast ratios: <a href="../18-design-system.md#4-colour">18 §4</a>.</p>
+      </section>
+    </div>
+  </main>
+</div>
+</div>
+
+<aside class="anno-panel" aria-label="Annotations">
+  <h2>How to read these wireframes</h2>
+  <div class="anno-sub">Yellow numbered pins on each screen map to the notes in this panel. Toggle them with <strong>Notes</strong>.</div>
+  <ol>
+    <li><strong>Mid-fidelity</strong>: layout, hierarchy, copy, states and behaviour are intended; the 3D scene is a stylised SVG town (river, bridge, roads, buildings, trees, flight strip).</li>
+    <li><strong>Click-through</strong>: every screen links to the next step of the flow; the top bar has previous / gallery / next.</li>
+    <li><strong>Responsive</strong>: the viewport switch uses container queries, so the tablet (drawers, icon rail) and phone (read-only) layouts are real, not screenshots.</li>
+    <li><strong>Interactive bits</strong>: layer toggles (05), measurement tools (06), swipe/compare modes (10), dialogs, menus, toasts, log tabs.</li>
+  </ol>
+</aside>
+</div>
+</body>
+</html>

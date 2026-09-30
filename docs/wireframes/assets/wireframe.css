@@ -146,7 +146,8 @@ html[data-viewport="desktop"] .device { width: 100%; flex: 1; min-width: 0; }
 html[data-viewport="tablet"] .device { width: 1024px; height: 768px; border-radius: 24px; box-shadow: 0 0 0 12px #2A2F36, 0 0 0 13px #444C56, 0 30px 60px rgba(0,0,0,.5); }
 html[data-viewport="phone"] .device { width: 390px; height: 844px; border-radius: 40px; box-shadow: 0 0 0 10px #2A2F36, 0 0 0 11px #444C56, 0 30px 60px rgba(0,0,0,.5); }
 html[data-viewport="tablet"] .device .app, html[data-viewport="phone"] .device .app { height: 100%; }
-html[data-viewport="desktop"] .app { min-height: calc(100vh - 50px); }
+html[data-viewport="desktop"] .app { height: calc(100vh - 51px); min-height: 640px; }
+[hidden] { display: none !important; }
 
 /* annotations */
 .anno-panel {
@@ -169,7 +170,7 @@ html[data-viewport="desktop"] .anno-panel { margin: 16px 16px 16px 0; }
 .anno-pin {
   position: absolute; z-index: 20; width: 24px; height: 24px; border-radius: 50%; background: var(--anno); color: var(--anno-text);
   font: 700 12px/24px var(--font-sans); text-align: center; box-shadow: 0 0 0 2px rgba(0,0,0,.5); cursor: pointer; border: 0; padding: 0;
-  top: -8px; right: -8px;
+  top: -12px; right: -12px;
 }
 [data-anno] { position: relative; }
 html[data-anno="off"] .anno-pin, html[data-anno="off"] .anno-panel { display: none; }
@@ -245,7 +246,7 @@ html[data-anno="off"] .anno-pin, html[data-anno="off"] .anno-panel { display: no
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-3);
   min-height: var(--target); min-width: 96px; padding: 0 var(--sp-6); border-radius: var(--r-sm);
-  font: 600 var(--fs-body)/1.2 inherit; font-family: inherit; text-decoration: none; cursor: pointer;
+  font-family: inherit; font-size: var(--fs-body); font-weight: 600; line-height: 1.2; text-decoration: none; cursor: pointer;
   background: var(--surface-2); color: var(--text); border: 1px solid var(--border-strong);
   transition: background var(--dur-fast) var(--ease-standard);
 }
@@ -550,7 +551,7 @@ dialog.dlg::backdrop { background: var(--scrim); }
 .c-res { stroke: var(--danger); stroke-width: 2; fill: none; }
 
 /* charts */
-.chart { width: 100%; height: auto; display: block; overflow: visible; }
+.chart { width: 100%; height: auto; max-height: 240px; display: block; overflow: visible; }
 .chart .grid line { stroke: var(--chart-grid); stroke-width: 1; }
 .chart .axis line, .chart .axis path { stroke: var(--chart-axis); stroke-width: 1; }
 .chart text { font: 12px var(--font-sans); fill: var(--text-muted); font-variant-numeric: tabular-nums; }
@@ -597,7 +598,7 @@ dialog.dlg::backdrop { background: var(--scrim); }
 .compare .half.right { clip-path: inset(0 0 0 var(--split, 50%)); }
 .compare .handle { position: absolute; top: 0; bottom: 0; left: var(--split, 50%); width: 48px; margin-left: -24px; z-index: 6; display: grid; place-items: center; cursor: ew-resize; }
 .compare .handle::before { content: ""; position: absolute; top: 0; bottom: 0; left: 23px; width: 3px; background: var(--text); box-shadow: 0 0 0 1px var(--surface); }
-.compare .handle span { position: relative; width: 44px; height: 44px; border-radius: 50%; background: var(--surface); box-shadow: var(--elev-2); display: grid; place-items: center; color: var(--text); }
+.compare .handle span { position: relative; width: 44px; height: 44px; border-radius: 50%; background: var(--surface); box-shadow: var(--elev-2); display: flex; align-items: center; justify-content: center; color: var(--text); }
 .compare .clabel { position: absolute; top: var(--sp-4); z-index: 5; background: var(--surface); box-shadow: var(--elev-2); border-radius: var(--r-md); padding: var(--sp-3) var(--sp-4); font-size: var(--fs-sm); }
 .compare .clabel.l { left: var(--sp-4); } .compare .clabel.r { right: var(--sp-4); }
 .compare[data-mode="side"] .half.left { right: 50%; } .compare[data-mode="side"] .half.right { left: 50%; clip-path: none; border-left: 3px solid var(--text); }
@@ -675,7 +676,6 @@ dialog.dlg::backdrop { background: var(--scrim); }
 }
 @container dev (max-width: 767px) {
   .topbar { height: 56px; gap: var(--sp-3); padding: 0 var(--sp-5); }
-  .brand span.wm { display: none; }
   .sys, .gnav { display: none; }
   .tb-actions .lang-btn { display: none; }
   .content { padding: var(--sp-5); }
@@ -701,3 +701,5 @@ dialog.dlg::backdrop { background: var(--scrim); }
   .hint { white-space: normal; width: calc(100% - 32px); text-align: center; border-radius: var(--r-md); }
   .state-grid { grid-template-columns: minmax(0, 1fr); }
 }
+table.t th.rh { position: static; background: transparent; border-top: 1px solid var(--border); font-size: var(--fs-body); }
+table.t tr.hl th.rh { background: var(--accent-subtle); }

@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en" data-theme="field" data-viewport="desktop">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Processing · Drishti3D wireframe</title>
+<link rel="stylesheet" href="assets/wireframe.css">
+<script src="assets/wireframe.js"></script>
+</head>
+<body>
+<div class="stage">
+<div class="device">
+<div class="app">
+  <header class="topbar">
+    <a class="brand" href="01-missions.html" aria-label="Drishti3D, Missions"><i data-icon="logo"></i><span class="wm">Drishti<b>3D</b></span></a>
+    <nav class="crumb" aria-label="Breadcrumb"><a class="crumb-root" href="01-missions.html"><i data-icon="chevl"></i><span data-i18n="nav.missions">Missions</span></a><span class="crumb-root">/</span><strong>Bridge-Recon-07</strong></nav>
+    <span class="spacer"></span>
+    <div class="sys"><span class="chip"><i data-icon="wifioff"></i><span data-i18n="system.offline">Offline</span></span><span class="chip gpu"><i data-icon="cpu"></i>GPU 8.9 / 12 GB</span><span class="chip disk"><i data-icon="disk"></i>Disk 596 GB</span></div>
+    <div class="tb-actions">
+      <button type="button" class="btn btn-ghost lang-btn" data-action="lang" style="min-width:64px">EN | <span lang="hi">हि</span></button>
+      <button type="button" class="btn btn-ghost btn-icon" data-action="theme" aria-label="Toggle theme"><svg class="ic" aria-hidden="true"><use href="#i-sun"/></svg></button>
+    </div>
+  </header>
+  <nav class="mtabs" aria-label="Mission sections">
+    <a href="03-ingest-check.html"><span data-i18n="tab.ingest">Ingest</span></a>
+    <a href="04-processing.html" aria-current="page"><span data-i18n="tab.processing">Processing</span></a>
+    <a href="05-viewer-3d.html" aria-disabled="true" title="Available after S8 publishes tiles"><span data-i18n="tab.viewer">3D Viewer</span></a>
+    <a href="07-accuracy-report.html" aria-disabled="true" title="Available after S9"><span data-i18n="tab.accuracy">Accuracy</span></a>
+    <a href="08-export.html" aria-disabled="true" title="Available after S8"><span data-i18n="tab.exports">Exports</span></a>
+  </nav>
+  <div class="banner ro-banner" role="note"><i data-icon="eye"></i><span><strong data-i18n="system.readOnly">Read-only on phone</strong> · You can watch progress. Cancel and retry are on the laptop or tablet.</span></div>
+
+  <main class="content">
+    <div class="content-narrow">
+      <ol class="stepper" aria-label="Mission steps">
+        <li class="done"><span class="n">✓</span><span class="lbl">Inputs</span></li>
+        <li class="done"><span class="n">✓</span><span class="lbl">Ingest Check</span></li>
+        <li aria-current="step"><span class="n">3</span><span class="lbl">Processing</span></li>
+        <li><span class="n">4</span><span class="lbl">Results</span></li>
+      </ol>
+      <div class="page-head" style="gap:var(--sp-3) var(--sp-5)" data-anno="1">
+        <div style="margin-right:auto">
+          <h1>Run <span class="mono" style="font-size:20px">20261114-051205-7c2e91</span></h1>
+          <div class="muted sm">alias r-0003 · profile <strong>fast</strong> · started 10:42:05 IST · elapsed <span class="num">06:12</span></div>
+        </div>
+        <div class="stat" style="padding:var(--sp-3) var(--sp-5);box-shadow:none;background:var(--surface-2)">
+          <span class="s-label" data-i18n="run.eta">Time remaining</span>
+          <span class="num" style="font-size:22px;font-weight:600">5–8 min</span>
+        </div>
+        <button type="button" class="btn btn-danger-ghost rw-only" data-open-dialog="dlg-cancel"><i data-icon="xcircle"></i><span data-i18n="run.cancel">Cancel run</span></button>
+      </div>
+
+      <div class="grid g-side">
+        <section class="card" aria-labelledby="st-t">
+          <div class="card-head"><h2 id="st-t" class="overline">Stages</h2><span class="muted sm">canonical S0–S9 + P</span></div>
+          <ol class="stages" data-anno="2">
+            <li class="done"><span class="sid">S0</span><span class="sname" data-i18n="stage.S0">Ingest &amp; Sync</span><span class="sstate"><i data-icon="check"></i>00:21</span></li>
+            <li class="done"><span class="sid">S1</span><span class="sname" data-i18n="stage.S1">Keyframe Selection</span><span class="sstate"><i data-icon="check"></i>00:48</span></li>
+            <li class="done"><span class="sid">S2</span><span class="sname" data-i18n="stage.S2">Dynamic Masking &amp; Semantics</span><span class="sstate"><i data-icon="check"></i>01:05</span></li>
+            <li class="warn"><span class="sid">S3</span><span class="sname" data-i18n="stage.S3">Pose Estimation (SfM)</span><span class="sstate"><i data-icon="alert"></i>02:10</span></li>
+            <li class="sub"><span></span><span>↳ 14 frames unregistered near 04:31 (GPS dropout)</span><span></span></li>
+            <li class="done"><span class="sid">S4</span><span class="sname" data-i18n="stage.S4">Georeferencing &amp; Anchoring</span><span class="sstate"><i data-icon="check"></i>00:31</span></li>
+            <li class="sub"><span></span><span>↳ ortho registration ✓ shift 2.6 m</span><span></span></li>
+            <li class="running" aria-current="true"><span class="sid">S5</span><span class="sname" data-i18n="stage.S5">Dense Reconstruction &amp; Mesh</span><span class="sstate num">62 %</span>
+              <div class="sbar"><div class="progress" role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100" aria-label="S5 progress"><i style="width:62%"></i></div><div class="muted xs" style="margin-top:4px">DensifyPointCloud tile 11/17</div></div></li>
+            <li class="queued"><span class="sid">S6</span><span class="sname" data-i18n="stage.S6">Completion &amp; Classification</span><span class="sstate">○ <span data-i18n="status.queued">queued</span></span></li>
+            <li class="queued"><span class="sid">S7</span><span class="sname" data-i18n="stage.S7">Photoreal Layer (optional)</span><span class="sstate">○ queued</span></li>
+            <li class="queued"><span class="sid">S8</span><span class="sname" data-i18n="stage.S8">Export &amp; Tiling</span><span class="sstate">○ queued</span></li>
+            <li class="queued"><span class="sid">S9</span><span class="sname" data-i18n="stage.S9">QA &amp; Confidence</span><span class="sstate">○ queued</span></li>
+            <li class="parallel done"><span class="sid">P</span><span class="sname" data-i18n="stage.P">Live Preview</span><span class="sstate" style="color:var(--accent)">● running</span></li>
+          </ol>
+          <hr class="div">
+          <div class="stack sm" data-anno="3">
+            <div><div class="row" style="justify-content:space-between"><span>GPU memory</span><span class="num">8.9 / 12 GB</span></div><div class="progress thin" style="margin-top:4px"><i style="width:74%"></i></div></div>
+            <div><div class="row" style="justify-content:space-between"><span>CPU</span><span class="num">71 %</span></div><div class="progress thin" style="margin-top:4px"><i style="width:71%"></i></div></div>
+            <div><div class="row" style="justify-content:space-between"><span>RAM</span><span class="num">38 / 64 GB</span></div><div class="progress thin" style="margin-top:4px"><i style="width:59%"></i></div></div>
+            <div class="row" style="justify-content:space-between"><span>Disk write</span><span class="num">210 MB/s</span></div>
+          </div>
+        </section>
+
+        <div class="stack-lg" style="min-width:0">
+          <section class="card" aria-labelledby="pv-t" data-anno="4">
+            <div class="card-head">
+              <h2 id="pv-t" class="overline">Live 2D preview (P)</h2>
+              <div class="btn-group" role="group" aria-label="Preview mode"><button type="button" class="btn btn-sm" aria-pressed="true">2D</button><button type="button" class="btn btn-sm" aria-pressed="false">Track</button></div>
+              <button type="button" class="btn btn-ghost btn-icon btn-sm" aria-label="Full screen"><i data-icon="maximize"></i></button>
+            </div>
+            <div class="map" data-map="mosaic" data-label="Growing 2D mosaic along the flight strip, about two thirds complete" style="height:300px;border-radius:var(--r-sm);overflow:hidden;background:var(--map-bg)"></div>
+            <div class="row-wrap sm" style="margin-top:var(--sp-3)">
+              <span class="num">612 / 912 keyframes</span>
+              <span class="chip warn"><i data-icon="alert"></i><span data-i18n="preview.notMetric">GPS-placed, not metric</span></span>
+              <span class="muted">Preview uses raw GPS: may be off by metres</span>
+            </div>
+          </section>
+
+          <section aria-labelledby="kn-t" data-anno="5">
+            <h2 id="kn-t" class="overline" style="margin-bottom:var(--sp-4)">Key numbers so far <span class="tag example" style="margin-left:6px">example</span></h2>
+            <div class="grid g-3" style="gap:var(--sp-4)">
+              <div class="stat"><span class="s-label">Registered frames</span><span class="s-val">99<small>%</small></span><span class="s-ctx num">903 / 912</span></div>
+              <div class="stat"><span class="s-label">Mean reproj. error</span><span class="s-val">0.71<small>px</small></span><span class="s-ctx">S3</span></div>
+              <div class="stat"><span class="s-label">Time offset applied</span><span class="s-val">+0.37<small>s</small></span><span class="s-ctx">± 0.03 s (1σ)</span></div>
+              <div class="stat"><span class="s-label">GPS→model fit</span><span class="s-val">1.9<small>m RMS</small></span><span class="s-ctx">bias-like (expected)</span></div>
+              <div class="stat"><span class="s-label">Ortho registration shift</span><span class="s-val">2.6<small>m</small></span><span class="s-ctx num">ΔE +1.8 · ΔN −1.9 m</span></div>
+              <div class="stat"><span class="s-label">Placement tier</span><span class="s-val" style="font-size:20px"><i data-icon="anchor" class="ic-lg" style="color:var(--accent)"></i> Anchored</span><span class="s-ctx">ref ortho + DSM</span></div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <section class="card" style="margin-top:var(--sp-7)" aria-labelledby="lg-t" data-anno="6">
+        <div class="card-head">
+          <h2 id="lg-t" class="overline">Logs</h2>
+          <div class="tabs" role="tablist" aria-label="Log level" style="margin:0;border:0">
+            <button role="tab" aria-selected="true" aria-controls="log-all" id="t-all">All</button>
+            <button role="tab" aria-selected="false" aria-controls="log-warn" id="t-warn" tabindex="-1">Warnings <span class="chip warn" style="min-height:20px;padding:0 6px">2</span></button>
+            <button role="tab" aria-selected="false" aria-controls="log-err" id="t-err" tabindex="-1">Errors <span class="chip" style="min-height:20px;padding:0 6px">0</span></button>
+          </div>
+          <span class="spacer"></span>
+          <div class="input-wrap phone-hide" style="width:200px"><i data-icon="search"></i><input class="input" style="min-height:36px" placeholder="filter…" aria-label="Filter logs"></div>
+          <button type="button" class="btn btn-sm" data-toast="Log copied to clipboard.|ok"><i data-icon="copy"></i><span data-i18n="common.copy">Copy</span></button>
+          <button type="button" class="btn btn-sm btn-icon" aria-label="Download log"><i data-icon="download"></i></button>
+        </div>
+        <div id="log-all" role="tabpanel" aria-labelledby="t-all" class="logs">
+<div>10:47:58 S5 INFO  DensifyPointCloud: 64 % (tile 11/17)</div>
+<div>10:47:12 S4 INFO  Umeyama 7-DoF: s=1.0021, RMS 1.91 m; roll from gimbal/gravity prior</div>
+<div>10:47:09 S4 INFO  Ortho registration: 1 284 inliers (0.61), shift ΔE +1.8 ΔN −1.9 m</div>
+<div class="lv-warn">10:46:40 S3 WARN  14 frames unregistered near 04:31 (GPS dropout segment)</div>
+<div>10:44:31 S2 INFO  Masked 212 vehicle/person instances on 912 keyframes</div>
+<div class="lv-warn">10:43:02 S1 WARN  7 % frames below blur threshold, removed</div>
+<div>10:42:26 S0 INFO  Time offset +0.37 s ± 0.03 s (xcorr peak ratio 3.4)</div>
+        </div>
+        <div id="log-warn" role="tabpanel" aria-labelledby="t-warn" class="logs" hidden>
+<div class="lv-warn">10:46:40 S3 WARN  14 frames unregistered near 04:31 (GPS dropout segment)</div>
+<div class="lv-warn">10:43:02 S1 WARN  7 % frames below blur threshold, removed</div>
+        </div>
+        <div id="log-err" role="tabpanel" aria-labelledby="t-err" class="logs" hidden><div class="muted">No errors.</div></div>
+      </section>
+
+      <div class="row-wrap" style="border-top:1px solid var(--border);padding-top:var(--sp-5);margin-top:var(--sp-7)" data-anno="7">
+        <a class="btn" href="11-states.html#gpu-oom"><i data-icon="xcircle"></i>See failure state</a>
+        <span class="spacer"></span>
+        <span class="muted sm">Enabled once S8 publishes the first tiles</span>
+        <button type="button" class="btn btn-primary lg" aria-disabled="true" title="Available after S8 publishes tiles"><i data-icon="map"></i><span data-i18n="viewer.open">Open 3D Viewer</span></button>
+        <a class="btn" href="05-viewer-3d.html" style="border-style:dashed">Prototype: jump to finished run <i data-icon="arrowr"></i></a>
+      </div>
+    </div>
+  </main>
+
+  <dialog class="dlg" id="dlg-cancel" aria-labelledby="cx-t">
+    <div class="dlg-head"><h2 id="cx-t">Cancel run 20261114-051205-7c2e91?</h2><button type="button" class="btn btn-ghost btn-icon" data-close aria-label="Close"><i data-icon="x"></i></button></div>
+    <div class="dlg-body stack">
+      <p>Processing stops after the current step of <strong>S5 Dense Reconstruction &amp; Mesh</strong>. Partial outputs (S0–S4, preview tiles) are kept and the run is marked <strong>cancelled</strong>.</p>
+      <p class="muted sm">You can resume later from S5 (<span class="mono">POST /api/v1/runs/{run_id}/resume</span>).</p>
+    </div>
+    <div class="dlg-foot"><button type="button" class="btn btn-danger" data-close data-toast="Run cancelled. Partial outputs kept.|warn"><span data-i18n="run.cancel">Cancel run</span></button><span class="spacer"></span><button type="button" class="btn" data-close>Keep processing</button></div>
+  </dialog>
+</div>
+</div>
+
+<aside class="anno-panel" aria-label="Annotations">
+  <h2>04 · Processing</h2>
+  <div class="anno-sub">09 §5.4 · Personas: operator, analyst · <span class="mono">GET /api/v1/runs/{id}</span>, <span class="mono">WS /api/v1/runs/{id}/progress</span>, <span class="mono">GET …/logs</span>, <span class="mono">GET /api/v1/health</span>, <span class="mono">POST …/cancel</span></div>
+  <ol>
+    <li><strong>Run header</strong>: full run ID (08 §1 format, alias r-0003), profile, start time and elapsed. <strong>ETA is a range</strong>, "—" until S1 finishes.</li>
+    <li><strong>Stage list</strong> in canonical S0–S9 + P order. States: queued ○, running % (accent row + bar), done ✓ mm:ss, warning ⚠, failed ✗, skipped –. P is separated because it runs in parallel. Sub-steps expand.</li>
+    <li><strong>Resource meters</strong> polled from <code>/health</code> every 2 s. GPU &gt; 95 % shows ⚠ with a hint to switch profile.</li>
+    <li><strong>Live 2D preview</strong> grows from <code>preview_update</code> events (XYZ WebP tiles). Always labelled "GPS-placed, not metric". Target: first visual ≤ 60 s.</li>
+    <li><strong>Key numbers</strong> come from <code>stage_completed</code> metrics (S3/S4): tells the analyst early whether anchoring worked.</li>
+    <li><strong>Logs</strong> tabs are a real ARIA tablist (arrow keys). Polled while the screen is open. <code>L</code> jumps here (language is <code>Alt+L</code> on this screen).</li>
+    <li><strong>Open 3D Viewer</strong> enables when S8 publishes tiles. The dashed button is prototype-only. On reconnect the UI replays events with <code>since_seq</code>.</li>
+  </ol>
+  <p class="anno-sub" style="margin-top:8px">Next: <a href="05-viewer-3d.html">3D Viewer →</a></p>
+</aside>
+</div>
+</body>
+</html>

@@ -6,6 +6,8 @@
 
 Stage IDs (S0–S9, P), profiles (`preview` / `fast` / `quality`), confidence classes and targets all come from [00-project-charter.md](00-project-charter.md). If this document disagrees with the charter, the charter is correct.
 
+> **Visual wireframes & design system:** a clickable, offline HTML prototype of every screen below is in [wireframes/](wireframes/README.md) (open `wireframes/index.html`), and the tokens, components, accessibility and copy rules it uses are in [18-design-system.md](18-design-system.md).
+
 ---
 
 ## Table of contents
@@ -181,7 +183,7 @@ Legend: `[ Button ]` button · `( )` radio · `[x]` checkbox · `▾` dropdown �
 | Accuracy badge | Shows the run's anchoring tier and headline **CE90**: `GNSS only · 3.4 m CE90`, `Anchored · 0.74 m CE90`, `RTK · 0.06 m CE90`, or `Not assessed` when there are no checkpoints. With no checkpoints, the badge shows the *predicted* value in italics with the word "est." |
 | Status chip | `Queued` · `Ingesting` · `S1…S9 nn %` · `Complete` · `Failed` · `Needs attention` · `Cancelled` |
 | `⋯` menu | Rename · Re-run with another profile · Duplicate settings · Export bundle · Delete (with confirmation) |
-| Import mission bundle | Loads a `.d3d.zip` (inputs plus outputs) exported from another air-gapped machine |
+| Import mission bundle | **Future.** Loads a `.d3d.zip` (inputs plus outputs) exported from another air-gapped machine. There is no import endpoint in [08 §9](08-data-formats-and-interfaces.md#9-rest-and-websocket-api) yet (only the per-run `bundle` artefact for export), so the button is shown disabled. |
 | Responsive | Below 900 px, rows collapse to cards with the thumbnail on top and the badge and primary action at the bottom |
 
 ### 5.2 New Mission

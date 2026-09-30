@@ -585,7 +585,7 @@ Each component lists its anatomy, its states and do / don't rules. "Target" mean
 | Grid | `--chart-grid`, 1 px, horizontal only; recessive |
 | Axes | `--chart-axis`, 1 px; ticks 12 px `--text-muted` tabular; axis titles include units ("Offset (s)") |
 | Marks | Lines 2 px; bars with a 2 px surface gap and 2 px rounded data ends; markers ≥ 8 px |
-| Series | GNSS-only `--series-gnss`, Anchored `--series-anchored`, RTK `--series-rtk` (§4.5); **bias** solid, **noise** hatched |
+| Series | GNSS-only `--series-gnss`, Anchored `--series-anchored`, RTK `--series-rtk` (§4.5); **bias** solid, **noise** hatched (bar length = RMSE, see §14 V1) |
 | Targets | Dashed 4/4 line in `--text` with a direct label ("Target ≤ 1 m") |
 | Interaction | Hover or tap shows a tooltip with the exact value, ± and units; every chart has a "Table" toggle with the same data |
 
@@ -712,7 +712,7 @@ These charts carry our main claim ("proof, not claims", charter §4), so they fo
 
 | # | Rule |
 |---|---|
-| V1 | **Pick the form by the job.** Headline accuracy (CE90, LE90) = stat tiles or a table, not a chart. Tier comparison = grouped horizontal bars on a shared axis. Bias vs noise = stacked bars (bias solid, noise hatched) per axis E/N/U. Checkpoint residuals = vector map + table. Doming = line along track with a target band. Time sync = line (correlation vs lag) with the peak marked. Frame quality = histogram with a threshold marker. Profile = line with a ±σ band. |
+| V1 | **Pick the form by the job.** Headline accuracy (CE90, LE90) = stat tiles or a table, not a chart. Tier comparison = grouped horizontal bars on a shared axis. Bias vs noise = one bar per axis E/N/U whose length is the RMSE, split into bias (solid) and noise (hatched) in proportion to bias² : σ² (because RMSE² = bias² + σ²; stacking the raw bias and σ lengths would overstate the error). Checkpoint residuals = vector map + table. Doming = line along track with a target band. Time sync = line (correlation vs lag) with the peak marked. Frame quality = histogram with a threshold marker. Profile = line with a ±σ band. |
 | V2 | **Zero baseline** for every bar chart. Error magnitudes never use a truncated axis. |
 | V3 | **Shared scale** when comparing tiers (GNSS-only vs anchored) so the reduction is visible at its true size. If the GNSS bar would dwarf the anchored one, use a second small-multiple chart on its own axis, labelled as such. Never a dual y-axis. |
 | V4 | **Target lines** from the charter (≤ 1 m CE90 etc.) are dashed, labelled directly, and never coloured as pass/fail. |
@@ -738,6 +738,8 @@ These charts carry our main claim ("proof, not claims", charter §4), so they fo
 | Δ5 | Semantic palette (§4.4): vehicle ↔ vegetation and ground ↔ building are hard to separate. Mitigated by hatch, labels and solo toggles. Revisit with a validated 7-colour set if user testing shows confusion. | Open (R5) |
 | Δ6 | "Import mission bundle (`.d3d.zip`)" on the Missions screen has no API in [08 §9](08-data-formats-and-interfaces.md#9-rest-and-websocket-api) (08 only has a per-run `bundle` artefact for *export*). The wireframes show import as a disabled "Future" action. | Future |
 | Δ7 | The Compare "Difference DSM" mode (09 §6.3) is computed server-side but has no endpoint in 08 §9. | Open (R3/R5) |
+| Δ8 | 09 §5.2 / §5.5 / §5.7 show "UTM 43N / EPSG:32643" for the sample site at 78.49° E (Hyderabad). That longitude is in **UTM zone 44N (EPSG:32644)**; zone 43 ends at 78° E. The wireframes use 44N (E ≈ 233 214 m, MGRS 44Q KE). Fix the 09 examples. | Proposed |
+| Δ9 | The 09 §5.7 export wireframe totals "6.9 GB"; the checked products listed there add up to about 6.3 GB, which the wireframe uses. | Cosmetic |
 
 ---
 

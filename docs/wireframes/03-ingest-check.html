@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en" data-theme="field" data-viewport="desktop">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ingest Check · Drishti3D wireframe</title>
+<link rel="stylesheet" href="assets/wireframe.css">
+<script src="assets/wireframe.js"></script>
+</head>
+<body>
+<div class="stage">
+<div class="device">
+<div class="app">
+  <header class="topbar">
+    <a class="brand" href="01-missions.html" aria-label="Drishti3D, Missions"><i data-icon="logo"></i><span class="wm">Drishti<b>3D</b></span></a>
+    <nav class="crumb" aria-label="Breadcrumb"><a class="crumb-root" href="01-missions.html"><i data-icon="chevl"></i><span data-i18n="nav.missions">Missions</span></a><span class="crumb-root">/</span><strong>Bridge-Recon-07</strong></nav>
+    <span class="spacer"></span>
+    <div class="sys"><span class="chip"><i data-icon="wifioff"></i><span data-i18n="system.offline">Offline</span></span><span class="chip gpu"><i data-icon="cpu"></i>GPU 12 GB</span><span class="chip disk"><i data-icon="disk"></i>Disk 608 GB</span></div>
+    <div class="tb-actions">
+      <button type="button" class="btn btn-ghost lang-btn" data-action="lang" style="min-width:64px">EN | <span lang="hi">हि</span></button>
+      <button type="button" class="btn btn-ghost btn-icon" data-action="theme" aria-label="Toggle theme"><svg class="ic" aria-hidden="true"><use href="#i-sun"/></svg></button>
+    </div>
+  </header>
+  <nav class="mtabs" aria-label="Mission sections">
+    <a href="03-ingest-check.html" aria-current="page"><span data-i18n="tab.ingest">Ingest</span></a>
+    <a href="04-processing.html" aria-disabled="true" title="Available after you start processing"><span data-i18n="tab.processing">Processing</span></a>
+    <a href="05-viewer-3d.html" aria-disabled="true" title="Available after S8 publishes tiles"><span data-i18n="tab.viewer">3D Viewer</span></a>
+    <a href="07-accuracy-report.html" aria-disabled="true" title="Available after S9"><span data-i18n="tab.accuracy">Accuracy</span></a>
+    <a href="08-export.html" aria-disabled="true" title="Available after S8"><span data-i18n="tab.exports">Exports</span></a>
+  </nav>
+  <div class="banner ro-banner" role="note"><i data-icon="eye"></i><span><strong data-i18n="system.readOnly">Read-only on phone</strong> · Start processing from the laptop or tablet.</span></div>
+
+  <main class="content">
+    <div class="content-narrow">
+      <ol class="stepper" aria-label="Mission steps">
+        <li class="done"><a href="02-new-mission.html"><span class="n">✓</span></a><span class="lbl">Inputs</span></li>
+        <li aria-current="step"><span class="n">2</span><span class="lbl" data-i18n="ingest.title">Ingest Check</span></li>
+        <li><span class="n">3</span><span class="lbl">Processing</span></li>
+        <li><span class="n">4</span><span class="lbl">Results</span></li>
+      </ol>
+      <div class="page-head">
+        <h1 data-i18n="ingest.title">Ingest Check</h1>
+        <span class="muted sm">S0 quick pass + S1 frame sampling · finished in 24 s</span>
+        <span class="chip warn" data-anno="1" style="min-height:36px;font-size:var(--fs-body)"><i data-icon="alert"></i>Overall: <strong data-i18n="ingest.usable2">Usable with 2 warnings</strong></span>
+      </div>
+
+      <div class="grid g-main-side">
+        <section class="card" aria-labelledby="gps-t" data-anno="2">
+          <div class="card-head"><h2 id="gps-t" class="overline">GPS track</h2><span class="muted sm">offline base: reference ortho</span></div>
+          <div class="map" data-map="gps" data-label="GPS track over the reference orthophoto with a 12 second dropout" style="height:280px;border-radius:var(--r-sm);overflow:hidden;background:var(--map-bg)"></div>
+          <div class="chart-legend">
+            <span><i style="background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 35%,transparent),var(--accent))"></i>altitude AGL 78–96 m</span>
+            <span><svg class="ic ic-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l7 8-7 8-7-8z"/></svg>keyframe candidate</span>
+            <span style="color:var(--warn)"><i data-icon="x" class="ic-sm"></i><span style="color:var(--text-muted)">rejected frame</span></span>
+            <span><i style="background:repeating-linear-gradient(90deg,var(--danger) 0 4px,transparent 4px 8px);height:3px"></i>no GPS</span>
+          </div>
+          <dl class="kv" style="margin-top:var(--sp-4)">
+            <dt>Length</dt><dd>2.41 km</dd>
+            <dt>Speed</dt><dd>4.1 m/s avg (max 7.9)</dd>
+            <dt>Gimbal pitch</dt><dd>−90° → −62° <span class="pass"><i data-icon="check"></i> oblique</span></dd>
+          </dl>
+        </section>
+
+        <section class="card" aria-labelledby="sync-t" data-anno="3">
+          <div class="card-head"><h2 id="sync-t" class="overline">Time sync · video ↔ SRT</h2></div>
+          <div class="row" style="align-items:baseline;gap:var(--sp-3)">
+            <span class="muted sm" data-i18n="ingest.timeOffset">Time offset</span>
+          </div>
+          <div style="font-size:var(--fs-num-lg);line-height:var(--lh-num-lg);font-weight:600" class="num">+0.37 s <span style="font-size:18px;font-weight:500">± 0.03 s</span> <span class="muted sm" style="font-weight:400">(1σ)</span></div>
+          <p class="muted sm">Method: GPS speed vs optical-flow speed cross-correlation</p>
+          <svg class="chart" viewBox="0 0 360 185" role="img" aria-label="Correlation versus lag. Sharp peak at +0.37 seconds, correlation 0.97.">
+            <g class="grid"><line x1="40" y1="20" x2="340" y2="20"/><line x1="40" y1="85" x2="340" y2="85"/></g>
+            <g class="axis"><line x1="40" y1="150" x2="340" y2="150"/><line x1="40" y1="20" x2="40" y2="150"/></g>
+            <text x="34" y="24" text-anchor="end">1.0</text><text x="34" y="89" text-anchor="end">0.5</text><text x="34" y="154" text-anchor="end">0</text>
+            <text x="40" y="168" text-anchor="middle">−2</text><text x="115" y="168" text-anchor="middle">−1</text><text x="190" y="168" text-anchor="middle">0</text><text x="265" y="168" text-anchor="middle">+1</text><text x="340" y="168" text-anchor="middle">+2</text>
+            <text x="190" y="184" text-anchor="middle">Lag (s)</text>
+            <text x="8" y="12">Correlation</text>
+            <polyline class="s-line" points="40,143.5 77.5,139.6 115,130.5 152.5,111 190,69.4 205,39.5 217.75,23.9 231.25,42.1 250,85 280,121.4 310,137 340,142.2"/>
+            <line x1="217.75" y1="24" x2="217.75" y2="150" style="stroke:var(--accent);stroke-dasharray:3 3"/>
+            <circle class="peak" cx="217.75" cy="23.9" r="6"><title>Peak: lag +0.37 s, correlation 0.97</title></circle>
+            <text class="t-strong" x="226" y="18">+0.37 s</text>
+          </svg>
+          <p class="sm"><span class="pass"><i data-icon="check"></i> Peak sharpness: good</span> <span class="muted">(peak / 2nd peak 3.4)</span></p>
+          <button type="button" class="btn btn-sm rw-only" style="margin-top:var(--sp-3)" data-open-dialog="dlg-offset">Override offset…</button>
+        </section>
+
+        <section class="card" aria-labelledby="fq-t" data-anno="4">
+          <div class="card-head"><h2 id="fq-t" class="overline" data-i18n="ingest.frameQuality">Frame quality</h2><span class="muted sm">variance of Laplacian, per 1 s</span></div>
+          <svg class="chart" viewBox="0 0 360 190" role="img" aria-label="Histogram of frame sharpness. Three low-sharpness bins fall below the automatic rejection threshold.">
+            <g class="grid"><line x1="40" y1="25" x2="340" y2="25"/><line x1="40" y1="87.5" x2="340" y2="87.5"/></g>
+            <g class="axis"><line x1="40" y1="150" x2="340" y2="150"/></g>
+            <text x="34" y="29" text-anchor="end">100</text><text x="34" y="91" text-anchor="end">50</text><text x="34" y="154" text-anchor="end">0</text>
+            <text x="8" y="12">Seconds</text>
+            <rect class="bar rej" x="42" y="145" width="26" height="5" rx="2"><title>Bin 1: 4 s (rejected)</title></rect>
+            <rect class="bar rej" x="72" y="140" width="26" height="10" rx="2"><title>Bin 2: 8 s (rejected)</title></rect>
+            <rect class="bar rej" x="102" y="135" width="26" height="15" rx="2"><title>Bin 3: 12 s (rejected)</title></rect>
+            <rect class="bar" x="132" y="112.5" width="26" height="37.5" rx="2"><title>Bin 4: 30 s</title></rect>
+            <rect class="bar" x="162" y="72.5" width="26" height="77.5" rx="2"><title>Bin 5: 62 s</title></rect>
+            <rect class="bar" x="192" y="40" width="26" height="110" rx="2"><title>Bin 6: 88 s</title></rect>
+            <rect class="bar" x="222" y="30" width="26" height="120" rx="2"><title>Bin 7: 96 s</title></rect>
+            <rect class="bar" x="252" y="57.5" width="26" height="92.5" rx="2"><title>Bin 8: 74 s</title></rect>
+            <rect class="bar" x="282" y="100" width="26" height="50" rx="2"><title>Bin 9: 40 s</title></rect>
+            <rect class="bar" x="312" y="127.5" width="26" height="22.5" rx="2"><title>Bin 10: 18 s</title></rect>
+            <line class="thresh" x1="130" y1="18" x2="130" y2="156"/>
+            <text x="134" y="16" style="fill:var(--warn)">rejection threshold (auto)</text>
+            <text x="190" y="172" text-anchor="middle">Sharpness →</text>
+          </svg>
+          <p class="sm">Keep <strong class="num">≈ 912</strong> keyframes (≈ 1.5 fps) · <span class="muted">7 % of frames blurred</span></p>
+        </section>
+
+        <section class="card" aria-labelledby="chk-t" data-anno="5">
+          <div class="card-head"><h2 id="chk-t" class="overline">Checks</h2><span class="muted sm">6 pass · 2 warn · 0 fail</span></div>
+          <ul class="checks">
+            <li><i data-icon="check" class="ok"></i><span>Video decodable, 29.97 fps CFR</span></li>
+            <li><i data-icon="check" class="ok"></i><span>SRT entries match frame count (±2)</span></li>
+            <li><i data-icon="alert" class="warn"></i><span><strong>GPS dropout 12 s</strong> at 04:31–04:43 <span class="muted">· frames there will rely on visual poses only</span></span></li>
+            <li><i data-icon="alert" class="warn"></i><span><strong>7 % frames blurred</strong> (&gt; 5 % threshold) <span class="muted">· removed at S1</span></span></li>
+            <li><i data-icon="check" class="ok"></i><span>Oblique segment present (doming risk reduced)</span></li>
+            <li><i data-icon="check" class="ok"></i><span>Altitude variation 18 m</span></li>
+            <li><i data-icon="info" class="info"></i><span>Rolling shutter: camera model "DJI M3E" known</span></li>
+            <li><i data-icon="info" class="info"></i><span>Burned-in OSD overlay: none detected</span></li>
+          </ul>
+          <p class="muted sm" style="margin-top:var(--sp-3)">Warnings never block processing. They are carried into the Accuracy Report.</p>
+        </section>
+      </div>
+
+      <section class="card" style="margin-top:var(--sp-7)" aria-labelledby="tl-t" data-anno="6">
+        <div class="card-head"><h2 id="tl-t" class="overline">Timeline</h2><span class="muted sm num">00:00 – 09:48</span></div>
+        <div class="timeline" role="img" aria-label="Timeline: mostly usable, two blurred segments, one 12 second GPS gap at 04:31">
+          <i class="u" style="width:20%"></i><i class="b" style="width:4%"></i><i class="u" style="width:22%"></i><i class="g" style="width:2%"></i><i class="u" style="width:24%"></i><i class="b" style="width:3%"></i><i class="u" style="width:25%"></i>
+        </div>
+        <div class="row-wrap sm muted" style="justify-content:space-between;margin-top:var(--sp-3)">
+          <span class="num">00:00</span>
+          <span class="row" style="gap:var(--sp-5)"><span class="row" style="gap:6px"><i style="width:14px;height:10px;background:var(--ok);opacity:.75;display:inline-block;border-radius:2px"></i>usable</span><span class="row" style="gap:6px"><i style="width:14px;height:10px;background:var(--warn);display:inline-block;border-radius:2px"></i>blurred</span><span class="row" style="gap:6px"><i style="width:14px;height:10px;display:inline-block;border:1px solid var(--danger);background:repeating-linear-gradient(45deg,var(--danger) 0 2px,transparent 2px 5px)"></i>no GPS</span></span>
+          <span class="num">09:48</span>
+        </div>
+      </section>
+
+      <div class="row-wrap" style="border-top:1px solid var(--border);padding-top:var(--sp-5);margin-top:var(--sp-7)">
+        <a class="btn" href="02-new-mission.html"><i data-icon="chevl"></i>Back to inputs</a>
+        <span class="spacer"></span>
+        <div class="row rw-only"><label class="label" for="prof">Profile</label><select id="prof" class="select" style="width:140px"><option>fast</option><option>quality</option><option>preview</option></select></div>
+        <a class="btn btn-primary lg rw-only" href="04-processing.html" data-anno="7"><span data-i18n="run.start">Start processing</span><i data-icon="arrowr"></i></a>
+      </div>
+    </div>
+  </main>
+
+  <dialog class="dlg" id="dlg-offset" aria-labelledby="off-t">
+    <div class="dlg-head"><h2 id="off-t">Override time offset</h2><button type="button" class="btn btn-ghost btn-icon" data-close aria-label="Close"><i data-icon="x"></i></button></div>
+    <div class="dlg-body stack">
+      <p>The estimated offset is <strong class="num">+0.37 s ± 0.03 s</strong>. Override only if you know the true offset (for example from a synchronised clap or a known hover).</p>
+      <div class="field" style="max-width:240px"><label for="ovr">Offset (s)</label><input id="ovr" class="input num" value="+0.37"></div>
+      <div class="banner info card"><i data-icon="info"></i><span>Overrides are logged and shown in the Accuracy Report provenance.</span></div>
+    </div>
+    <div class="dlg-foot"><button type="button" class="btn" data-close>Cancel</button><span class="spacer"></span><button type="button" class="btn btn-primary" data-close data-toast="Offset override saved (+0.37 s). It will be logged in the report.|ok">Apply override</button></div>
+  </dialog>
+</div>
+</div>
+
+<aside class="anno-panel" aria-label="Annotations">
+  <h2>03 · Ingest Check (S0 result)</h2>
+  <div class="anno-sub">09 §5.3 · Persona: field operator · <span class="mono">GET /api/v1/missions/{id}/ingest-check</span></div>
+  <ol>
+    <li><strong>Overall verdict</strong> first, in words: pass / usable with warnings / fail. Target: shown ≤ 30 s after the SRT and video header arrive.</li>
+    <li><strong>GPS track</strong> over the offline base (reference ortho or run-local tiles). Altitude uses one hue, light → dark. Gaps &gt; 2 s warn; &gt; 50 % without GPS fails.</li>
+    <li><strong>Time sync</strong>: value ± 1σ, method, and the correlation curve with the peak marked. A flat peak (peak / 2nd &lt; 1.2) or |offset| &gt; 2 s warns. Override is logged in the report.</li>
+    <li><strong>Frame quality</strong> histogram with the auto threshold. Rejected bins use the warn colour <em>and</em> sit left of the labelled threshold line. Warn if &gt; 5 % blurred; fail if &lt; 50 keyframes survive.</li>
+    <li><strong>Checks</strong> use icon + text for each state (✓ / ⚠ / ✗ / ℹ). Warnings never block.</li>
+    <li><strong>Timeline</strong> shows where the problems are in the clip, with a text legend and a hatched pattern for "no GPS".</li>
+    <li><strong>Start processing</strong> is disabled only on a fail. Calls <code>POST /api/v1/runs</code> with <code>{mission_id, profile, inputs, options, overrides}</code> and an <code>Idempotency-Key</code>.</li>
+  </ol>
+  <p class="anno-sub" style="margin-top:8px">Failure variant: <a href="11-states.html#srt-mismatch">SRT does not match video</a>. Next: <a href="04-processing.html">Processing →</a></p>
+</aside>
+</div>
+</body>
+</html>

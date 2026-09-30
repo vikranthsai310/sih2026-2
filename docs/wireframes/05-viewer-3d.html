@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en" data-theme="field" data-viewport="desktop">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3D Viewer · Drishti3D wireframe</title>
+<link rel="stylesheet" href="assets/wireframe.css">
+<script src="assets/wireframe.js"></script>
+</head>
+<body>
+<div class="stage">
+<div class="device">
+<div class="app">
+  <header class="topbar">
+    <a class="brand" href="01-missions.html" aria-label="Drishti3D, Missions"><i data-icon="logo"></i><span class="wm">Drishti<b>3D</b></span></a>
+    <nav class="crumb" aria-label="Breadcrumb"><a class="crumb-root" href="01-missions.html"><i data-icon="chevl"></i><span data-i18n="nav.missions">Missions</span></a><span class="crumb-root">/</span><strong>Bridge-Recon-07</strong></nav>
+    <span class="spacer"></span>
+    <div class="sys"><span class="chip"><i data-icon="wifioff"></i><span data-i18n="system.offline">Offline</span></span><span class="chip gpu"><i data-icon="cpu"></i>GPU 3.1 / 12 GB</span><span class="chip disk"><i data-icon="disk"></i>Disk 571 GB</span></div>
+    <div class="tb-actions">
+      <button type="button" class="btn btn-ghost lang-btn" data-action="lang" style="min-width:64px">EN | <span lang="hi">हि</span></button>
+      <button type="button" class="btn btn-ghost btn-icon" data-action="theme" aria-label="Toggle theme"><svg class="ic" aria-hidden="true"><use href="#i-sun"/></svg></button>
+    </div>
+  </header>
+  <nav class="mtabs" aria-label="Mission sections">
+    <a href="03-ingest-check.html"><span data-i18n="tab.ingest">Ingest</span></a>
+    <a href="04-processing.html"><span data-i18n="tab.processing">Processing</span></a>
+    <a href="05-viewer-3d.html" aria-current="page"><span data-i18n="tab.viewer">3D Viewer</span></a>
+    <a href="07-accuracy-report.html"><span data-i18n="tab.accuracy">Accuracy</span></a>
+    <a href="08-export.html"><span data-i18n="tab.exports">Exports</span></a>
+    <a class="chip accent acc-badge run-pill" href="07-accuracy-report.html" data-anno="1" title="Opens the Accuracy Report"><i data-icon="anchor"></i>Anchored · <span class="num">0.74 m</span> CE90 <span class="tag example">example</span></a>
+  </nav>
+  <div class="banner ro-banner" role="note"><i data-icon="eye"></i><span><strong data-i18n="system.readOnly">Read-only on phone</strong> · Navigate, toggle layers, pick coordinates and read saved measurements.</span></div>
+
+  <div class="viewer">
+    <!-- LEFT: layers -->
+    <aside class="vpanel left" aria-label="Layers">
+      <div class="vp-rail" aria-label="Layers (collapsed)">
+        <button type="button" class="btn btn-ghost btn-icon" aria-label="Expand layers panel"><i data-icon="layers"></i></button>
+        <button type="button" class="btn btn-ghost btn-icon" aria-label="Mesh on"><i data-icon="box"></i></button>
+        <button type="button" class="btn btn-ghost btn-icon" aria-label="Orthomosaic on"><i data-icon="map"></i></button>
+        <button type="button" class="btn btn-ghost btn-icon" aria-label="Confidence on" style="color:var(--conf-high-ink)"><i data-icon="shield"></i></button>
+      </div>
+      <div class="vp-full" data-anno="2">
+        <h2 class="overline" data-i18n="viewer.layers">Layers</h2>
+        <div class="field" style="margin-bottom:var(--sp-4)"><label for="run">Run</label>
+          <select id="run" class="select"><option>r-0003 · 20261114-051205-7c2e91 · anchored</option><option>r-0002 · 20261114-050912-4e81b7 · GNSS only</option></select></div>
+
+        <div class="layer"><input type="checkbox" id="l-mesh" data-layer="mesh" checked aria-controls="l-mesh-sub"><label for="l-mesh"><span data-i18n="layer.mesh">Mesh</span> <span class="muted sm">3D Tiles</span></label><span class="lk">1</span></div>
+        <div class="layer-sub" id="l-mesh-sub"><label class="sm muted" for="op-mesh">Opacity</label><input id="op-mesh" class="range" type="range" min="0" max="100" value="100"></div>
+        <div class="layer"><input type="checkbox" id="l-pc" aria-controls="l-pc-sub"><label for="l-pc"><span data-i18n="layer.pointCloud">Point cloud</span></label><span class="lk">2</span></div>
+        <div class="layer-sub" id="l-pc-sub" hidden><label class="sm muted">Size</label><input class="range" type="range" value="30"><select class="select" aria-label="Colour points by"><option>RGB</option><option>Height</option><option>Class</option><option>Confidence</option></select></div>
+        <div class="layer"><input type="checkbox" id="l-ortho" data-layer="ortho" checked><label for="l-ortho"><span data-i18n="layer.ortho">Orthomosaic</span> <span class="muted sm">COG</span></label><span class="lk">3</span></div>
+        <div class="layer"><input type="checkbox" id="l-dsm"><label for="l-dsm">DSM <span class="muted sm">hillshade</span></label><span class="lk">4</span></div>
+        <div class="layer"><input type="checkbox" id="l-dtm"><label for="l-dtm">DTM <span class="muted sm">ground only</span></label><span class="lk"> </span></div>
+        <div class="layer"><input type="checkbox" id="l-splat"><label for="l-splat">Splat <span class="tag viewonly">view only</span></label><span class="lk">5</span></div>
+        <div class="layer" data-anno="3"><input type="checkbox" id="l-conf" data-layer="conf" checked aria-controls="l-conf-sub"><label for="l-conf"><span data-i18n="layer.confidence">Confidence</span></label><span class="lk">6</span></div>
+        <div class="layer-sub" id="l-conf-sub">
+          <ul class="legend" aria-label="Confidence legend">
+            <li><span class="sw c-high"></span><span data-i18n="conf.observedHigh">Observed – high</span><span class="muted num">71 %</span></li>
+            <li><span class="sw c-low"></span><span data-i18n="conf.observedLow">Observed – low</span><span class="muted num">21 %</span></li>
+            <li><span class="sw c-inf"></span><span data-i18n="conf.inferred">Inferred</span><span class="muted num">8 %</span></li>
+            <li><span class="sw c-nodata"></span><span>No data</span><span class="muted num">—</span></li>
+          </ul>
+        </div>
+        <div class="layer"><input type="checkbox" id="l-sem" data-layer="sem" aria-controls="l-sem-sub"><label for="l-sem"><span data-i18n="layer.semantic">Semantic classes</span></label><span class="lk">7</span></div>
+        <div class="layer-sub" id="l-sem-sub" hidden>
+          <ul class="legend" aria-label="Semantic class legend">
+            <li><span class="sw k-ground"></span><span data-i18n="class.ground">Ground</span><input type="checkbox" checked aria-label="Show ground"></li>
+            <li><span class="sw k-building"></span><span data-i18n="class.building">Building</span><input type="checkbox" checked aria-label="Show building"></li>
+            <li><span class="sw k-road"></span><span data-i18n="class.road">Road</span><input type="checkbox" checked aria-label="Show road"></li>
+            <li><span class="sw k-vegetation"></span><span data-i18n="class.vegetation">Vegetation</span><input type="checkbox" checked aria-label="Show vegetation"></li>
+            <li><span class="sw k-vehicle"></span><span data-i18n="class.vehicle">Vehicle/person (masked)</span><input type="checkbox" checked aria-label="Show vehicle or person"></li>
+            <li><span class="sw k-water"></span><span data-i18n="class.water">Water</span><input type="checkbox" checked aria-label="Show water"></li>
+            <li><span class="sw k-other"></span><span data-i18n="class.other">Other</span><input type="checkbox" checked aria-label="Show other"></li>
+          </ul>
+        </div>
+        <div class="layer"><input type="checkbox" id="l-track" data-layer="track"><label for="l-track">Flight track <span class="muted sm">raw vs corrected</span></label><span class="lk"> </span></div>
+        <div class="layer"><input type="checkbox" id="l-cp" data-layer="cp"><label for="l-cp">Checkpoints <span class="muted sm">residuals ×10</span></label><span class="lk"> </span></div>
+      </div>
+    </aside>
+
+    <!-- CENTRE: canvas -->
+    <section class="canvas" aria-label="3D scene. Run r-0003, anchored, 0.74 m CE90. Mesh, orthomosaic and confidence layers visible.">
+      <div class="map" data-map="viewer"></div>
+      <svg class="overlay" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <!-- #1 area (dim) -->
+        <polygon points="80,390 250,392 252,450 82,452" style="fill:none;stroke:var(--text-muted);stroke-width:2;stroke-dasharray:6 4"/>
+        <text class="m-label-sm" x="92" y="384">#1 812 m²</text>
+        <!-- #2 height (dim) -->
+        <path d="M915 72 V 160" style="stroke:var(--text-muted);stroke-width:2;stroke-dasharray:4 4"/><text class="m-label-sm" x="870" y="66">#2 11.4 m</text>
+        <!-- #3 distance (selected) -->
+        <line class="m-measure" x1="420" y1="128" x2="560" y2="140"/>
+        <circle class="m-vertex" cx="420" cy="128" r="7"/><circle class="m-vertex" cx="560" cy="140" r="7"/>
+        <rect class="m-pill" x="420" y="92" width="150" height="28" rx="14"/>
+        <text x="495" y="111" text-anchor="middle" style="font:600 13px var(--font-sans);fill:var(--text)">48.37 m ± 0.10</text>
+      </svg>
+
+      <div class="toolbar" role="toolbar" aria-label="Tools" data-anno="4">
+        <a class="tool" href="05-viewer-3d.html" aria-pressed="true" title="Select / navigate · S"><i data-icon="pointer"></i><span data-i18n="tool.select">Select</span></a>
+        <a class="tool rw-only" href="06-measure.html#distance" title="Distance · D"><i data-icon="ruler"></i><span data-i18n="tool.distance">Distance</span></a>
+        <a class="tool rw-only" href="06-measure.html#height" title="Height · H"><i data-icon="height"></i><span data-i18n="tool.height">Height</span></a>
+        <a class="tool rw-only" href="06-measure.html#area" title="Area · A"><i data-icon="area"></i><span data-i18n="tool.area">Area</span></a>
+        <a class="tool rw-only" href="06-measure.html#volume" title="Volume · V"><i data-icon="volume"></i><span data-i18n="tool.volume">Volume</span></a>
+        <a class="tool rw-only" href="06-measure.html#profile" title="Cross-section · P"><i data-icon="profile"></i><span data-i18n="tool.profile">Profile</span></a>
+        <a class="tool" href="06-measure.html#pick" title="Coordinates · C"><i data-icon="crosshair"></i><span data-i18n="tool.pick">Coords</span></a>
+        <a class="tool rw-only" href="06-measure.html#clip" title="Clipping box · B"><i data-icon="box"></i><span data-i18n="tool.clip">Clip</span></a>
+        <span class="tool-sep"></span>
+        <a class="tool" href="10-compare.html" title="Compare before/after · K"><i data-icon="columns"></i><span data-i18n="tool.compare">Compare</span></a>
+        <a class="tool" href="#" data-toast="View reset to the run extent.|info" title="Reset view · 0"><i data-icon="reset"></i><span data-i18n="tool.reset">Reset</span></a>
+      </div>
+      <button type="button" class="btn fab-layers" aria-label="Open layers"><i data-icon="layers"></i>Layers</button>
+
+      <div class="scalebar num">50 m<i></i></div>
+      <div class="navctl">
+        <div class="compass" aria-label="North up. Click to reset bearing" role="button" tabindex="0">N ↑</div>
+        <button type="button" class="btn btn-icon" aria-label="Zoom in"><i data-icon="plus"></i></button>
+        <button type="button" class="btn btn-icon" aria-label="Zoom out"><i data-icon="minus"></i></button>
+      </div>
+    </section>
+
+    <!-- RIGHT: inspector -->
+    <aside class="vpanel right" aria-label="Inspector">
+      <div class="row" style="margin-bottom:var(--sp-4)">
+        <h2 class="overline">Inspector</h2><span class="spacer"></span>
+        <a class="btn btn-sm rw-only" href="08-export.html" title="Export · Ctrl+E"><i data-icon="download"></i><span data-i18n="export.title">Export</span></a>
+      </div>
+      <div class="mcard" data-anno="5" aria-live="polite">
+        <div class="m-title"><i data-icon="ruler"></i><span>Distance #3</span><span class="spacer"></span><span class="muted sm">3D slant</span></div>
+        <div class="m-val">48.37 m</div>
+        <div class="m-pm">± 0.10 m <span class="m-level">(1σ, relative)</span></div>
+        <dl class="kv">
+          <dt>Horizontal</dt><dd>48.21 m</dd>
+          <dt>ΔH</dt><dd>+3.92 m</dd>
+          <dt>Slope</dt><dd>4.6°</dd>
+          <dt>Surface</dt><dd>mesh</dd>
+          <dt>Confidence</dt><dd class="ink-high">■ observed-high (both picks)</dd>
+        </dl>
+        <details><summary data-i18n="measure.how">How is this computed?</summary>
+          <div class="formula">σ_L = √(Σ 2·σ_loc² + (s_rel·L)²)<br>= √(2·0.025² + (0.002·48.37)²) ≈ 0.10 m</div>
+          <p class="muted" style="margin-top:6px">GSD 2.5 cm, σ_loc = 2.5 cm, s_rel = 0.002 (from S4/S9 error budget). Absolute bias cancels in differences.</p>
+        </details>
+        <div class="row" style="margin-top:var(--sp-4)">
+          <button type="button" class="btn btn-sm" data-toast="Copied: 48.37 m ± 0.10 m (1σ, relative)|ok"><i data-icon="copy"></i>Copy</button>
+          <button type="button" class="btn btn-sm">Fly to</button>
+          <span class="spacer"></span>
+          <button type="button" class="btn btn-ghost btn-icon btn-sm rw-only" aria-label="Delete measurement"><i data-icon="trash"></i></button>
+        </div>
+      </div>
+      <h2 class="overline" style="margin:var(--sp-6) 0 var(--sp-2)">Measurements</h2>
+      <ul class="mlist-small">
+        <li><i data-icon="area" class="ic-sm"></i>#1 Area <span class="spacer"></span><span class="num">812 m² ± 9</span></li>
+        <li><i data-icon="height" class="ic-sm"></i>#2 Height <span class="spacer"></span><span class="num">11.4 m ± 0.05</span></li>
+        <li class="sel"><i data-icon="ruler" class="ic-sm"></i>#3 Distance <span class="spacer"></span><span class="num">48.37 m ± 0.10</span></li>
+      </ul>
+      <div class="row-wrap" style="margin-top:var(--sp-4)">
+        <button type="button" class="btn btn-sm" data-toast="measurements.csv saved to Downloads.|ok">Export CSV</button>
+        <button type="button" class="btn btn-sm" data-toast="measurements.geojson saved (with uncertainty fields).|ok">GeoJSON</button>
+      </div>
+      <p class="muted xs" style="margin-top:var(--sp-4)">Saved per run · <span class="mono">GET/POST /api/v1/runs/{run_id}/measurements</span></p>
+    </aside>
+
+    <!-- BOTTOM: status bar -->
+    <footer class="statusbar" data-anno="6">
+      <i data-icon="crosshair" class="ic-sm"></i>
+      <span class="mono">17.38521° N 78.48673° E</span>
+      <span class="mono">H 512.4 m (EGM2008)</span>
+      <span class="mono sb-extra">UTM 44N 233 214.6 E 1 923 884.7 N</span>
+      <span>± 0.74 m CE90 · ± 0.81 m LE90 <span class="tag example">example</span></span>
+      <span class="sb-extra">Anchored (ortho+DSM)</span>
+      <span class="ink-high sb-extra">Conf obs-high</span>
+      <span class="spacer"></span>
+      <span class="muted sb-extra">1σ ⇄ 90 % <span class="kbd">U</span></span>
+      <a href="07-accuracy-report.html" aria-label="Accuracy details"><i data-icon="info"></i></a>
+    </footer>
+  </div>
+</div>
+</div>
+
+<aside class="anno-panel" aria-label="Annotations">
+  <h2>05 · 3D Viewer</h2>
+  <div class="anno-sub">09 §5.5 · Personas: analyst, commander · <span class="mono">GET /api/v1/runs/{id}/artifacts</span>, <span class="mono">/files/runs/{id}/08_export/tiles/…/tileset.json</span>, <span class="mono">/files/runs/{id}/09_qa/accuracy.json</span>, <span class="mono">GET/POST …/measurements</span></div>
+  <ol>
+    <li><strong>Accuracy badge</strong> is always visible in the viewer: tier + CE90, linked to the report. Commanders read this first.</li>
+    <li><strong>Layers</strong> in 09 order with keyboard 1–7. Try toggling Confidence, Semantic (mutually exclusive), Flight track and Checkpoints on the canvas. Below 1280 px the panel collapses to an icon rail; below 1024 px it becomes a drawer.</li>
+    <li><strong>Confidence legend</strong>: swatch + text + share of visible area. <em>Inferred</em> is hatched in every theme; observed-low has a dotted border.</li>
+    <li><strong>Toolbar</strong>: 10 tools in 09 order. Labels under icons in Field mode; tooltips carry the shortcut. On phone only Select, Coordinates, Compare and Reset remain. Click a measuring tool to open <a href="06-measure.html">06 · Measurement tools</a>.</li>
+    <li><strong>Result card</strong>: value, then ± with level and type, then derived values, surface and confidence of the picks, and "How is this computed?" with the worked example (09 §6.3). Announced via <code>aria-live</code>.</li>
+    <li><strong>Status bar</strong>: cursor coordinates (lat/lon, orthometric H, UTM) with the run's absolute CE90/LE90, tier and local confidence. <code>U</code> toggles 1σ / 90 %.</li>
+  </ol>
+  <p class="anno-sub" style="margin-top:8px">Next: <a href="06-measure.html">Measurement tools →</a></p>
+</aside>
+</div>
+</body>
+</html>

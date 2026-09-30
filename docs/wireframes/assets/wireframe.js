@@ -13,6 +13,11 @@
     try { p = JSON.parse(window.localStorage.getItem(KEY) || "{}") || {}; } catch (e) { p = {}; }
     var out = {};
     for (var k in DEFAULTS) out[k] = p[k] || DEFAULTS[k];
+    /* optional overrides for shareable links, e.g. ?theme=analyst&viewport=phone */
+    try {
+      var q = new URLSearchParams(window.location.search);
+      for (var k2 in DEFAULTS) if (q.get(k2)) out[k2] = q.get(k2);
+    } catch (e) { /* ignore */ }
     return out;
   }
   function savePrefs() {
@@ -180,7 +185,7 @@
       '<span class="pb-title">Drishti3D · wireframes</span>' +
       '<span class="pb-screen">' + cur.n + " · " + cur.title + "</span>" +
       '<span class="pb-nav">' +
-      (prev ? '<a href="' + prev.file + '">' + icon("chevl") + " " + prev.title + "</a>" : "") +
+      (prev && prev.file !== "index.html" ? '<a href="' + prev.file + '">' + icon("chevl") + " " + prev.title + "</a>" : "") +
       '<a href="index.html">' + icon("grid") + " Gallery</a>" +
       (next ? '<a href="' + next.file + '">' + next.title + " " + icon("chevr") + "</a>" : "") +
       "</span><span class=\"spacer\"></span>" +
@@ -290,8 +295,8 @@
     scene += mesh;
     // confidence overlay
     var conf = '<g class="lyr-conf">';
-    conf += '<path class="c-low-f" style="fill-opacity:.35" d="M760 -20 H1020 V250 H760 Z M-20 460 H60 V620 H-20 Z M760 440 H1020 V620 H760 Z"/>';
-    conf += '<path class="c-high-f" style="fill-opacity:.28" d="M-20 250 L760 180 L760 440 L-20 460 Z"/>';
+    conf += '<path class="c-low-f" style="fill-opacity:.22" d="M760 -20 H1020 V250 H760 Z M-20 460 H60 V620 H-20 Z M760 440 H1020 V620 H760 Z"/>';
+    conf += '<path class="c-high-f" style="fill-opacity:.14" d="M-20 250 L760 180 L760 440 L-20 460 Z"/>';
     B.forEach(function (b) {
       conf += '<rect class="' + (b[5] === "h" ? "c-high-f" : "c-low-f") + '" x="' + b[0] + '" y="' + b[1] + '" width="' + b[2] + '" height="' + b[3] + '"/>';
       if (b[6] === "i") conf += '<rect x="' + b[0] + '" y="' + (b[1] + b[3]) + '" width="' + b[2] + '" height="' + b[4] + '" fill="url(#' + id + 'h)"/>';
@@ -335,8 +340,8 @@
     scene += tr;
 
     if (opt.offset) {
-      s += '<g opacity=".55">' + scene.replace('class="lyr-mesh"', 'class="lyr-mesh" style="display:none"') + "</g>";
-      s += '<g transform="translate(26,-17)">' + scene.replace('class="lyr-base"', 'class="lyr-base" style="display:none"') + "</g>";
+      s += '<g opacity=".4">' + scene + "</g>";
+      s += '<g transform="translate(26,-17)" opacity=".85">' + scene + "</g>";
       s += '<path d="M-20 330 C 200 322, 420 318, 640 305 S 900 290, 1020 280" style="fill:none;stroke:var(--warn);stroke-width:2;stroke-dasharray:6 5"/>';
     } else if (opt.mosaic) {
       s += '<g opacity=".18">' + scene + "</g>";
@@ -516,6 +521,8 @@
         for (var j = 0; j < ps.length; j++) ps[j].classList.toggle("on", ps[j].getAttribute("data-tool-panel") === name);
         var os = document.querySelectorAll(".overlay [data-tool]");
         for (var k = 0; k < os.length; k++) os[k].classList.toggle("on", os[k].getAttribute("data-tool").split(" ").indexOf(name) >= 0);
+        var tbs = document.querySelectorAll(".toolbar [data-tool-btn]");
+        for (var z = 0; z < tbs.length; z++) { var tn = tbs[z].getAttribute("data-tool-btn"); if (name === "splat" && tn !== "select" && tn !== "pick") tbs[z].setAttribute("aria-disabled", "true"); else tbs[z].removeAttribute("aria-disabled"); }
         var hints = document.querySelectorAll("[data-tool-hint]");
         for (var h = 0; h < hints.length; h++) hints[h].hidden = hints[h].getAttribute("data-tool-hint").split(" ").indexOf(name) < 0;
         var live = document.getElementById("measure-live");

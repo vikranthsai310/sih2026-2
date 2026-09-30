@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en" data-theme="field" data-viewport="desktop">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Settings · Drishti3D wireframe</title>
+<link rel="stylesheet" href="assets/wireframe.css">
+<script src="assets/wireframe.js"></script>
+</head>
+<body>
+<div class="stage">
+<div class="device">
+<div class="app">
+  <header class="topbar">
+    <a class="brand" href="01-missions.html" aria-label="Drishti3D, Missions"><i data-icon="logo"></i><span class="wm">Drishti<b>3D</b></span></a>
+    <nav class="gnav" aria-label="Global">
+      <a href="01-missions.html"><i data-icon="folder"></i><span data-i18n="nav.missions">Missions</span></a>
+      <a href="09-settings.html" aria-current="page"><i data-icon="sliders"></i><span data-i18n="nav.settings">Settings</span></a>
+    </nav>
+    <span class="spacer"></span>
+    <div class="sys"><span class="chip"><i data-icon="wifioff"></i><span data-i18n="system.offline">Offline</span></span><span class="chip gpu"><i data-icon="cpu"></i>GPU 12 GB</span><span class="chip disk"><i data-icon="disk"></i>Disk 571 GB</span></div>
+    <div class="tb-actions">
+      <button type="button" class="btn btn-ghost lang-btn" data-action="lang" style="min-width:64px">EN | <span lang="hi">हि</span></button>
+      <button type="button" class="btn btn-ghost btn-icon" data-action="theme" aria-label="Toggle theme"><svg class="ic" aria-hidden="true"><use href="#i-sun"/></svg></button>
+    </div>
+  </header>
+  <div class="banner ro-banner" role="note"><i data-icon="eye"></i><span><strong data-i18n="system.readOnly">Read-only on phone</strong> · Only language and theme can be changed on this device.</span></div>
+
+  <div class="settings">
+    <nav class="snav" aria-label="Settings sections" data-anno="1">
+      <a href="#general" aria-current="true"><i data-icon="sliders"></i>General &amp; display</a>
+      <a href="#units"><i data-icon="ruler"></i>Units &amp; CRS</a>
+      <a class="rw-only" href="#processing"><i data-icon="cpu"></i>Processing</a>
+      <a href="#viewer"><i data-icon="box"></i>Viewer</a>
+      <a class="rw-only" href="#storage"><i data-icon="disk"></i>Storage</a>
+      <a class="rw-only" href="#cameras"><i data-icon="video"></i>Cameras</a>
+      <a href="#about"><i data-icon="info"></i>About / licences</a>
+    </nav>
+    <main class="content">
+      <div style="max-width:880px" class="stack-lg">
+        <section id="general" class="card" aria-labelledby="g-t">
+          <h2 id="g-t" class="overline" style="margin-bottom:var(--sp-5)">General &amp; display</h2>
+          <div class="sform">
+            <span class="label">Language</span>
+            <div class="row-wrap" role="radiogroup" aria-label="Language" data-anno="2">
+              <label class="opt"><input type="radio" name="lang" data-set="lang:en">English</label>
+              <label class="opt"><input type="radio" name="lang" data-set="lang:hi"><span lang="hi">हिंदी</span></label>
+              <span class="muted sm">Numbers stay 0–9 in both</span>
+            </div>
+            <span class="label">Theme</span>
+            <div class="row-wrap" role="radiogroup" aria-label="Theme" data-anno="3">
+              <label class="opt"><input type="radio" name="theme" data-set="theme:field">Field (dark)</label>
+              <label class="opt"><input type="radio" name="theme" data-set="theme:analyst">Analyst (light)</label>
+              <label class="opt"><input type="radio" name="theme" disabled>High contrast <span class="muted sm">(not in wireframe)</span></label>
+            </div>
+            <span class="label">Touch mode</span>
+            <label class="opt" data-anno="4"><input type="checkbox" checked><span class="opt-body">Large targets (56 px primary actions)<small>Recommended on tablets and with gloves</small></span></label>
+            <span class="label">Sunlight preset</span>
+            <label class="opt"><input type="checkbox"><span class="opt-body">Bolder text and stronger borders<small>For outdoor glare (09 §10)</small></span></label>
+          </div>
+        </section>
+
+        <section id="units" class="card" aria-labelledby="u-t">
+          <h2 id="u-t" class="overline" style="margin-bottom:var(--sp-5)">Units &amp; CRS</h2>
+          <div class="sform">
+            <label class="label" for="lin">Units</label>
+            <div class="row-wrap"><select id="lin" class="select" style="width:140px"><option>metres</option></select><select class="select" style="width:140px" aria-label="Area unit"><option>m² / ha</option></select><select class="select" style="width:120px" aria-label="Volume unit"><option>m³</option></select></div>
+            <label class="label" for="cd">Coordinate display</label>
+            <div class="row-wrap"><select id="cd" class="select" style="width:180px"><option>Lat/Lon DD</option><option>Lat/Lon DMS</option></select><label class="opt"><input type="checkbox" checked>UTM</label><label class="opt"><input type="checkbox" checked>MGRS</label></div>
+            <label class="label" for="vd">Vertical datum</label>
+            <div class="row-wrap"><select id="vd" class="select" style="width:260px"><option>EGM2008 orthometric</option><option>WGS 84 ellipsoidal</option></select><span class="pass sm"><i data-icon="check"></i> geoid grid installed</span></div>
+            <label class="label" for="ul">Uncertainty shown</label>
+            <div class="row-wrap" data-anno="5"><div class="btn-group" role="group" aria-label="Uncertainty level" id="ul"><button type="button" class="btn btn-sm" aria-pressed="true">1σ</button><button type="button" class="btn btn-sm" aria-pressed="false">90 %</button></div><span class="muted sm">Tooltips always say which one. Shortcut <span class="kbd">U</span></span></div>
+          </div>
+        </section>
+
+        <section id="processing" class="card rw-only" aria-labelledby="p-t">
+          <h2 id="p-t" class="overline" style="margin-bottom:var(--sp-5)">Processing</h2>
+          <div class="sform">
+            <label class="label" for="dp">Default profile</label><select id="dp" class="select" style="width:200px"><option>fast</option><option>quality</option><option>preview</option></select>
+            <label class="label" for="gm">Max GPU memory</label><select id="gm" class="select" style="width:200px"><option>11 GB</option><option>8 GB</option></select>
+            <label class="label" for="ki">Keep intermediates</label><select id="ki" class="select" style="width:200px"><option>7 days</option><option>30 days</option><option>Forever</option></select>
+          </div>
+        </section>
+
+        <section id="viewer" class="card" aria-labelledby="v-t">
+          <h2 id="v-t" class="overline" style="margin-bottom:var(--sp-5)">Viewer</h2>
+          <div class="sform">
+            <label class="label" for="pb">Point budget</label><select id="pb" class="select" style="width:200px"><option>3 000 000</option><option>1 000 000</option><option>10 000 000</option></select>
+            <label class="label" for="sse">Max screen-space error</label><select id="sse" class="select" style="width:200px"><option>16</option><option>8 (quality)</option></select>
+            <label class="label" for="bm">Offline basemap</label><select id="bm" class="select"><option>/data/basemaps/india_z14.mbtiles</option><option>Run orthomosaic only</option></select>
+            <label class="label" for="tc">Tile cache</label><select id="tc" class="select" style="width:200px"><option>1 024 MB</option><option>2 048 MB</option></select>
+          </div>
+        </section>
+
+        <section id="storage" class="card rw-only" aria-labelledby="s-t">
+          <h2 id="s-t" class="overline" style="margin-bottom:var(--sp-5)">Storage</h2>
+          <div class="row-wrap"><span>4 missions · 41.2 GB · temp 6.8 GB</span><span class="spacer"></span><a class="btn btn-sm" href="11-states.html#disk-low"><i data-icon="trash"></i>Clean up temp files</a></div>
+          <div class="progress" style="margin-top:var(--sp-4)"><i style="width:43%"></i></div>
+          <p class="muted sm" style="margin-top:var(--sp-2)">571 GB free of 1 TB</p>
+        </section>
+
+        <section id="cameras" class="card rw-only" aria-labelledby="c-t" style="padding:0">
+          <div class="card-head" style="padding:var(--sp-5) var(--sp-6) 0"><h2 id="c-t" class="overline">Cameras (intrinsics library)</h2><button type="button" class="btn btn-sm"><i data-icon="plus"></i>Import calibration</button></div>
+          <table class="t"><tbody>
+            <tr><td>DJI M3E wide</td><td class="muted sm">RS 30 ms (est.) · calib 2026-11-02</td><td class="r"><button type="button" class="btn btn-sm">Edit</button></td></tr>
+            <tr><td>DJI Mini 4 Pro</td><td class="muted sm">RS 22 ms (profile) · factory model</td><td class="r"><button type="button" class="btn btn-sm">Edit</button></td></tr>
+          </tbody></table>
+        </section>
+
+        <section id="about" class="card" aria-labelledby="a-t">
+          <h2 id="a-t" class="overline" style="margin-bottom:var(--sp-4)">About / licences</h2>
+          <dl class="kv" style="max-width:520px"><dt>Version</dt><dd class="mono">drishti 0.4.0 · web 0.4.0</dd><dt>Git</dt><dd class="mono">79d2f77</dd><dt>Fonts</dt><dd>Noto Sans, Noto Sans Devanagari (OFL-1.1)</dd><dt>Icons</dt><dd>Lucide (ISC)</dd><dt>Model weights</dt><dd>see 07-tech-stack licence register</dd></dl>
+        </section>
+
+        <div class="row" style="padding-bottom:var(--sp-7)">
+          <button type="button" class="btn rw-only" data-toast="Settings reset to defaults (prototype).|info">Reset</button>
+          <span class="spacer"></span>
+          <a class="btn" href="01-missions.html"><i data-icon="chevl"></i>Missions</a>
+          <button type="button" class="btn btn-primary lg" data-toast="Settings saved.|ok" data-i18n="common.save">Save</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</div>
+
+<aside class="anno-panel" aria-label="Annotations">
+  <h2>09 · Settings</h2>
+  <div class="anno-sub">09 §5.8 · Personas: all · stored per device (no settings endpoint in 08 §9; server-side defaults come from <span class="mono">configs/*.yaml</span>)</div>
+  <ol>
+    <li><strong>Section nav</strong>: 240 px list on desktop, horizontal scroller under 900 px. Processing, Storage and Cameras are hidden on phone.</li>
+    <li><strong>Language</strong> radios are wired to the prototype: try हिंदी. Key labels switch; numbers, units and acronyms don't.</li>
+    <li><strong>Theme</strong> radios switch Field / Analyst here too. High contrast keeps the 09 §7.4 values.</li>
+    <li><strong>Large targets</strong> raises primary actions to 56 px (Field mode minimum is 48 px).</li>
+    <li><strong>Uncertainty level</strong> 1σ or 90 % applies everywhere; every ± says which.</li>
+  </ol>
+  <p class="anno-sub" style="margin-top:8px">Next: <a href="10-compare.html">Compare runs →</a></p>
+</aside>
+</div>
+<script>
+  /* Reflect current prototype prefs in the settings radios (display only). */
+  document.addEventListener("DOMContentLoaded", function () {
+    var r = document.documentElement;
+    var t = document.querySelector('[data-set="theme:' + r.getAttribute("data-theme") + '"]');
+    var l = document.querySelector('[data-set="lang:' + r.getAttribute("data-lang") + '"]');
+    if (t) t.checked = true; if (l) l.checked = true;
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en" data-theme="field" data-viewport="desktop">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>States · Drishti3D wireframe</title>
+<link rel="stylesheet" href="assets/wireframe.css">
+<script src="assets/wireframe.js"></script>
+</head>
+<body>
+<div class="stage">
+<div class="device">
+<div class="app">
+  <header class="topbar">
+    <a class="brand" href="01-missions.html" aria-label="Drishti3D, Missions"><i data-icon="logo"></i><span class="wm">Drishti<b>3D</b></span></a>
+    <nav class="gnav" aria-label="Global">
+      <a href="01-missions.html"><i data-icon="folder"></i><span data-i18n="nav.missions">Missions</span></a>
+      <a href="09-settings.html"><i data-icon="sliders"></i><span data-i18n="nav.settings">Settings</span></a>
+    </nav>
+    <span class="spacer"></span>
+    <div class="sys"><span class="chip danger" data-anno="1"><i data-icon="xcircle"></i>Server unreachable</span><span class="chip warn disk"><i data-icon="disk"></i>Disk 4 GB free</span></div>
+    <div class="tb-actions">
+      <button type="button" class="btn btn-ghost lang-btn" data-action="lang" style="min-width:64px">EN | <span lang="hi">हि</span></button>
+      <button type="button" class="btn btn-ghost btn-icon" data-action="theme" aria-label="Toggle theme"><svg class="ic" aria-hidden="true"><use href="#i-sun"/></svg></button>
+    </div>
+  </header>
+  <div class="banner warn" id="server-lost" role="alert"><i data-icon="alert"></i><span>Connection to local server lost. Retrying in 4 s… <span class="muted">The job keeps running on the server.</span></span><span class="spacer"></span><button type="button" class="btn btn-sm" data-toast="Reconnected. Replayed 14 missed events (since_seq 1790).|ok"><i data-icon="refresh"></i>Retry now</button></div>
+
+  <main class="content">
+    <div class="content-narrow">
+      <div class="page-head"><h1>Empty, error &amp; loading states</h1><span class="muted sm">09 §12 · every row of the table, in context · error codes from 08 §9.4</span></div>
+
+      <div class="state-grid">
+        <article class="state" id="no-missions">
+          <header><strong>Missions</strong><span class="mono">empty</span></header>
+          <div class="sbody"><div class="empty" style="padding:var(--sp-6)"><i data-icon="folder"></i><h3>No missions yet</h3><p class="muted sm">Upload one drone video and its SRT file to start.</p><a class="btn btn-primary" href="02-new-mission.html"><i data-icon="plus"></i><span data-i18n="mission.new">New Mission</span></a></div></div>
+        </article>
+
+        <article class="state" id="loading" data-anno="2">
+          <header><strong>Missions</strong><span class="mono">loading</span></header>
+          <div class="sbody">
+            <div class="row"><div class="skel" style="width:96px;height:60px"></div><div style="flex:1" class="stack"><div class="skel" style="height:14px;width:60%"></div><div class="skel" style="height:12px;width:40%"></div></div></div>
+            <div class="row"><div class="skel" style="width:96px;height:60px"></div><div style="flex:1" class="stack"><div class="skel" style="height:14px;width:70%"></div><div class="skel" style="height:12px;width:35%"></div></div></div>
+            <p class="muted xs">Skeleton rows for lists · spinners only for actions &lt; 2 s · progress bars with text for anything longer.</p>
+          </div>
+        </article>
+
+        <article class="state" id="upload-paused">
+          <header><strong>New Mission</strong><span class="mono">upload interrupted</span></header>
+          <div class="sbody">
+            <div class="file-row"><i data-icon="pause" class="warn"></i><div><strong class="mono">DJI_0412.MP4</strong></div><span></span>
+              <div class="fr-meta"><div class="sm">Upload paused at 62 %. It will resume from here.</div><div class="progress warn" style="margin-top:6px"><i style="width:62%"></i></div></div></div>
+            <div><button type="button" class="btn btn-primary" data-toast="Resuming from chunk 36 of 58.|info"><i data-icon="play"></i>Resume</button></div>
+          </div>
+        </article>
+
+        <article class="state" id="codec">
+          <header><strong>New Mission</strong><span class="mono">E-ING-01</span></header>
+          <div class="sbody">
+            <div class="file-row"><i data-icon="xcircle" class="danger"></i><div><strong class="mono">clip_0007.MKV</strong></div><span></span><div class="fr-meta sm">This video uses codec <span class="mono">prores_raw</span>, which could not be decoded. Re-export as H.264/H.265 MP4.</div></div>
+            <div><a class="btn btn-primary" href="02-new-mission.html"><i data-icon="upload"></i>Choose another file</a></div>
+          </div>
+        </article>
+
+        <article class="state" id="no-telemetry" data-anno="3">
+          <header><strong>New Mission</strong><span class="mono">no SRT/KLV</span></header>
+          <div class="sbody">
+            <div class="banner danger card"><i data-icon="alert"></i><span><strong>No GPS telemetry found.</strong> Only a relative (unscaled or approximately scaled) model is possible.</span></div>
+            <div class="row-wrap"><a class="btn btn-primary" href="02-new-mission.html"><i data-icon="upload"></i>Add telemetry</a><a class="btn" href="03-ingest-check.html">Continue without GPS (relative model only)</a></div>
+            <p class="muted xs">The primary becomes "Continue without GPS" only if the user removes the telemetry slot; here adding the SRT stays primary.</p>
+          </div>
+        </article>
+
+        <article class="state" id="srt-mismatch">
+          <header><strong>Ingest Check</strong><span class="mono">E-ING-03 · fail</span></header>
+          <div class="sbody">
+            <ul class="checks"><li><i data-icon="xcircle" class="danger"></i><span><strong>SRT covers 05:12 but the video is 09:48 long</strong> (53 %, minimum 95 %)</span></li></ul>
+            <div class="row-wrap"><a class="btn btn-primary" href="02-new-mission.html"><i data-icon="upload"></i>Replace SRT</a><button type="button" class="btn" aria-disabled="true" title="Disabled on fail">Start processing</button></div>
+          </div>
+        </article>
+
+        <article class="state" id="flat-sync">
+          <header><strong>Ingest Check</strong><span class="mono">W-SYNC-01</span></header>
+          <div class="sbody">
+            <svg class="chart" viewBox="0 0 300 90" role="img" aria-label="Flat correlation curve with no clear peak"><g class="axis"><line x1="20" y1="70" x2="290" y2="70"/></g><polyline class="s-line" points="20,50 60,46 100,44 140,42 180,43 220,45 260,47 290,49"/><text x="150" y="86" text-anchor="middle">Lag (s)</text></svg>
+            <div class="banner warn card"><i data-icon="alert"></i><span>Time offset uncertain (flat correlation). Using 0 s. Hover or turn during capture next time.</span></div>
+            <div><a class="btn btn-primary" href="03-ingest-check.html">Override offset…</a></div>
+          </div>
+        </article>
+
+        <article class="state" id="ref-outside">
+          <header><strong>New Mission</strong><span class="mono">reference outside area</span></header>
+          <div class="sbody">
+            <div class="file-row"><i data-icon="xcircle" class="danger"></i><div><strong class="mono">old_district_ortho.tif</strong></div><span></span><div class="fr-meta sm">Reference ortho does not overlap the flight track.</div></div>
+            <div><button type="button" class="btn btn-primary" data-toast="File removed.|info"><i data-icon="trash"></i>Remove file</button></div>
+          </div>
+        </article>
+
+        <article class="state" id="gpu-oom" data-anno="4">
+          <header><strong>Processing</strong><span class="mono">E-S5-01 · failed</span></header>
+          <div class="sbody">
+            <ol class="stages">
+              <li class="done"><span class="sid">S4</span><span class="sname">Georeferencing &amp; Anchoring</span><span class="sstate"><i data-icon="check"></i>00:31</span></li>
+              <li class="failed"><span class="sid">S5</span><span class="sname">Dense Reconstruction &amp; Mesh</span><span class="sstate"><i data-icon="xcircle"></i>failed</span></li>
+              <li class="queued"><span class="sid">S6</span><span class="sname">Completion &amp; Classification</span><span class="sstate">– skipped</span></li>
+            </ol>
+            <div class="banner danger card"><i data-icon="xcircle"></i><span><strong>GPU memory exhausted in S5.</strong> Retry with fewer tiles or the <span class="mono">fast</span> profile. Log filtered to errors.</span></div>
+            <div class="row-wrap"><a class="btn btn-primary" href="04-processing.html"><i data-icon="refresh"></i>Retry from S5</a><button type="button" class="btn">View error log</button></div>
+          </div>
+        </article>
+
+        <article class="state" id="low-registration">
+          <header><strong>Processing</strong><span class="mono">S3 warning</span></header>
+          <div class="sbody">
+            <div class="banner warn card"><i data-icon="alert"></i><span>Only 54 % of frames registered. Model will have gaps. <a href="03-ingest-check.html">See timeline</a></span></div>
+            <div class="row-wrap"><a class="btn btn-primary" href="04-processing.html">Continue</a><button type="button" class="btn">Retry S3 with fallback</button></div>
+          </div>
+        </article>
+
+        <article class="state" id="ortho-failed">
+          <header><strong>Processing</strong><span class="mono">W-GEO-01</span></header>
+          <div class="sbody">
+            <div class="banner warn card"><i data-icon="alert"></i><span>Could not register to the reference ortho (too few matches). Falling back to GNSS-only placement.</span></div>
+            <div><a class="btn btn-primary" href="04-processing.html">Continue</a></div>
+          </div>
+        </article>
+
+        <article class="state" id="tileset-failed">
+          <header><strong>3D Viewer</strong><span class="mono">layer error</span></header>
+          <div class="sbody">
+            <div class="layer"><input type="checkbox" checked aria-label="Point cloud"><span>Point cloud <i data-icon="xcircle" class="ic-sm" style="color:var(--danger)"></i> <span class="muted sm">HTTP 404 tileset.json</span></span><span></span></div>
+            <p class="muted sm">Other layers keep working.</p>
+            <div><button type="button" class="btn btn-primary" data-toast="Reloading point cloud tiles…|info"><i data-icon="refresh"></i>Reload layer</button></div>
+          </div>
+        </article>
+
+        <article class="state" id="no-webgl">
+          <header><strong>3D Viewer</strong><span class="mono">no WebGL 2</span></header>
+          <div class="sbody"><div class="empty" style="padding:var(--sp-5)"><i data-icon="monitor"></i><p>3D view needs WebGL 2. Showing the 2D ortho and report instead.</p><a class="btn btn-primary" href="07-accuracy-report.html">Open 2D view</a></div></div>
+        </article>
+
+        <article class="state" id="no-checkpoints" data-anno="5">
+          <header><strong>Accuracy</strong><span class="mono">not validated</span></header>
+          <div class="sbody">
+            <div class="banner warn card"><i data-icon="alert"></i><span>No checkpoints supplied. Accuracy shown is estimated from anchoring residuals and is <strong>not validated</strong>.</span></div>
+            <div class="grid g-2" style="gap:var(--sp-3)">
+              <div class="stat est"><span class="s-label">CE90</span><span class="s-val">3.4<small>m est.</small></span><span class="indic"><i data-icon="alert"></i> <span data-i18n="accuracy.estimated">Estimated: not validated</span></span></div>
+              <div class="stat est"><span class="s-label">LE90</span><span class="s-val">5.9<small>m est.</small></span><span class="indic"><i data-icon="alert"></i> Estimated: not validated</span></div>
+            </div>
+            <div><button type="button" class="btn btn-primary" data-toast="checkpoints.csv: 32 accepted, 0 rejected. S9-only job queued.|ok"><i data-icon="upload"></i>Upload checkpoints</button></div>
+            <p class="muted xs"><span class="mono">POST /api/v1/runs/{id}/checkpoints</span> → S9-only job</p>
+          </div>
+        </article>
+
+        <article class="state" id="indicative">
+          <header><strong>Accuracy</strong><span class="mono">W-QA-01</span></header>
+          <div class="sbody">
+            <div class="banner warn card"><i data-icon="alert"></i><span>Fewer than 30 checkpoints (12): indicative only, not ASPRS Ed.2 compliant.</span></div>
+            <p><span class="indic"><i data-icon="alert"></i> ~ INDICATIVE</span> <span class="muted sm">replaces PASS/FAIL in the status column</span></p>
+          </div>
+        </article>
+
+        <article class="state" id="disk-low">
+          <header><strong>Global</strong><span class="mono">E-SYS-02 risk</span></header>
+          <div class="sbody">
+            <div class="row-wrap"><span class="chip warn"><i data-icon="disk"></i>Disk 4 GB free</span><span class="muted sm">shown in the top bar and on export</span></div>
+            <div class="banner warn card"><i data-icon="alert"></i><span>Export needs 6.3 GB; 4 GB free on the destination.</span></div>
+            <div><button type="button" class="btn btn-primary" data-toast="Removed 6.8 GB of temporary files.|ok"><i data-icon="trash"></i>Clean up temp files</button></div>
+          </div>
+        </article>
+
+        <article class="state" id="phone-ro">
+          <header><strong>Any (phone)</strong><span class="mono">read-only</span></header>
+          <div class="sbody">
+            <div class="banner info card"><i data-icon="eye"></i><span><strong data-i18n="system.readOnly">Read-only on phone</strong> · Browse missions, open the 3D view and reports. Create and process missions on the ground-station laptop or tablet.</span></div>
+            <p class="muted sm">Switch the prototype to <strong>Phone</strong> to see actions hidden on every screen.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </main>
+</div>
+</div>
+
+<aside class="anno-panel" aria-label="Annotations">
+  <h2>11 · Empty, error &amp; loading states</h2>
+  <div class="anno-sub">09 §12 · all personas · error model 08 §9.4 (RFC 7807 with <span class="mono">code</span> + <span class="mono">remedy</span>)</div>
+  <ol>
+    <li><strong>Server unreachable</strong>: top chip turns danger and a banner explains that the job keeps running on the server. Reconnect replays WebSocket events with <code>since_seq</code>.</li>
+    <li><strong>Loading</strong>: skeletons for lists, never an endless spinner for long work.</li>
+    <li><strong>No telemetry</strong>: red banner, the relative-only path is offered as a secondary action with explicit wording.</li>
+    <li><strong>Stage failure</strong>: failed stage red, later stages skipped, plain-language cause, suggested fix and "Retry from Sn" (<code>POST …/resume {from_stage}</code>).</li>
+    <li><strong>No checkpoints</strong>: values italic with "est.", status ~ not PASS, and a direct way to add checkpoints.</li>
+  </ol>
+  <p class="anno-sub" style="margin-top:8px">Every card follows the copy rule: outcome → cause → fix, and one primary action. Back to <a href="index.html">gallery</a> · <a href="01-missions.html">Missions</a></p>
+</aside>
+</div>
+</body>
+</html>

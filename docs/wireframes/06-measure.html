@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en" data-theme="field" data-viewport="desktop">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Measurement tools · Drishti3D wireframe</title>
+<link rel="stylesheet" href="assets/wireframe.css">
+<script src="assets/wireframe.js"></script>
+</head>
+<body>
+<div class="stage">
+<div class="device">
+<div class="app">
+  <header class="topbar">
+    <a class="brand" href="01-missions.html" aria-label="Drishti3D, Missions"><i data-icon="logo"></i><span class="wm">Drishti<b>3D</b></span></a>
+    <nav class="crumb" aria-label="Breadcrumb"><a class="crumb-root" href="01-missions.html"><i data-icon="chevl"></i><span data-i18n="nav.missions">Missions</span></a><span class="crumb-root">/</span><strong>Bridge-Recon-07</strong></nav>
+    <span class="spacer"></span>
+    <div class="sys"><span class="chip"><i data-icon="wifioff"></i><span data-i18n="system.offline">Offline</span></span><span class="chip gpu"><i data-icon="cpu"></i>GPU 3.4 / 12 GB</span><span class="chip disk"><i data-icon="disk"></i>Disk 571 GB</span></div>
+    <div class="tb-actions">
+      <button type="button" class="btn btn-ghost lang-btn" data-action="lang" style="min-width:64px">EN | <span lang="hi">हि</span></button>
+      <button type="button" class="btn btn-ghost btn-icon" data-action="theme" aria-label="Toggle theme"><svg class="ic" aria-hidden="true"><use href="#i-sun"/></svg></button>
+    </div>
+  </header>
+  <nav class="mtabs" aria-label="Mission sections">
+    <a href="03-ingest-check.html"><span data-i18n="tab.ingest">Ingest</span></a>
+    <a href="04-processing.html"><span data-i18n="tab.processing">Processing</span></a>
+    <a href="05-viewer-3d.html" aria-current="page"><span data-i18n="tab.viewer">3D Viewer</span></a>
+    <a href="07-accuracy-report.html"><span data-i18n="tab.accuracy">Accuracy</span></a>
+    <a href="08-export.html"><span data-i18n="tab.exports">Exports</span></a>
+    <a class="chip accent acc-badge run-pill" href="07-accuracy-report.html" title="Opens the Accuracy Report"><i data-icon="anchor"></i>Anchored · <span class="num">0.74 m</span> CE90 <span class="tag example">example</span></a>
+  </nav>
+  <div class="banner ro-banner" role="note"><i data-icon="eye"></i><span><strong data-i18n="system.readOnly">Read-only on phone</strong> · Measuring is available on the laptop and tablet. Coordinate pick works here.</span></div>
+
+  <div class="viewer">
+    <aside class="vpanel left" aria-label="Layers">
+      <div class="vp-rail"><button type="button" class="btn btn-ghost btn-icon" aria-label="Expand layers panel"><i data-icon="layers"></i></button></div>
+      <div class="vp-full">
+        <h2 class="overline" data-i18n="viewer.layers">Layers</h2>
+        <div class="layer"><input type="checkbox" id="l-mesh" data-layer="mesh" checked><label for="l-mesh"><span data-i18n="layer.mesh">Mesh</span> <span class="muted sm">snap target</span></label><span class="lk">1</span></div>
+        <div class="layer"><input type="checkbox" id="l-pc"><label for="l-pc"><span data-i18n="layer.pointCloud">Point cloud</span></label><span class="lk">2</span></div>
+        <div class="layer"><input type="checkbox" id="l-ortho" data-layer="ortho" checked><label for="l-ortho"><span data-i18n="layer.ortho">Orthomosaic</span></label><span class="lk">3</span></div>
+        <div class="layer"><input type="checkbox" id="l-dsm"><label for="l-dsm">DSM</label><span class="lk">4</span></div>
+        <div class="layer"><input type="checkbox" id="l-splat"><label for="l-splat">Splat <span class="tag viewonly">view only</span></label><span class="lk">5</span></div>
+        <div class="layer"><input type="checkbox" id="l-conf" data-layer="conf"><label for="l-conf"><span data-i18n="layer.confidence">Confidence</span></label><span class="lk">6</span></div>
+        <div class="layer"><input type="checkbox" id="l-sem" data-layer="sem"><label for="l-sem"><span data-i18n="layer.semantic">Semantic classes</span></label><span class="lk">7</span></div>
+        <hr class="div">
+        <label class="opt" data-anno="6"><input type="checkbox" id="opt-inf" checked><span class="opt-body">Include inferred surfaces<small>Off by default (09 U4). Results that use them are flagged.</small></span></label>
+        <div class="field" style="margin-top:var(--sp-3)"><label for="unc">Uncertainty shown</label><select id="unc" class="select"><option>1σ</option><option>90 %</option></select><span class="help">Shortcut <span class="kbd">U</span></span></div>
+      </div>
+    </aside>
+
+    <section class="canvas" aria-label="3D scene with the active measurement drawn">
+      <div class="map" data-map="viewer"></div>
+      <svg class="overlay" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <!-- distance -->
+        <g data-tool="distance">
+          <line class="m-measure" x1="420" y1="128" x2="560" y2="140"/>
+          <circle class="m-vertex" cx="420" cy="128" r="7"/><circle class="m-vertex" cx="560" cy="140" r="7"/>
+          <rect class="m-pill" x="420" y="92" width="150" height="28" rx="14"/>
+          <text x="495" y="111" text-anchor="middle" style="font:600 13px var(--font-sans);fill:var(--text)">48.37 m ± 0.10</text>
+        </g>
+        <!-- height -->
+        <g data-tool="height">
+          <path class="m-dim" d="M362 95 H 350 M362 205 H 350"/>
+          <line class="m-measure" x1="356" y1="95" x2="356" y2="205"/>
+          <circle class="m-vertex" cx="430" cy="100" r="7"/><circle class="m-vertex" cx="430" cy="200" r="7" style="stroke:var(--conf-inf)"/>
+          <path d="M430 100 L356 95 M430 200 L356 205" style="stroke:var(--accent);stroke-width:1.5;stroke-dasharray:3 3"/>
+          <rect class="m-pill" x="236" y="135" width="112" height="28" rx="14"/>
+          <text x="292" y="154" text-anchor="middle" style="font:600 13px var(--font-sans);fill:var(--text)">ΔH 11.42 m</text>
+        </g>
+        <!-- area -->
+        <g data-tool="area">
+          <polygon class="m-measure-fill" points="360,372 590,378 588,452 460,468 362,470"/>
+          <circle class="m-vertex" cx="360" cy="372" r="6"/><circle class="m-vertex" cx="590" cy="378" r="6"/><circle class="m-vertex" cx="588" cy="452" r="6"/><circle class="m-vertex" cx="460" cy="468" r="6"/><circle class="m-vertex" cx="362" cy="470" r="6"/>
+          <rect class="m-pill" x="400" y="405" width="150" height="28" rx="14"/>
+          <text x="475" y="424" text-anchor="middle" style="font:600 13px var(--font-sans);fill:var(--text)">1 842 m² ± 11</text>
+        </g>
+        <!-- volume -->
+        <g data-tool="volume">
+          <polygon points="590,398 675,392 688,470 596,480" style="fill:color-mix(in srgb, var(--accent) 30%, transparent);stroke:var(--accent);stroke-width:3"/>
+          <path d="M600 455 Q 640 400 680 452" style="fill:none;stroke:var(--text);stroke-width:1.5;stroke-dasharray:4 3"/>
+          <circle class="m-vertex" cx="590" cy="398" r="6"/><circle class="m-vertex" cx="675" cy="392" r="6"/><circle class="m-vertex" cx="688" cy="470" r="6"/><circle class="m-vertex" cx="596" cy="480" r="6"/>
+          <rect class="m-pill" x="560" y="352" width="160" height="28" rx="14"/>
+          <text x="640" y="371" text-anchor="middle" style="font:600 13px var(--font-sans);fill:var(--text)">net 394 m³ ± 21</text>
+        </g>
+        <!-- profile -->
+        <g data-tool="profile">
+          <polyline class="m-measure" points="340,250 560,262 800,245"/>
+          <circle class="m-vertex" cx="340" cy="250" r="6"/><circle class="m-vertex" cx="560" cy="262" r="6"/><circle class="m-vertex" cx="800" cy="245" r="6"/>
+          <text class="m-label" x="334" y="238">A</text><text class="m-label" x="806" y="238">B</text>
+        </g>
+        <!-- pick -->
+        <g data-tool="pick">
+          <circle cx="545" cy="140" r="16" style="fill:none;stroke:var(--accent);stroke-width:3"/>
+          <path d="M545 116 v14 M545 150 v14 M521 140 h14 M555 140 h14" style="stroke:var(--accent);stroke-width:3"/>
+          <circle cx="545" cy="140" r="30" style="fill:none;stroke:var(--accent);stroke-width:1.5;stroke-dasharray:4 4"><title>CE90 circle (not to scale)</title></circle>
+        </g>
+        <!-- clip -->
+        <g data-tool="clip">
+          <rect x="355" y="80" width="250" height="190" style="fill:color-mix(in srgb, var(--accent) 10%, transparent);stroke:var(--accent);stroke-width:2.5;stroke-dasharray:10 5"/>
+          <rect x="349" y="74" width="12" height="12" class="m-vertex"/><rect x="599" y="74" width="12" height="12" class="m-vertex"/><rect x="349" y="264" width="12" height="12" class="m-vertex"/><rect x="599" y="264" width="12" height="12" class="m-vertex"/>
+          <circle cx="480" cy="68" r="8" class="m-vertex"/><path d="M480 76 v4" style="stroke:var(--accent);stroke-width:2"/>
+        </g>
+        <!-- splat-only -->
+        <g data-tool="splat">
+          <rect x="-500" y="-300" width="2000" height="1200" style="fill:var(--surface);opacity:.35"/>
+        </g>
+      </svg>
+
+      <div class="toolbar" role="toolbar" aria-label="Tools" data-anno="1">
+        <button type="button" class="tool" data-tool-btn="select" title="Select / navigate · S"><i data-icon="pointer"></i><span data-i18n="tool.select">Select</span></button>
+        <button type="button" class="tool rw-only" data-tool-btn="distance" title="Distance · D"><i data-icon="ruler"></i><span data-i18n="tool.distance">Distance</span></button>
+        <button type="button" class="tool rw-only" data-tool-btn="height" title="Height · H"><i data-icon="height"></i><span data-i18n="tool.height">Height</span></button>
+        <button type="button" class="tool rw-only" data-tool-btn="area" title="Area · A"><i data-icon="area"></i><span data-i18n="tool.area">Area</span></button>
+        <button type="button" class="tool rw-only" data-tool-btn="volume" title="Volume · V"><i data-icon="volume"></i><span data-i18n="tool.volume">Volume</span></button>
+        <button type="button" class="tool rw-only" data-tool-btn="profile" title="Cross-section · P"><i data-icon="profile"></i><span data-i18n="tool.profile">Profile</span></button>
+        <button type="button" class="tool" data-tool-btn="pick" title="Coordinates · C"><i data-icon="crosshair"></i><span data-i18n="tool.pick">Coords</span></button>
+        <button type="button" class="tool rw-only" data-tool-btn="clip" title="Clipping box · B"><i data-icon="box"></i><span data-i18n="tool.clip">Clip</span></button>
+        <span class="tool-sep"></span>
+        <a class="tool" href="10-compare.html" title="Compare before/after · K"><i data-icon="columns"></i><span data-i18n="tool.compare">Compare</span></a>
+        <a class="tool" href="#" data-toast="View reset to the run extent.|info" title="Reset view · 0"><i data-icon="reset"></i><span data-i18n="tool.reset">Reset</span></a>
+      </div>
+
+      <div class="hint" data-tool-hint="distance" hidden>Click to add points · <span class="kbd">Enter</span> finish · <span class="kbd">Backspace</span> remove last · <span class="kbd">Esc</span> cancel</div>
+      <div class="hint" data-tool-hint="height" hidden>Pick the top, then the base (or <span class="kbd">G</span> for ground below) · <span class="kbd">Esc</span> cancel</div>
+      <div class="hint" data-tool-hint="area volume" hidden>Click vertices · double-click or <span class="kbd">Enter</span> to close the polygon</div>
+      <div class="hint" data-tool-hint="profile" hidden>Click points along the section · <span class="kbd">Enter</span> to finish</div>
+      <div class="hint" data-tool-hint="pick" hidden>Click anywhere to read coordinates · values copy with their uncertainty</div>
+      <div class="hint" data-tool-hint="clip" hidden>Drag faces to resize · drag the top handle to rotate · arrow keys nudge</div>
+      <div class="hint" data-tool-hint="splat" hidden style="border:2px solid var(--warn)"><i data-icon="alert" class="ic-sm" style="color:var(--warn)"></i> Splats are for viewing only. Turn on the mesh, point cloud or DSM to measure.</div>
+      <div class="hint" data-tool-hint="select" hidden>Click a feature to see its class, confidence and source frames</div>
+
+      <div class="scalebar num">50 m<i></i></div>
+      <div class="navctl"><div class="compass" role="button" tabindex="0" aria-label="North up">N ↑</div><button type="button" class="btn btn-icon" aria-label="Zoom in"><i data-icon="plus"></i></button><button type="button" class="btn btn-icon" aria-label="Zoom out"><i data-icon="minus"></i></button></div>
+    </section>
+
+    <aside class="vpanel right" aria-label="Inspector">
+      <div id="measure-live" class="sr-only" aria-live="polite"></div>
+      <h2 class="overline" style="margin-bottom:var(--sp-4)">Inspector</h2>
+
+      <!-- SELECT -->
+      <div data-tool-panel="select">
+        <div class="mcard">
+          <div class="m-title"><i data-icon="pointer"></i>Feature</div>
+          <dl class="kv">
+            <dt>Class</dt><dd><span class="sw k-building" style="vertical-align:-3px"></span> Building</dd>
+            <dt>Confidence</dt><dd class="ink-high">observed-high</dd>
+            <dt>Views</dt><dd>14 keyframes</dd>
+            <dt>σ_loc</dt><dd>0.03 m</dd>
+          </dl>
+          <p class="sm muted" style="margin-top:var(--sp-3)">Source frames: f004212, f004248, f004290 …</p>
+        </div>
+        <p class="sm" style="margin-top:var(--sp-5)">Try a disabled state:</p>
+        <button type="button" class="btn btn-sm" data-tool-btn="splat" style="margin-top:var(--sp-2)">Only the splat layer visible</button>
+      </div>
+
+      <!-- DISTANCE -->
+      <div data-tool-panel="distance">
+        <div class="btn-group" role="group" aria-label="Distance mode" style="margin-bottom:var(--sp-4)"><button type="button" class="btn btn-sm" aria-pressed="true">3D slant</button><button type="button" class="btn btn-sm" aria-pressed="false">Horizontal</button><button type="button" class="btn btn-sm" aria-pressed="false">Grid</button></div>
+        <div class="mcard" data-anno="2">
+          <div class="m-title"><i data-icon="ruler"></i>Distance #3</div>
+          <div class="m-val">48.37 m</div>
+          <div class="m-pm">± 0.10 m <span class="m-level">(1σ, relative)</span></div>
+          <dl class="kv"><dt>Horizontal (geodesic)</dt><dd>48.21 m</dd><dt>Grid (UTM, k 0.99964)</dt><dd>48.19 m</dd><dt>ΔH</dt><dd>+3.92 m</dd><dt>Slope</dt><dd>4.6°</dd><dt>Surface</dt><dd>mesh</dd><dt>Picks</dt><dd class="ink-high">observed-high ×2</dd></dl>
+          <details><summary data-i18n="measure.how">How is this computed?</summary><div class="formula">L = Σ‖P(i+1) − P(i)‖ (ECEF)<br>σ_L = √(Σ 2·σ_loc² + (s_rel·L)²)<br>= √(2·0.025² + (0.002·48.37)²) ≈ 0.10 m</div></details>
+          <div class="row" style="margin-top:var(--sp-4)"><button type="button" class="btn btn-sm" data-toast="Copied: 48.37 m ± 0.10 m (1σ, relative)|ok"><i data-icon="copy"></i>Copy</button><button type="button" class="btn btn-sm" data-toast="Saved as measurement #3.|ok">Save</button></div>
+        </div>
+      </div>
+
+      <!-- HEIGHT -->
+      <div data-tool-panel="height">
+        <div class="mcard" data-anno="3">
+          <div class="m-title"><i data-icon="height"></i>Height #4</div>
+          <div class="m-val">11.42 m</div>
+          <div class="m-pm">± 0.50 m <span class="m-level">(1σ, relative)</span></div>
+          <div class="row-wrap" style="margin-top:var(--sp-3)"><span class="tag inferred" data-i18n="measure.inferred">Includes inferred surface</span></div>
+          <dl class="kv"><dt>Top (roof)</dt><dd>H 523.8 m · <span class="ink-high">obs-high</span></dd><dt>Base (facade foot)</dt><dd>H 512.4 m · <span class="ink-inf">inferred</span></dd><dt>Method</dt><dd>ΔH orthometric (EGM2008)</dd></dl>
+          <div class="guard"><i data-icon="alert"></i><span>The base pick is on an LoD2-completed facade (S6). σ uses σ_inferred = 0.5 m. Pick the ground in front instead for ± 0.05 m.</span></div>
+          <details><summary>How is this computed?</summary><div class="formula">ΔH = (h₂ − N₂) − (h₁ − N₁)<br>σ_ΔH = √(σ_loc,z(c₁)² + σ_loc,z(c₂)²) = √(0.03² + 0.5²) ≈ 0.50 m</div><p class="muted" style="margin-top:6px">Vertical bias cancels. Absolute H of each point carries LE90 0.77 m (example).</p></details>
+        </div>
+      </div>
+
+      <!-- AREA -->
+      <div data-tool-panel="area">
+        <div class="mcard">
+          <div class="m-title"><i data-icon="area"></i>Area #5</div>
+          <div class="m-val">1 842 m²</div>
+          <div class="m-pm">± 11 m² <span class="m-level">(1σ, relative)</span></div>
+          <dl class="kv"><dt>Planimetric</dt><dd>1 842 m²</dd><dt>On terrain (surface)</dt><dd>1 921 m² (+4.3 %)</dd><dt>Perimeter</dt><dd>178.6 m</dd><dt>Vertices</dt><dd>5</dd></dl>
+          <details><summary>How is this computed?</summary><div class="formula">Shoelace in local ENU<br>σ_A ≈ √((2·s_rel·A)² + (P·σ_edge)²)</div></details>
+        </div>
+      </div>
+
+      <!-- VOLUME -->
+      <div data-tool-panel="volume">
+        <div class="field" style="margin-bottom:var(--sp-4)"><label for="base">Base</label><select id="base" class="select"><option>Best-fit plane on rim</option><option>DTM (default)</option><option>Lowest rim point</option><option>Fixed elevation…</option></select></div>
+        <div class="mcard" data-anno="4">
+          <div class="m-title"><i data-icon="volume"></i>Volume #6 <span class="spacer"></span><span class="tag example">example</span></div>
+          <div class="m-val">394.4 m³</div>
+          <div class="m-pm">± 21.0 m³ <span class="m-level">(1σ, net)</span></div>
+          <dl class="kv"><dt>Cut</dt><dd>412.7 m³</dd><dt>Fill</dt><dd>18.3 m³</dd><dt>Area</dt><dd>1 850.2 m²</dd><dt>Cells</dt><dd>185 020 @ 10 cm</dd><dt>Surface</dt><dd>DSM</dd></dl>
+          <div class="guard"><i data-icon="info" style="color:var(--info)"></i><span>Computed on the server (<span class="mono">POST …/measure/volume</span>) because it exceeds 10⁵ cells.</span></div>
+          <details><summary>How is this computed?</summary><div class="formula">V = Σ (z_surf − z_base)·a_cell<br>σ_V ≈ √((A·σ_base)² + N·(a_cell·σ_loc,z)² + (3·s_rel·V)²)</div><p class="muted" style="margin-top:6px">The noise term assumes independent cells, which is optimistic.</p></details>
+        </div>
+      </div>
+
+      <!-- PROFILE -->
+      <div data-tool-panel="profile">
+        <div class="mcard">
+          <div class="m-title"><i data-icon="profile"></i>Cross-section A–B</div>
+          <p class="sm muted" style="margin-top:4px">Length 462 m · sample every 0.23 m</p>
+          <svg class="chart" viewBox="0 0 280 170" role="img" aria-label="Elevation profile from A to B: buildings rise up to 14 metres above ground, the river is a gap with no data." style="margin-top:var(--sp-3)">
+            <g class="grid"><line x1="30" y1="20" x2="275" y2="20"/><line x1="30" y1="70" x2="275" y2="70"/><line x1="30" y1="120" x2="275" y2="120"/></g>
+            <g class="axis"><line x1="30" y1="140" x2="275" y2="140"/></g>
+            <text x="26" y="24" text-anchor="end">525</text><text x="26" y="74" text-anchor="end">515</text><text x="26" y="124" text-anchor="end">505</text>
+            <text x="30" y="156">A</text><text x="270" y="156">B</text><text x="150" y="156" text-anchor="middle">Distance (m)</text>
+            <path class="s-band" d="M30 106 L60 104 L60 52 L95 52 L95 104 L150 106 L150 112 L95 112 L95 60 L60 60 L60 112 L30 114 Z" style="fill:var(--conf-high);fill-opacity:.25"/>
+            <polyline class="s-line" points="30,110 60,108 60,56 95,56 95,108 150,110"/>
+            <rect x="152" y="20" width="36" height="120" style="fill:var(--surface-3)"/><text x="170" y="84" text-anchor="middle" style="font-size:10px">no data</text>
+            <path d="M190 98 L215 97 L215 64 L245 64 L245 97 L275 99 L275 111 L245 109 L245 76 L215 76 L215 109 L190 110 Z" style="fill:var(--conf-low);fill-opacity:.3"/>
+            <polyline class="s-line" points="190,104 215,103 215,70 245,70 245,103 275,105"/>
+            <polyline class="s-line-2" points="30,112 150,112 190,106 275,107" style="stroke-dasharray:4 3"/>
+          </svg>
+          <div class="chart-legend"><span><i style="background:var(--accent);height:3px"></i>DSM / mesh</span><span><i style="background:var(--series-gnss);height:3px"></i>DTM</span><span><i style="background:var(--conf-high);opacity:.5"></i>±σ obs-high</span><span><i style="background:var(--conf-low);opacity:.6"></i>±σ obs-low</span></div>
+          <button type="button" class="btn btn-sm" style="margin-top:var(--sp-3)">Table view</button>
+        </div>
+      </div>
+
+      <!-- PICK -->
+      <div data-tool-panel="pick">
+        <div class="mcard" data-anno="5">
+          <div class="m-title"><i data-icon="crosshair"></i><span data-i18n="tool.pick">Coordinates</span></div>
+          <div class="mono" style="font-size:18px;line-height:28px;margin-top:var(--sp-3)">17.38521° N<br>78.48673° E</div>
+          <div class="m-pm">± 0.74 m CE90 <span class="m-level">(absolute)</span> <span class="tag example">example</span></div>
+          <dl class="kv">
+            <dt>H (EGM2008)</dt><dd>523.8 m ± 0.77 LE90</dd>
+            <dt>h (ellipsoid)</dt><dd>446.1 m</dd>
+            <dt>UTM 44N</dt><dd class="mono">233 214.6 E<br>1 923 884.7 N</dd>
+            <dt>MGRS</dt><dd class="mono">44Q KE 33214 23884</dd>
+            <dt>Tier</dt><dd><i data-icon="anchor" class="ic-sm"></i> Anchored (ortho+DSM)</dd>
+            <dt>Local</dt><dd class="ink-high">obs-high · σ_loc 0.03 m</dd>
+          </dl>
+          <div class="row" style="margin-top:var(--sp-4)"><button type="button" class="btn btn-sm" data-toast="Copied with uncertainty: 17.38521 N, 78.48673 E ± 0.74 m CE90|ok"><i data-icon="copy"></i>Copy</button></div>
+        </div>
+        <div class="banner danger card" style="margin-top:var(--sp-4)"><i data-icon="xcircle"></i><span><strong>On a GNSS-only run</strong> this card shows a red badge: "GNSS only: absolute position ± several metres".</span></div>
+      </div>
+
+      <!-- CLIP -->
+      <div data-tool-panel="clip">
+        <div class="mcard">
+          <div class="m-title"><i data-icon="box"></i>Clipping box</div>
+          <div class="btn-group" role="group" aria-label="Clip mode" style="margin-top:var(--sp-4)"><button type="button" class="btn btn-sm" aria-pressed="true">Hide outside</button><button type="button" class="btn btn-sm" aria-pressed="false">Cut-away inside</button></div>
+          <dl class="kv"><dt>Size</dt><dd>82 × 61 × 30 m</dd><dt>Heading</dt><dd>4°</dd><dt>Applies to</dt><dd>mesh, point cloud</dd></dl>
+          <p class="muted sm" style="margin-top:var(--sp-3)">Use it to look at facades and interiors. No measurement is produced.</p>
+          <button type="button" class="btn btn-sm" style="margin-top:var(--sp-3)" data-toast="Clip area will be offered in Export → Clip to current view box.|info">Use for export</button>
+        </div>
+      </div>
+
+      <!-- SPLAT-ONLY (disabled state) -->
+      <div data-tool-panel="splat">
+        <div class="banner warn card" data-anno="7"><i data-icon="alert"></i><span><strong>Measurement disabled.</strong> Only the Splat layer is visible. Splats are for viewing only (S7). Turn on the mesh, point cloud or DSM to measure.</span></div>
+        <button type="button" class="btn btn-sm" style="margin-top:var(--sp-4)" data-tool-btn="distance">Turn mesh back on</button>
+      </div>
+    </aside>
+
+    <footer class="statusbar">
+      <i data-icon="crosshair" class="ic-sm"></i>
+      <span class="mono">17.38521° N 78.48673° E</span><span class="mono">H 512.4 m (EGM2008)</span>
+      <span>± 0.74 m CE90 · ± 0.81 m LE90 <span class="tag example">example</span></span>
+      <span class="spacer"></span>
+      <a class="btn btn-sm rw-only" href="08-export.html"><i data-icon="download"></i>Export measurements</a>
+    </footer>
+  </div>
+</div>
+</div>
+
+<aside class="anno-panel" aria-label="Annotations">
+  <h2>06 · Measurement tools</h2>
+  <div class="anno-sub">09 §5.5 toolbar + §6 · Persona: analyst · <span class="mono">POST /api/v1/runs/{id}/measurements</span>, <span class="mono">POST …/measure/{volume|area|profile}</span></div>
+  <ol>
+    <li><strong>Toolbar is live here</strong>: click a tool or press <code>S D H A V P C B</code>; <code>Esc</code> returns to Select. Each tool shows its own canvas drawing, hint line and result card.</li>
+    <li><strong>Distance</strong>: 3D slant (default), horizontal (geodesic) and grid (UTM, with scale factor k). Value and ± stay together, and Copy copies both with the level.</li>
+    <li><strong>Height</strong> with the <em>inferred</em> flag: one pick lands on an LoD2-completed facade, so the result is tagged (hatched chip) and σ jumps to σ_inferred. The guard suggests a better pick.</li>
+    <li><strong>Volume</strong> shows cut / fill / net and the base method. Large polygons run on the server. Numbers mirror the 08 §9.3 example.</li>
+    <li><strong>Coordinates</strong> are absolute: CE90/LE90 of the run combined with local noise, the tier, and lat/lon + UTM + MGRS. GNSS-only runs get a red badge.</li>
+    <li><strong>Inferred geometry</strong> is excluded from snapping unless the user opts in (09 U4).</li>
+    <li><strong>Splat-only</strong>: measuring tools are disabled and the reason is shown in words (09 U5). Try it from the Select panel.</li>
+  </ol>
+  <p class="anno-sub" style="margin-top:8px">Next: <a href="07-accuracy-report.html">Accuracy Report →</a> · or <a href="10-compare.html">Compare runs</a></p>
+</aside>
+</div>
+</body>
+</html>

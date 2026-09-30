@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en" data-theme="field" data-viewport="desktop">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Export · Drishti3D wireframe</title>
+<link rel="stylesheet" href="assets/wireframe.css">
+<script src="assets/wireframe.js"></script>
+</head>
+<body>
+<div class="stage">
+<div class="device">
+<div class="app">
+  <header class="topbar">
+    <a class="brand" href="01-missions.html" aria-label="Drishti3D, Missions"><i data-icon="logo"></i><span class="wm">Drishti<b>3D</b></span></a>
+    <nav class="crumb" aria-label="Breadcrumb"><a class="crumb-root" href="01-missions.html"><i data-icon="chevl"></i><span data-i18n="nav.missions">Missions</span></a><span class="crumb-root">/</span><strong>Bridge-Recon-07</strong></nav>
+    <span class="spacer"></span>
+    <div class="sys"><span class="chip"><i data-icon="wifioff"></i><span data-i18n="system.offline">Offline</span></span><span class="chip disk"><i data-icon="disk"></i>Disk 571 GB</span></div>
+    <div class="tb-actions">
+      <button type="button" class="btn btn-ghost lang-btn" data-action="lang" style="min-width:64px">EN | <span lang="hi">हि</span></button>
+      <button type="button" class="btn btn-ghost btn-icon" data-action="theme" aria-label="Toggle theme"><svg class="ic" aria-hidden="true"><use href="#i-sun"/></svg></button>
+    </div>
+  </header>
+  <nav class="mtabs" aria-label="Mission sections">
+    <a href="03-ingest-check.html"><span data-i18n="tab.ingest">Ingest</span></a>
+    <a href="04-processing.html"><span data-i18n="tab.processing">Processing</span></a>
+    <a href="05-viewer-3d.html"><span data-i18n="tab.viewer">3D Viewer</span></a>
+    <a href="07-accuracy-report.html"><span data-i18n="tab.accuracy">Accuracy</span></a>
+    <a href="08-export.html" aria-current="page"><span data-i18n="tab.exports">Exports</span></a>
+  </nav>
+
+  <div class="scrim-wrap">
+    <div class="behind" aria-hidden="true"><div class="map" data-map="viewer" style="position:absolute;inset:0"></div></div>
+
+    <div class="phone-block empty card" style="position:relative;z-index:2;margin:var(--sp-7) var(--sp-5)">
+      <i data-icon="lock"></i><h2>Export is not available on a phone</h2>
+      <p class="muted">Exports write large files to approved storage from the ground station.</p>
+      <a class="btn" href="05-viewer-3d.html"><i data-icon="chevl"></i>Back to 3D Viewer</a>
+    </div>
+
+    <section class="dlg-static phone-hide" role="dialog" aria-modal="true" aria-labelledby="ex-t">
+      <div class="dlg-head">
+        <h2 id="ex-t"><span data-i18n="export.title">Export</span> · Bridge-Recon-07 · <span class="mono" style="font-size:16px">r-0003</span></h2>
+        <a class="btn btn-ghost btn-icon" href="05-viewer-3d.html" aria-label="Close"><i data-icon="x"></i></a>
+      </div>
+      <div class="dlg-body">
+        <div style="overflow-x:auto;margin-bottom:var(--sp-6)" data-anno="1">
+        <table class="t" style="min-width:560px">
+          <thead><tr><th scope="col">Product</th><th scope="col">Format</th><th scope="col" class="r">Size (est.)</th></tr></thead>
+          <tbody>
+            <tr><td><label class="row"><input type="checkbox" checked style="width:20px;height:20px;accent-color:var(--accent)">Point cloud</label></td><td><select class="select" style="min-height:36px;width:160px" aria-label="Point cloud format"><option>LAZ 1.4</option><option>LAS 1.4</option></select></td><td class="r">1.8 GB</td></tr>
+            <tr><td><label class="row"><input type="checkbox" checked style="width:20px;height:20px;accent-color:var(--accent)">Textured mesh</label></td><td><select class="select" style="min-height:36px;width:160px" aria-label="Mesh format"><option>GLB</option><option>OBJ + MTL</option></select></td><td class="r">640 MB</td></tr>
+            <tr><td><label class="row"><input type="checkbox" checked style="width:20px;height:20px;accent-color:var(--accent)">3D Tiles (mesh + points)</label></td><td class="muted sm mono">tileset.json</td><td class="r">1.1 GB</td></tr>
+            <tr><td><label class="row"><input type="checkbox" checked style="width:20px;height:20px;accent-color:var(--accent)">Orthomosaic</label></td><td class="muted sm">COG GeoTIFF · 3 cm</td><td class="r">2.3 GB</td></tr>
+            <tr><td><label class="row"><input type="checkbox" checked style="width:20px;height:20px;accent-color:var(--accent)">DSM / DTM</label></td><td class="muted sm">COG GeoTIFF · 10 cm</td><td class="r">410 MB</td></tr>
+            <tr><td><label class="row"><input type="checkbox" style="width:20px;height:20px;accent-color:var(--accent)">Splat layer <span class="tag viewonly">display only</span></label></td><td class="muted sm">3D Tiles KHR_gaussian_splatting</td><td class="r muted">390 MB</td></tr>
+            <tr><td><label class="row"><input type="checkbox" checked style="width:20px;height:20px;accent-color:var(--accent)">Confidence map</label></td><td class="muted sm">COG + per-point attribute</td><td class="r">60 MB</td></tr>
+            <tr><td><label class="row"><input type="checkbox" checked style="width:20px;height:20px;accent-color:var(--accent)">Accuracy report</label></td><td class="muted sm">PDF + HTML + JSON</td><td class="r">4 MB</td></tr>
+            <tr><td><label class="row"><input type="checkbox" checked style="width:20px;height:20px;accent-color:var(--accent)">Measurements</label></td><td><select class="select" style="min-height:36px;width:160px" aria-label="Measurements format"><option>GeoJSON</option><option>CSV</option></select></td><td class="r">&lt; 1 MB</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="grid g-2" style="gap:var(--sp-4) var(--sp-7);margin-bottom:var(--sp-5)" data-anno="2">
+          <div class="field"><label for="ecrs">CRS</label><select id="ecrs" class="select"><option>UTM 44N · EPSG:32644</option><option>WGS 84 · EPSG:4326</option></select></div>
+          <div class="field"><label for="ehts">Heights</label><select id="ehts" class="select"><option>Orthometric EGM2008</option><option>Ellipsoidal WGS 84</option></select></div>
+        </div>
+        <fieldset style="border:0;padding:0;margin:0 0 var(--sp-3)"><legend class="label" style="margin-bottom:var(--sp-2)">Clip to</legend>
+          <div class="row-wrap" style="gap:var(--sp-2) var(--sp-6)">
+            <label class="opt"><input type="radio" name="clip">Full extent</label>
+            <label class="opt"><input type="radio" name="clip" checked>Current view box</label>
+            <label class="opt"><input type="radio" name="clip">Drawn polygon</label>
+          </div>
+        </fieldset>
+        <label class="opt" data-anno="3"><input type="checkbox" checked><span class="opt-body">Include inferred (LoD2) geometry <span class="tag inferred" style="display:inline-flex" data-i18n="conf.inferred">Inferred</span><small>Flagged in every file by the attribute <span class="mono">conf_class = inferred</span></small></span></label>
+
+        <hr class="div">
+        <div class="grid g-2" style="gap:var(--sp-4) var(--sp-7)" data-anno="4">
+          <div class="field"><label for="dest">Destination</label>
+            <div class="row"><select id="dest" class="select"><option>/media/usb0/exports/</option><option>/data/exports/</option></select><button type="button" class="btn btn-sm">Browse…</button></div>
+            <span class="help"><span class="pass" style="font-weight:600"><i data-icon="check"></i> Free: 58 GB</span> · USB drive "NTRO-EXP-02"</span></div>
+          <div class="field"><label for="cls">Classification marking</label><select id="cls" class="select"><option>RESTRICTED</option><option>CONFIDENTIAL</option><option>UNCLASSIFIED</option></select></div>
+        </div>
+        <div class="row-wrap" style="margin-top:var(--sp-3)">
+          <label class="opt"><input type="checkbox" checked>Write SHA-256 manifest</label>
+          <label class="opt"><input type="checkbox" checked>Bundle as <span class="mono">.d3d.zip</span></label>
+        </div>
+
+        <div class="banner info card" style="margin-top:var(--sp-4)" data-anno="5"><i data-icon="shield"></i><span>Data finer than 1 m horizontal / 3 m vertical is regulated under the DST 2021 geospatial guidelines. Keep exports on approved Indian storage.</span></div>
+      </div>
+      <div class="dlg-foot">
+        <a class="btn" href="05-viewer-3d.html" data-i18n="common.cancel">Cancel</a>
+        <span class="spacer"></span>
+        <span class="muted sm">7 products · manifest.json included</span>
+        <button type="button" class="btn btn-primary lg" data-anno="6" data-toast="Export started: 6.3 GB to /media/usb0/exports/. You can keep working.|info|01-missions.html|Back to missions"><i data-icon="download"></i>Export 6.3 GB<i data-icon="arrowr"></i></button>
+      </div>
+    </section>
+  </div>
+</div>
+</div>
+
+<aside class="anno-panel" aria-label="Annotations">
+  <h2>08 · Export dialog</h2>
+  <div class="anno-sub">09 §5.7 · Persona: analyst · <span class="mono">POST /api/v1/runs/{id}/exports</span>, <span class="mono">GET …/artifacts</span> (incl. <span class="mono">bundle</span>) · formats in 08 §7</div>
+  <ol>
+    <li><strong>Products</strong> with format and estimated size. The splat layer is off by default and tagged "display only".</li>
+    <li><strong>CRS and heights</strong> default to the run's CRS (UTM zone from the site) and orthometric EGM2008.</li>
+    <li><strong>Inferred geometry</strong> can be included, but it stays flagged by the <code>conf_class</code> attribute in every format.</li>
+    <li><strong>Destination</strong> shows free space; a low-disk warning appears here if space is short. The classification marking is written into the manifest and the PDF cover.</li>
+    <li><strong>DST 2021 note</strong> is informational (info tone), not a warning.</li>
+    <li><strong>Primary</strong> starts a server job and shows a progress toast; the user can keep working. Every export writes <code>manifest.json</code> (files, SHA-256, CRS, datum, run ID, config hash, accuracy summary).</li>
+  </ol>
+  <p class="anno-sub" style="margin-top:8px">End of the main flow → <a href="01-missions.html">Missions</a>. Also see <a href="09-settings.html">Settings →</a></p>
+</aside>
+</div>
+</body>
+</html>

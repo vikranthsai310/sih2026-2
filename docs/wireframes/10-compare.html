@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en" data-theme="field" data-viewport="desktop">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compare runs · Drishti3D wireframe</title>
+<link rel="stylesheet" href="assets/wireframe.css">
+<script src="assets/wireframe.js"></script>
+</head>
+<body>
+<div class="stage">
+<div class="device">
+<div class="app">
+  <header class="topbar">
+    <a class="brand" href="01-missions.html" aria-label="Drishti3D, Missions"><i data-icon="logo"></i><span class="wm">Drishti<b>3D</b></span></a>
+    <nav class="crumb" aria-label="Breadcrumb"><a class="crumb-root" href="01-missions.html"><i data-icon="chevl"></i><span data-i18n="nav.missions">Missions</span></a><span class="crumb-root">/</span><strong>Bridge-Recon-07</strong></nav>
+    <span class="spacer"></span>
+    <div class="sys"><span class="chip"><i data-icon="wifioff"></i><span data-i18n="system.offline">Offline</span></span><span class="chip gpu"><i data-icon="cpu"></i>GPU 5.2 / 12 GB</span></div>
+    <div class="tb-actions">
+      <button type="button" class="btn btn-ghost lang-btn" data-action="lang" style="min-width:64px">EN | <span lang="hi">हि</span></button>
+      <button type="button" class="btn btn-ghost btn-icon" data-action="theme" aria-label="Toggle theme"><svg class="ic" aria-hidden="true"><use href="#i-sun"/></svg></button>
+    </div>
+  </header>
+  <nav class="mtabs" aria-label="Mission sections">
+    <a href="03-ingest-check.html"><span data-i18n="tab.ingest">Ingest</span></a>
+    <a href="04-processing.html"><span data-i18n="tab.processing">Processing</span></a>
+    <a href="05-viewer-3d.html" aria-current="page"><span data-i18n="tab.viewer">3D Viewer</span></a>
+    <a href="07-accuracy-report.html"><span data-i18n="tab.accuracy">Accuracy</span></a>
+    <a href="08-export.html"><span data-i18n="tab.exports">Exports</span></a>
+    <span class="chip run-pill"><i data-icon="columns"></i><span data-i18n="tool.compare">Compare before/after</span></span>
+  </nav>
+
+  <div class="compare" data-mode="swipe" style="--split:50%" aria-label="Compare two runs: GNSS only on the left, anchored on the right">
+    <div class="half left" data-anno="1"><div class="map" data-map="offset" data-label="GNSS-only run r-0002: the mesh sits about 2.6 metres north-east of the orthophoto roads"></div></div>
+    <div class="half right"><div class="map" data-map="viewer" data-label="Anchored run r-0003: the mesh sits on the orthophoto roads"></div></div>
+    <div class="diff-layer" aria-hidden="true"><div class="map" data-map="diff" style="position:absolute;inset:0"></div>
+      <div class="clabel" style="left:50%;top:auto;bottom:16px;transform:translateX(-50%);min-width:260px">
+        <div class="sm" style="margin-bottom:4px">DSM difference (right − left), ±2 m</div><div class="ramp"></div>
+        <div class="row xs muted" style="justify-content:space-between;margin-top:2px"><span>−2 m</span><span>0</span><span>+2 m</span></div>
+      </div>
+    </div>
+
+    <div class="handle" tabindex="0" role="slider" aria-label="Swipe position" aria-valuemin="5" aria-valuemax="95" aria-valuenow="50" data-anno="2"><span><i data-icon="chevl" class="ic-sm"></i><i data-icon="chevr" class="ic-sm"></i></span></div>
+
+    <div class="clabel l">
+      <div class="overline">Left · r-0002</div>
+      <div class="row" style="gap:6px;margin-top:2px"><span class="chip warn"><i data-icon="alert"></i>GNSS only · <span class="num">3.58 m</span> CE90</span></div>
+      <div class="sm muted" style="margin-top:4px"><span style="color:var(--warn)">- - -</span> ortho road centre · mesh drawn 2.6 m NE <span class="fail" style="font-weight:600">✗</span></div>
+    </div>
+    <div class="clabel r">
+      <div class="overline">Right · r-0003</div>
+      <div class="row" style="gap:6px;margin-top:2px"><span class="chip accent"><i data-icon="anchor"></i>Anchored · <span class="num">0.74 m</span> CE90</span></div>
+      <div class="sm muted" style="margin-top:4px">mesh on top of ortho roads <span class="pass" style="font-weight:600">✓</span></div>
+    </div>
+  </div>
+
+  <div class="card" style="border-radius:0;box-shadow:none;border-top:1px solid var(--border);padding:var(--sp-4) var(--sp-5)">
+    <div class="row-wrap" style="gap:var(--sp-3) var(--sp-7)">
+      <fieldset style="border:0;padding:0;margin:0" data-anno="3"><legend class="sr-only">Compare mode</legend>
+        <div class="row-wrap" style="gap:0 var(--sp-5)">
+          <span class="label">Mode</span>
+          <label class="opt"><input type="radio" name="cmpmode" value="swipe" checked>Swipe</label>
+          <label class="opt"><input type="radio" name="cmpmode" value="side">Side-by-side</label>
+          <label class="opt"><input type="radio" name="cmpmode" value="diff">Difference DSM</label>
+        </div>
+      </fieldset>
+      <label class="opt"><input type="checkbox" checked>Sync cameras</label>
+      <div class="field phone-hide" style="width:180px"><label for="swipe" class="sr-only">Swipe position</label><input id="swipe" class="range" type="range" min="5" max="95" value="50" aria-label="Swipe position"></div>
+      <span class="spacer"></span>
+      <div class="field" style="width:260px"><label class="sr-only" for="lr">Runs</label><select id="lr" class="select"><option>r-0002 ⟷ r-0003</option><option>r-0003 ⟷ reference DSM</option><option>raw GNSS ⟷ anchored (same run) · G</option></select></div>
+    </div>
+    <div class="row-wrap sm" style="margin-top:var(--sp-3)" data-anno="4">
+      <i data-icon="target"></i><span>Checkpoint residuals: <strong class="num">3.58 m</strong> CE90 → <strong class="num">0.74 m</strong> CE90 <span class="tag example">example</span></span>
+      <span class="spacer"></span>
+      <a class="btn btn-sm" href="05-viewer-3d.html"><i data-icon="chevl"></i>Back to viewer</a>
+      <a class="btn btn-sm btn-primary" href="07-accuracy-report.html">Open Accuracy Report<i data-icon="arrowr"></i></a>
+    </div>
+  </div>
+</div>
+</div>
+
+<aside class="anno-panel" aria-label="Annotations">
+  <h2>10 · Compare runs</h2>
+  <div class="anno-sub">09 §5.5 (Compare mode), §6.3 · Personas: commander, analyst · the demo centrepiece (charter §4 item 2) · uses the same run and artefact calls for both sides</div>
+  <ol>
+    <li><strong>Left</strong>: GNSS-only run. The dashed line is where the orthophoto says the road is; the mesh is visibly shifted. This is the accuracy table drawn as geometry.</li>
+    <li><strong>Swipe handle</strong>: 48 px wide, draggable, and also a keyboard slider (focus it and use ← →). The range input below is the non-drag alternative (WCAG 2.5.7).</li>
+    <li><strong>Modes</strong>: swipe, side-by-side (synced cameras) and difference DSM (right − left, diverging ramp ±2 m with a neutral midpoint). Try all three.</li>
+    <li><strong>Residual summary</strong> links to the report. The run picker can also compare a run to the reference DSM, or raw GNSS vs anchored placement (<code>G</code>). The difference-DSM computation has no endpoint in 08 §9 yet (open item).</li>
+  </ol>
+  <p class="anno-sub" style="margin-top:8px">Next: <a href="11-states.html">Empty, error &amp; loading states →</a></p>
+</aside>
+</div>
+</body>
+</html>
