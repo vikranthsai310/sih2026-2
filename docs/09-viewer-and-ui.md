@@ -97,7 +97,7 @@ flowchart TD
 | `/missions/:missionId/runs/:runId/accuracy` | Accuracy Report |
 | `/settings` | Settings |
 
-A **mission** is one flight (video plus sidecars). A **run** is one pipeline execution on that mission with a given profile and anchoring options. One mission can have several runs, for example `fast` first and `quality` later, or with and without a reference ortho. This split lets us compare runs (experiments in [11-testing-and-evaluation.md](11-testing-and-evaluation.md)).
+A **mission** is one flight (video plus sidecars). A **run** is one pipeline execution on that mission with a given profile and anchoring options. One mission can have several runs, for example `fast` first and `quality` later, or with and without a reference ortho. This split lets us compare runs (experiments in [11-testing-and-evaluation.md](11-testing-and-evaluation.md)). Missions are a lightweight grouping in the API (`/api/v1/missions`, [08 §9](08-data-formats-and-interfaces.md#9-rest-and-websocket-api)); each run still has its own self-contained run directory `data/runs/<run_id>/`. Wireframes abbreviate run IDs as `r-0003`; real IDs use the `YYYYMMDD-HHMMSS-<6 hex>` format from 08 §1.
 
 ---
 
@@ -112,16 +112,16 @@ sequenceDiagram
     participant Job as Job runner (pipeline)
 
     Op->>UI: New Mission: drop video + SRT (+ RTK / ref ortho / DSM / GCP)
-    UI->>API: POST /api/missions, chunked uploads
-    API->>Job: enqueue S0 Ingest & Sync (quick check)
+    UI->>API: POST /api/v1/missions, chunked POST/PUT /api/v1/uploads
+    API->>Job: POST /api/v1/missions/{id}/ingest-check (S0 quick check)
     Job-->>API: ingest report (track, time offset, frame quality, warnings)
     API-->>UI: Ingest Check data
     Op->>UI: Review warnings, choose profile, press "Start processing"
-    UI->>API: POST /api/missions/{id}/runs {profile, anchors}
+    UI->>API: POST /api/v1/runs {mission_id, profile, inputs, options}
     API->>Job: S1..S9 + P in parallel
     loop every stage event
         Job-->>API: progress, logs, preview tiles
-        API-->>UI: WebSocket /ws/runs/{runId}
+        API-->>UI: WebSocket /api/v1/runs/{runId}/progress
     end
     Note over UI: Live 2D mosaic (P) is visible within ~60 s (target)
     Job-->>API: run complete (3D Tiles, COGs, LAZ, report)
@@ -324,7 +324,7 @@ The primary button is disabled only on **fail**. Warnings never block the user; 
 |---|---|
 | Stage list | Always the canonical S0–S9 + P order and names. States: `queued ○`, `running ▓ nn %`, `done ✓ mm:ss`, `warning ⚠`, `failed ✗`, `skipped –` (e.g. S7 off, or S5–S8 in `preview`). Sub-steps expand on click. |
 | ETA | Shown as a range: remaining stages × median historical duration per stage for this profile and resolution, scaled by the current stage's measured rate. It shows "—" until S1 finishes. |
-| Live 2D preview | Incremental mosaic from GPS-tagged keyframes (P), served as XYZ PNG tiles or as a growing COG. It is always labelled **"GPS-placed, not metric"**. Incremental CPU mosaicking at about 2 fps is proven in the literature ([ISPRS Annals 2025](https://isprs-annals.copernicus.org/articles/X-2-W2-2025/65/2025/)). |
+| Live 2D preview | Incremental mosaic from GPS-tagged keyframes (P), served as XYZ WebP tiles (`preview/tiles/{z}/{x}/{y}.webp`). It is always labelled **"GPS-placed, not metric"**. Incremental CPU mosaicking at about 2 fps is proven in the literature ([ISPRS Annals 2025](https://isprs-annals.copernicus.org/articles/X-2-W2-2025/65/2025/)). |
 | Key numbers | Intermediate QA from S3/S4. It tells an analyst early whether anchoring worked. |
 | Resource meters | Polled from the server every 2 s. GPU memory above 95 % shows ⚠ with a hint to switch profile. |
 | Cancel | Confirmation dialog. Partial outputs are kept and marked `cancelled`. |
@@ -545,11 +545,11 @@ Export runs as a server job with its own progress toast. Every export writes a `
 | Vertical datum | Cesium works in WGS84 **ellipsoidal** heights. The UI shows **orthometric** heights (EGM2008 by default) by subtracting geoid undulation N from an offline geoid grid shipped with the app: H = h − N. For *differences* over a site under a few km, ΔN is typically at mm–cm level, but we still apply the grid rather than assume it away. |
 | Uncertainty level | Displayed as 1σ by default; switchable to 90 % (×1.6449 for 1-D quantities; CE90 for horizontal positions). The tooltip always states which is used. |
 | Inferred geometry | If any pick lands on `conf_class = inferred`, the result gets ▨ "includes inferred surface" and its uncertainty uses σ_inferred (below). |
-| Persistence | Measurements are saved per run on the server (`/api/runs/{id}/measurements`) and exported as GeoJSON with the uncertainty fields. |
+| Persistence | Measurements are saved per run on the server (`GET/POST /api/v1/runs/{run_id}/measurements`) and exported as GeoJSON with the uncertainty fields. |
 
 ### 6.2 Uncertainty model (inputs from S9)
 
-Each run publishes an **error budget** (`qa/error_budget.json`, schema in [08-data-formats-and-interfaces.md](08-data-formats-and-interfaces.md)) that the frontend uses:
+Each run publishes an **error budget** (the `error_budget` object in `09_qa/accuracy.json`, schema in [08-data-formats-and-interfaces.md §7.6](08-data-formats-and-interfaces.md#76-accuracy-report-json-09_qaaccuracyjson)) that the frontend uses:
 
 | Symbol | Meaning | Source |
 |---|---|---|
@@ -662,7 +662,7 @@ All text/background pairs must meet WCAG 2.2 AA contrast (4.5 : 1 for body text,
 | Testing | Vitest + React Testing Library, Playwright for end-to-end, axe-core for accessibility | See doc 11 |
 | Offline assets | Cesium static assets, fonts (Noto Sans + Noto Sans Devanagari) and the geoid grid bundled locally | Air-gapped |
 
-The TanStack Query, Zustand and chart-library choices are proposals by R5; the final list and licences go in [07-tech-stack.md](07-tech-stack.md).
+The TanStack Query, Zustand and chart-library choices are proposals by R5; they are listed with licences in [07-tech-stack.md §3.13](07-tech-stack.md).
 
 ### 8.2 Component tree
 
@@ -742,46 +742,51 @@ web/
 
 ### 8.3 API client and websocket progress
 
-The REST and websocket contracts are defined authoritatively in [08-data-formats-and-interfaces.md](08-data-formats-and-interfaces.md). The frontend relies on the following shape:
+The REST and websocket contracts are defined authoritatively in [08-data-formats-and-interfaces.md §9](08-data-formats-and-interfaces.md#9-rest-and-websocket-api) (base URL `/api/v1`). The frontend relies on the following calls:
 
 | Call | Purpose |
 |---|---|
-| `POST /api/missions` | Create a mission and return upload slots |
-| `PUT /api/missions/{id}/files/{fileId}?chunk=n` | Resumable chunked upload (8 MB chunks, SHA-256 per chunk) |
-| `GET /api/missions/{id}/ingest` | Ingest Check report (S0/S1 quick pass) |
-| `POST /api/missions/{id}/runs` | Start a run `{profile, anchors, options}` |
-| `GET /api/runs/{runId}` | Run status snapshot (used on reconnect) |
-| `WS /ws/runs/{runId}` | Push events: `stage`, `progress`, `log`, `preview_tile`, `metric`, `resource`, `done`, `error` |
-| `GET /files/runs/{runId}/...` | Static outputs: `tiles/mesh/tileset.json`, `tiles/points/tileset.json`, `rasters/ortho.tif`, `qa/report.json`, `qa/error_budget.json` |
-| `GET/POST /api/runs/{runId}/measurements` | Saved measurements |
-| `POST /api/runs/{runId}/exports` | Start an export job |
+| `POST /api/v1/missions` | Create a mission (one flight) → `mission_id` |
+| `POST /api/v1/uploads`, `PUT /api/v1/uploads/{upload_id}/chunks/{n}`, `POST /api/v1/uploads/{upload_id}/complete` | Resumable chunked upload (chunk size returned by the server, SHA-256 verified on completion; `GET /api/v1/uploads/{upload_id}` lists received chunks for resume) |
+| `POST` / `GET /api/v1/missions/{mission_id}/ingest-check` | Ingest Check report (S0 quick pass + S1 frame-quality sampling) |
+| `POST /api/v1/runs` | Start a run `{mission_id, profile, inputs, options, overrides}` |
+| `GET /api/v1/runs/{run_id}` | Run status snapshot (used on reconnect) |
+| `WS /api/v1/runs/{run_id}/progress` | Push events: `stage_started`, `progress`, `stage_completed` (carries stage metrics for "Key numbers"), `warning`, `preview_update`, `run_completed`, `run_failed`, `heartbeat` |
+| `GET /api/v1/runs/{run_id}/logs` | Log panel (polled while the Processing screen is open) |
+| `GET /api/v1/health` | Resource meters (GPU, CPU, RAM, disk), polled every 2 s |
+| `GET /api/v1/runs/{run_id}/artifacts` | Artefact list with URLs |
+| `GET /files/runs/{run_id}/...` | Static outputs (nginx, Range): `08_export/tiles/mesh/tileset.json`, `08_export/tiles/pointcloud/tileset.json`, `08_export/rasters/ortho.tif`, `08_export/rasters/confidence.tif`, `09_qa/accuracy.json` (includes the error budget) |
+| `GET /api/v1/runs/{run_id}/report?format=pdf\|html\|json` | Accuracy report downloads |
+| `GET` / `POST /api/v1/runs/{run_id}/measurements` | Saved measurements |
+| `POST /api/v1/runs/{run_id}/measure/{kind}` | Server-side volume / area / profile |
+| `POST /api/v1/runs/{run_id}/exports` | Start an export job |
 
 **Websocket event (example)**
 
 ```json
 {
   "type": "progress",
-  "run_id": "r-0003",
   "seq": 1842,
-  "ts": "2026-11-14T10:47:58.214+05:30",
+  "ts": "2026-11-14T05:17:58.214Z",
   "stage": "S5",
-  "substep": "densify",
   "pct": 41.0,
-  "eta_s": [300, 480],
+  "eta_s": 390,
   "msg": "DensifyPointCloud tile 7/17"
 }
 ```
+
+Timestamps are UTC on the wire (08 §1); the UI displays local time and turns `eta_s` into the ETA range described in §5.4.
 
 ```mermaid
 sequenceDiagram
     participant UI
     participant WS as WebSocket
     participant API
-    UI->>API: GET /api/runs/r-0003 (snapshot, last seq = 1790)
-    UI->>WS: connect /ws/runs/r-0003?since=1790
+    UI->>API: GET /api/v1/runs/{run_id} (snapshot, last seq = 1790)
+    UI->>WS: connect /api/v1/runs/{run_id}/progress, send subscribe since_seq=1790
     WS-->>UI: replay events 1791..now, then live
     Note over UI,WS: connection lost (tablet sleeps)
-    UI->>WS: reconnect with backoff 1s,2s,4s…max 30s, since=last seq
+    UI->>WS: reconnect with backoff 1s,2s,4s…max 30s, since_seq=last seq
     WS-->>UI: replay missed events (idempotent by seq)
 ```
 
@@ -799,10 +804,10 @@ Events carry a monotonically increasing `seq`, so reconnecting is lossless and a
 | Rasters | COG served by range requests, or pre-tiled XYZ from the server | First ortho tiles within 2 s |
 | Time to first view | Load the root tile plus the ortho overview first; defer semantics and splats | 3D Viewer interactive ≤ 5 s after opening on the local server |
 | Picking | `pickPosition` requires depth; batch picks on pointer-up and not on move (hover uses a throttled 30 Hz pick) | No frame drops during measurement |
-| Heavy measurements | Surface area, volume and profiles over more than 10⁵ cells are computed server-side (`POST /api/runs/{id}/measure/volume`) | Result ≤ 2 s for 1 ha at 10 cm |
+| Heavy measurements | Surface area, volume and profiles over more than 10⁵ cells are computed server-side (`POST /api/v1/runs/{run_id}/measure/{kind}`, `kind` = `volume`, `area` or `profile`) | Result ≤ 2 s for 1 ha at 10 cm |
 | Bundle size | Code-split per page; Cesium loaded only on viewer routes | Initial JS ≤ 500 kB gzipped (excluding Cesium) |
 | Memory | Unload tilesets of runs not in view; one Cesium `Viewer` instance for the app | Browser tab ≤ 3 GB |
-| Live preview | Preview tiles are pushed as `preview_tile` events and the client fetches the PNG. Uses Leaflet-free Cesium imagery or a 2D canvas on low-end devices. | Updates ≥ 1 Hz |
+| Live preview | Preview tile updates are pushed as `preview_update` events and the client re-fetches the changed WebP tiles. Uses Leaflet-free Cesium imagery or a 2D canvas on low-end devices. | Updates ≥ 1 Hz |
 
 ---
 
@@ -951,7 +956,7 @@ A native Hindi speaker on the team must review the Hindi strings before the fina
 - [05-pipeline-design.md](05-pipeline-design.md): S0–S9 + P internals, confidence computation
 - [06-georeferencing-and-accuracy.md](06-georeferencing-and-accuracy.md): time sync, anchoring, error budget
 - [07-tech-stack.md](07-tech-stack.md): library versions and licences
-- [08-data-formats-and-interfaces.md](08-data-formats-and-interfaces.md): REST/WS contracts, file formats, `error_budget.json`
+- [08-data-formats-and-interfaces.md](08-data-formats-and-interfaces.md): REST/WS contracts, file formats, `accuracy.json` error budget
 - [10-setup-and-repo-structure.md](10-setup-and-repo-structure.md)
 - [11-testing-and-evaluation.md](11-testing-and-evaluation.md): UI tests, accessibility checks, accuracy protocol
 - [12-flight-and-data-capture-guide.md](12-flight-and-data-capture-guide.md)

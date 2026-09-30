@@ -244,7 +244,7 @@ sequenceDiagram
   A-->>U: WS {type:"run_completed", artifacts_url}
   U->>A: GET /api/v1/runs/{run_id}/artifacts
   A-->>U: 200 [tileset.json, pointcloud.laz, ortho.tif, …]
-  U->>W: GET /files/runs/{run_id}/08_export/tiles/tileset.json
+  U->>W: GET /files/runs/{run_id}/08_export/tiles/mesh/tileset.json
   W-->>U: 3D Tiles (streamed, range requests)
 ```
 
@@ -295,7 +295,7 @@ sequenceDiagram
   A->>A: enqueue job(type="qa_only")
   K->>FS: invalidate 09_qa/stage.json only
   K->>FS: S9 → accuracy.json, report.pdf
-  A-->>E: 202 {job_id}; later GET /runs/{id}/report
+  A-->>E: 202 {job_id}; later GET /api/v1/runs/{id}/report
 ```
 
 ---
@@ -494,7 +494,7 @@ Error and warning codes are catalogued in [`08-data-formats-and-interfaces.md` �
 
 ### 9.3 Resume semantics
 
-- `drishti run … --resume` or `POST /runs/{id}/resume` restarts the plan; completed stages with matching fingerprints are skipped.
+- `drishti run … --resume` or `POST /api/v1/runs/{id}/resume` restarts the plan; completed stages with matching fingerprints are skipped.
 - On worker start-up, any run in `RUNNING` whose heartbeat is stale is moved to `INTERRUPTED` and re-queued automatically (configurable).
 - `--from S5` forces re-execution from a stage (invalidates it and downstream).
 

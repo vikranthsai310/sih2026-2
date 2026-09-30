@@ -31,7 +31,7 @@ sih2026-2/
 ├── pipeline/                    # Python package root
 │   └── drishti/
 │       ├── __init__.py          # Package version
-│       ├── cli.py               # `drishti` entry point: run, selftest, check-licences, calibrate, eval
+│       ├── cli.py               # `drishti` entry point: run, ingest, preview, qa, export, benchmark, validate, selftest, check-licences (08 §8)
 │       ├── config.py            # Pydantic config models; YAML layering (default → profile → overrides)
 │       ├── run.py               # Orchestrator: stage registry, run directory, resume, progress events
 │       ├── ingest/              # S0 Ingest & Sync
@@ -77,14 +77,14 @@ sih2026-2/
 │
 ├── server/                      # FastAPI app
 │   ├── app/main.py              # (proposed) FastAPI instance, routers, static mounts
-│   ├── app/routes/              # (proposed) jobs.py, runs.py, files.py, ws.py (progress websocket)
+│   ├── app/routes/              # (proposed) missions.py, uploads.py, runs.py, measurements.py, ws.py — endpoints per 08 §9
 │   ├── app/jobs.py              # (proposed) SQLite job table + single-GPU worker
 │   └── tests/                   # (proposed) API tests (httpx TestClient)
 │
 ├── web/                         # React + Vite + CesiumJS viewer
 │   ├── package.json             # (proposed) Scripts: dev, build, lint, test
 │   ├── vite.config.ts           # (proposed) Copies Cesium static assets; dev proxy to server
-│   ├── src/                     # (proposed) App.tsx, viewer/, tools/ (measure), layers/, api/
+│   ├── src/                     # (proposed) api/, stores/, pages/, viewer/ (incl. tools/), components/, i18n/ — see 09 §8.2
 │   └── public/                  # (proposed) Offline basemap tiles / icons (no ion)
 │
 ├── configs/
@@ -95,9 +95,9 @@ sih2026-2/
 │
 ├── scripts/
 │   ├── download_datasets.sh     # (proposed) MARS-LVIG / UseGeo / UAVD4L / ODM samples → data/datasets/
-│   ├── download_weights.sh      # (proposed) Fetch weights listed in weights/MANIFEST.yaml, verify SHA256
+│   ├── download_weights.sh      # (proposed) Fetch weights listed in models/MANIFEST.yaml, verify SHA256
 │   ├── benchmark.py             # (proposed) Timed runs across profiles → CSV
-│   ├── calibrate_camera.py      # (proposed) Checkerboard calibration → configs/cameras/<model>_<mode>.json
+│   ├── calibrate_camera.py      # (proposed) Checkerboard calibration → configs/cameras/<model>_<mode>.yaml
 │   └── make_offline_bundle.sh   # (proposed) Build + docker save + weights + checksums
 │
 ├── tests/
@@ -106,13 +106,13 @@ sih2026-2/
 │   └── golden/                  # (proposed) Small reference inputs + expected outputs (SRT samples per drone model)
 │
 ├── docker/
-│   ├── pipeline.Dockerfile      # (proposed) CUDA 12 base + COLMAP + OpenMVS + conda env + drishti
-│   ├── server.Dockerfile        # (proposed) Slim Python image for FastAPI (or reuse pipeline image)
+│   ├── worker.Dockerfile        # (proposed) CUDA 12 base + COLMAP + OpenMVS + conda env + drishti
+│   ├── api.Dockerfile           # (proposed) Slim Python image for the FastAPI app in server/
 │   ├── web.Dockerfile           # (proposed) Build web, serve static via nginx
 │   ├── versions.env             # (proposed) Pinned COLMAP/OpenMVS commits, CUDA, PyTorch index
-│   └── compose.yaml             # (proposed) pipeline-worker + server + web, GPU reservation, volumes
+│   └── compose.yaml             # (proposed) web + api + worker (04 §6.3), GPU reservation, volumes
 │
-├── weights/                     # (proposed, git-ignored except MANIFEST.yaml) Model weights
+├── models/                      # (proposed, git-ignored except MANIFEST.yaml) Model weights (mounted read-only at /models)
 │   └── MANIFEST.yaml            # name, url, sha256, licence, finale_allowed
 │
 └── data/                        # (git-ignored) inputs, runs, reference rasters
@@ -278,36 +278,38 @@ pytest -m "not gpu" -q      # unit tests
 
 ### 5.1 Images and services
 
+Service names, images, ports and volumes follow [04 §3 and §6.3](04-system-architecture.md#63-compose-sketch).
+
 | Service | Image | Contents | GPU |
 |---|---|---|---|
-| `worker` | `drishti/pipeline:<ver>` | CUDA 12 runtime base, COLMAP 4.x (CUDA), OpenMVS, conda env (GDAL/PDAL), PyTorch, `drishti` | ✅ |
-| `server` | `drishti/server:<ver>` (or the pipeline image with a different command) | FastAPI + job runner. Starts runs in `worker`, or in-process if merged. | — |
-| `web` | `drishti/web:<ver>` | nginx serving the built React/Cesium app plus `/tiles`, `/cogs` from the runs volume | — |
+| `worker` | `drishti/worker:<ver>-cuda12` (from `docker/worker.Dockerfile`) | CUDA 12 runtime base, COLMAP 4.x (CUDA), OpenMVS, conda env (GDAL/PDAL), PyTorch, `drishti`; runs the job runner that claims queued jobs from SQLite | ✅ |
+| `api` | `drishti/api:<ver>` (from `docker/api.Dockerfile`; code in `server/`) | FastAPI (REST + WebSocket, [08 §9](08-data-formats-and-interfaces.md#9-rest-and-websocket-api)), uploads, run CRUD. Not published to the host; reached through `web`. | — |
+| `web` | `drishti/web:<ver>` (from `docker/web.Dockerfile`) | nginx serving the built React/Cesium app, proxying `/api/*` to `api`, and serving run outputs read-only at `/files/runs/…` (3D Tiles, COGs, preview tiles, with Range) | — |
 | `odm` (optional) | `opendronemap/odm:gpu` | Baseline comparator only | ✅ |
 
-`docker/compose.yaml` (sketch):
+`docker/compose.yaml` (sketch; network isolation details in 04 §6.3):
 
 ```yaml
 services:
   worker:
-    image: drishti/pipeline:${DRISHTI_VERSION}
-    command: ["drishti", "worker", "--db", "/data/jobs.sqlite"]
-    volumes: ["./data:/data", "./weights:/weights:ro"]
-    environment: [DRISHTI_WEIGHTS=/weights, DRISHTI_OFFLINE=1]
+    image: drishti/worker:${DRISHTI_VERSION}-cuda12
+    command: ["drishti-worker"]                 # job runner; DB at /data/drishti.db
+    volumes: ["../data:/data", "../models:/models:ro"]
+    environment: [DRISHTI_DATA=/data, DRISHTI_MODELS=/models, DRISHTI_OFFLINE=1]
     deploy:
       resources:
         reservations:
-          devices: [{ driver: nvidia, count: 1, capabilities: [gpu] }]
-  server:
-    image: drishti/server:${DRISHTI_VERSION}
+          devices: [{ driver: nvidia, count: all, capabilities: [gpu] }]
+  api:
+    image: drishti/api:${DRISHTI_VERSION}
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
-    volumes: ["./data:/data"]
-    ports: ["8000:8000"]
+    environment: [DRISHTI_DATA=/data, DRISHTI_DB=/data/drishti.db]
+    volumes: ["../data:/data"]                  # no host port: reached via web
   web:
     image: drishti/web:${DRISHTI_VERSION}
-    volumes: ["./data/runs:/usr/share/nginx/html/runs:ro"]
-    ports: ["8080:80"]
-    depends_on: [server]
+    volumes: ["../data:/data:ro"]               # nginx: /files/runs/… → /data/runs/…
+    ports: ["127.0.0.1:8080:80"]                # localhost only by default
+    depends_on: [api]
 ```
 
 ### 5.2 Building the offline bundle (`scripts/make_offline_bundle.sh`)
@@ -316,13 +318,13 @@ services:
 export DRISHTI_VERSION=0.x.y
 docker compose -f docker/compose.yaml build
 docker pull opendronemap/odm:gpu                # optional baseline
-bash scripts/download_weights.sh                 # verifies SHA256 against weights/MANIFEST.yaml
+bash scripts/download_weights.sh                 # verifies SHA256 against models/MANIFEST.yaml
 drishti check-licences --profile fast            # MUST pass (no forbidden weights)
 
 mkdir -p bundle
-docker save -o bundle/drishti-images.tar \
-  drishti/pipeline:$DRISHTI_VERSION drishti/server:$DRISHTI_VERSION drishti/web:$DRISHTI_VERSION
-tar -czf bundle/weights.tgz weights/
+docker save -o bundle/drishti-offline-$DRISHTI_VERSION.tar \
+  drishti/worker:$DRISHTI_VERSION-cuda12 drishti/api:$DRISHTI_VERSION drishti/web:$DRISHTI_VERSION
+tar -czf bundle/models.tgz models/              # includes MANIFEST.yaml, SHA256SUMS, licence file per weight
 cp docker/compose.yaml configs/*.yaml bundle/
 cp -r data/reference/sample bundle/sample_data   # small demo clip + SRT + checkpoints
 ( cd bundle && sha256sum * > SHA256SUMS )
@@ -332,15 +334,16 @@ cp -r data/reference/sample bundle/sample_data   # small demo clip + SRT + check
 
 ```bash
 sha256sum -c SHA256SUMS
-docker load -i drishti-images.tar
-tar -xzf weights.tgz
+docker load -i drishti-offline-0.x.y.tar
+tar -xzf models.tgz
 DRISHTI_VERSION=0.x.y docker compose -f compose.yaml up -d
+curl -s http://127.0.0.1:8080/api/v1/health       # expect "offline": true
 # open http://localhost:8080  — Wi-Fi OFF during the whole test
 ```
 
 Offline rules:
 - **CesiumJS without ion.** Do not set an ion token. Use `EllipsoidTerrainProvider`, or our own DSM, plus local imagery (our orthomosaic COG and optional pre-downloaded basemap tiles). Any call to `*.cesium.com` is a bug. Test with the network unplugged.
-- **No runtime downloads.** PyTorch Hub, Ultralytics, and Hugging Face auto-downloads must be disabled (`DRISHTI_OFFLINE=1` sets `HF_HUB_OFFLINE=1`, `TORCH_HOME=/weights/torch`, and Ultralytics settings pointing to local weights).
+- **No runtime downloads.** PyTorch Hub, Ultralytics, and Hugging Face auto-downloads must be disabled (`DRISHTI_OFFLINE=1` sets `HF_HUB_OFFLINE=1`, `TORCH_HOME=/models/torch`, and Ultralytics settings pointing to local weights).
 - Rehearse the full `docker load → run → view` loop on the **finale laptop** at M5.
 
 ---
@@ -364,7 +367,7 @@ drishti run --video data/raw/demo/DJI_0001.MP4 --srt data/raw/demo/DJI_0001.SRT 
 drishti run --video f.mp4 --srt f.srt --rtk f.pos --gcp gcp.csv --profile quality --out data/runs/q1
 
 # 4) Evaluate against independent checkpoints (never the GCPs)
-drishti eval --run data/runs/demo_fast --checkpoints data/reference/demo/checkpoints.csv
+drishti qa --run data/runs/demo_fast --checkpoints data/reference/demo/checkpoints.csv
 
 # 5) Server + viewer
 uvicorn app.main:app --app-dir server --reload        # :8000
@@ -412,7 +415,7 @@ The CLI contract (charter §9) is fixed: `drishti run --video … --srt … [--r
 | Branch names | `feature/<stage>-<desc>` e.g. `feature/s0-srt-mini4pro`, `feature/s4-ortho-registration`, `feature/web-measure-area`. Also `fix/<stage>-<desc>`, `docs/<desc>`, `chore/<desc>`. Stage tags: `s0`…`s9`, `p`, `server`, `web`, `infra`. |
 | Commits | **Conventional Commits**: `feat(s4): add robust Umeyama with Huber loss`, `fix(s0): handle SRT without gimbal fields`, `docs(12): add checkpoint CSV format`, `test(s9): golden CE90 case`, `chore(deps): pin pycolmap`. |
 | PR size | Aim for ≤ 400 changed lines. Split big features. |
-| Reviews | ≥ 1 approving review. Changes to `georef/`, `qa/` or `ingest/timesync.py` need a review from **R2 Geo & Accuracy Lead**. Changes to `weights/MANIFEST.yaml` need R2 sign-off on the licence. |
+| Reviews | ≥ 1 approving review. Changes to `georef/`, `qa/` or `ingest/timesync.py` need a review from **R2 Geo & Accuracy Lead**. Changes to `models/MANIFEST.yaml` need R2 sign-off on the licence. |
 | CI gate | ruff + black --check + mypy + `pytest -m "not gpu"` + web lint/test must pass. |
 | Merging | Squash-merge. PR title = conventional commit. |
 | Releases | Tag `v0.<milestone>.<patch>` at each milestone (M1…M5). The offline bundle is built only from tags. |
@@ -471,8 +474,8 @@ bundle/
 *.sqlite
 
 # weights — only the manifest is tracked
-weights/*
-!weights/MANIFEST.yaml
+models/*
+!models/MANIFEST.yaml
 
 # SRT: ignore in data, but allow tiny golden samples
 *.SRT
@@ -505,8 +508,8 @@ Golden test files must be **tiny**: an SRT excerpt of a few KB, or a 64×64 rast
 
 - **Layering:** `configs/default.yaml` ← `configs/<profile>.yaml` ← `--config my.yaml` ← `--set key=value` CLI overrides ← `DRISHTI_*` environment variables (paths only).
 - **Validation:** `drishti/config.py` defines pydantic models per stage (`IngestConfig`, `SfmConfig`, …). Unknown keys are an error, so typos fail fast.
-- **Reproducibility:** every run writes `runs/<id>/config.resolved.yaml`, `versions.json` (git SHA, COLMAP/OpenMVS versions, weights SHA256) and `inputs.sha256`.
-- **Camera configs:** `configs/cameras/<drone_model>_<video_mode>.json` holds calibrated intrinsics and rolling-shutter readout. See [12 §7](12-flight-and-data-capture-guide.md).
+- **Reproducibility:** every run writes `data/runs/<run_id>/config.resolved.yaml` and `manifest.json` (software versions incl. git SHA, COLMAP/OpenMVS versions, container digest; input SHA-256 hashes) — see [08 §6](08-data-formats-and-interfaces.md). Weight SHA-256s are checked against `models/MANIFEST.yaml` by `drishti selftest`.
+- **Camera configs:** `configs/cameras/<drone_model>_<video_mode>.yaml` (schema in [08 §2.6](08-data-formats-and-interfaces.md)) holds calibrated intrinsics and rolling-shutter readout. See [12 §7](12-flight-and-data-capture-guide.md).
 - **No secrets** exist in the runtime (offline). CORS caster credentials used during field survey stay in the surveyor's device, not in the repo.
 
 Example override:

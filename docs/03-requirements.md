@@ -95,13 +95,13 @@ flowchart LR
 
 ### 2.3 Release scope
 
-| Release | Milestone (charter §11) | Scope summary |
+| Release (Rel-#; not the R# role IDs of charter §10) | Milestone (charter §11) | Scope summary |
 |---|---|---|
-| R0 Baseline | M1 | ODM on sample + own video; first model (reference only, not shipped) |
-| R1 MVP | M2 | S0–S5 end-to-end with one `drishti run` command; LAS, OBJ, ortho, DSM |
-| R2 Accuracy | M3 | S4 anchoring + S9 QA with ≥30 checkpoints; CE90/LE90 report |
-| R3 Product | M4 | Viewer, measurement, 3D Tiles, confidence map, live preview (P) |
-| R4 Finale | M5 | Docker offline bundle, hardening on unseen video, KLV (stretch) |
+| Rel-0 Baseline | M1 | ODM on sample + own video; first model (reference only, not shipped) |
+| Rel-1 MVP | M2 | S0–S5 end-to-end with one `drishti run` command; LAS, OBJ, ortho, DSM |
+| Rel-2 Accuracy | M3 | S4 anchoring + S9 QA with ≥30 checkpoints; CE90/LE90 report |
+| Rel-3 Product | M4 | Viewer, measurement, 3D Tiles, confidence map, live preview (P) |
+| Rel-4 Finale | M5 | Docker offline bundle, hardening on unseen video, KLV (stretch) |
 
 ---
 
@@ -342,7 +342,7 @@ Indicative per-stage budget for NFR-PERF-01 (estimates to be measured; see [`05-
 
 | ID | Requirement | Condition | Target |
 |---|---|---|---|
-| NFR-ACC-01 | Relative length error | Measured lengths ≥ 10 m, any anchoring tier | **≤ 0.5 %**; ≤ 10 cm on 20 m |
+| NFR-ACC-01 | Relative length error | Measured lengths ≥ 10 m, any anchoring tier; on short (~300 m) clips GNSS-only scale can reach ~0.7 %, so an extra scale source (RTK/PPK, anchoring or a known length) is required there (charter §6, [06 §12](06-georeferencing-and-accuracy.md)) | **≤ 0.5 %**; ≤ 10 cm on 20 m |
 | NFR-ACC-02 | Absolute — GNSS only | Consumer GNSS, no correction | **Report honestly**; expected ~3–7 m CE90 (Zhang et al. 2019 → ~3.5 m CE90 / ~6.5 m LE90, derived) |
 | NFR-ACC-03 | Absolute — anchored | Ortho/DSM registration, CORS/GAGAN or single GCP | **≤ 1 m CE90 and ≤ 1 m LE90** |
 | NFR-ACC-04 | Absolute — RTK/PPK | RTK/PPK positions supplied | **≤ 0.10 m CE90** (literature: PPK no-GCP XY 2.4 cm / Z 2.2 cm, Zhang et al. 2019) |

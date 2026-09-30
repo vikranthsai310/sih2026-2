@@ -552,7 +552,7 @@ def classify_point(p, gsd, cfg):
 
 ---
 
-## 15. Accuracy report layout (`s9_qa/report.html` / `.pdf`, `accuracy.json`)
+## 15. Accuracy report layout (`09_qa/report.html` / `.pdf`, `accuracy.json`)
 
 | § | Section | Content |
 |---|---|---|

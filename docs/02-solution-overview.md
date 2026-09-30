@@ -257,15 +257,15 @@ timeline
 
 | # | Risk | Likelihood | Impact | Mitigation | Owner |
 |---|---|---|---|---|---|
-| R1 | Official targets differ from our assumed ≤ 15 min / ≤ 1 m | Medium | High | Get the NTRO PDF now ([01](01-problem-statement.md) §3). Keep targets configurable per profile | R6 |
-| R2 | The 15-min budget is missed on 4K / long clips | Medium | High | Keyframe at 1–2 fps. Global SfM. Medium-resolution OpenMVS. `fast` profile tuning. Time budget per stage *(timings are estimates to measure)* | R1 |
-| R3 | No reference ortho / DSM for the finale area | Medium | High | Fallback chain: RTK/PPK → CORS / GAGAN → single GCP → GNSS-only, **reported honestly** | R2 |
-| R4 | Doming or roll error on long straight strips | Medium | Medium | Fixed intrinsics. Gravity / gimbal priors. Sub-scene segmentation. Doming test | R2 |
-| R5 | Unknown SRT variant or no metadata in the finale video | Medium | High | Tolerant parsers (multiple DJI formats, KLV, CSV). Video-only fallback with a warning | R2 |
-| R6 | Licence conflict (AGPL, non-commercial weights) | Low–Medium | Medium | Licence register in [07-tech-stack.md](07-tech-stack.md). Prefer ALIKED and SAM 2 (Apache-2.0) | R4 |
-| R7 | GPU memory limits (OpenMVS, SAM 2, splats) | Medium | Medium | Tiling. SAM 2 only on keyframes. S7 optional | R3 / R4 |
-| R8 | Unable to fly our own real test (weather, permissions) | Low–Medium | High | Book a green-zone site early. MARS-LVIG as a backup truth dataset | R6 |
-| R9 | Feed-forward fallback licence unknown | Medium | Low | Treat as optional. COLMAP remains primary | R1 |
+| RK1 | Official targets differ from our assumed ≤ 15 min / ≤ 1 m | Medium | High | Get the NTRO PDF now ([01](01-problem-statement.md) §3). Keep targets configurable per profile | R6 |
+| RK2 | The 15-min budget is missed on 4K / long clips | Medium | High | Keyframe at 1–2 fps. Global SfM. Medium-resolution OpenMVS. `fast` profile tuning. Time budget per stage *(timings are estimates to measure)* | R1 |
+| RK3 | No reference ortho / DSM for the finale area | Medium | High | Fallback chain: RTK/PPK → CORS / GAGAN → single GCP → GNSS-only, **reported honestly** | R2 |
+| RK4 | Doming or roll error on long straight strips | Medium | Medium | Fixed intrinsics. Gravity / gimbal priors. Sub-scene segmentation. Doming test | R2 |
+| RK5 | Unknown SRT variant or no metadata in the finale video | Medium | High | Tolerant parsers (multiple DJI formats, KLV, CSV). Video-only fallback with a warning | R2 |
+| RK6 | Licence conflict (AGPL, non-commercial weights) | Low–Medium | Medium | Licence register in [07-tech-stack.md](07-tech-stack.md). Prefer ALIKED and SAM 2 (Apache-2.0) | R4 |
+| RK7 | GPU memory limits (OpenMVS, SAM 2, splats) | Medium | Medium | Tiling. SAM 2 only on keyframes. S7 optional | R3 / R4 |
+| RK8 | Unable to fly our own real test (weather, permissions) | Low–Medium | High | Book a green-zone site early. MARS-LVIG as a backup truth dataset | R6 |
+| RK9 | Feed-forward fallback licence unknown | Medium | Low | Treat as optional. COLMAP remains primary | R1 |
 
 Full risk register: [13-project-plan.md](13-project-plan.md).
 

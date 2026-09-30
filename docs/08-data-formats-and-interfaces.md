@@ -932,6 +932,22 @@ Example `08_export/tiles/mesh/tileset.json` (root transform = ENU→ECEF at lat 
         "definitions": { "type": "object" }
       }
     },
+    "error_budget": {
+      "type": "object",
+      "description": "1σ inputs for viewer measurement uncertainty (09 §6.2); from checkpoints if available, else predicted",
+      "properties": {
+        "sigma_abs_h_m": { "type": "number" },
+        "sigma_abs_z_m": { "type": "number" },
+        "s_rel": { "type": "number", "description": "relative scale uncertainty, fraction of length" },
+        "sigma_loc_m": {
+          "type": "object",
+          "properties": {
+            "observed_high": { "type": "number" }, "observed_low": { "type": "number" }, "inferred": { "type": "number" }
+          }
+        },
+        "source": { "enum": ["checkpoints", "predicted"] }
+      }
+    },
     "time_sync": { "type": "object", "properties": { "offset_s": { "type": "number" }, "sigma_s": { "type": "number" } } },
     "targets": { "type": "object", "description": "Charter §6 targets with pass/fail per metric" },
     "warnings": { "type": "array", "items": { "type": "object" } },
@@ -969,6 +985,8 @@ Example `08_export/tiles/mesh/tileset.json` (root transform = ENU→ECEF at lat 
   "doming": null,
   "completeness": 0.93,
   "confidence": { "observed_high_ratio": 0.78, "observed_low_ratio": 0.16, "inferred_ratio": 0.06 },
+  "error_budget": { "sigma_abs_h_m": 0.32, "sigma_abs_z_m": 0.53, "s_rel": 0.002,
+                    "sigma_loc_m": { "observed_high": 0.05, "observed_low": 0.15, "inferred": 0.5 }, "source": "checkpoints" },
   "time_sync": { "offset_s": -0.267, "sigma_s": 0.018 },
   "targets": {
     "anchored_ce90_le_1m": { "target": 1.0, "value": 0.69, "pass": true },
@@ -1019,6 +1037,7 @@ drishti run --video flight.mp4 --srt flight.srt \
 | `--srt PATH` | if DJI | DJI SRT sidecar (auto-detected if same basename) |
 | `--klv auto\|off\|STREAM` | no | KLV extraction from TS |
 | `--rtk PATH` | no | RTKLIB `.pos` or CSV |
+| `--gnss PATH` | no | Plain GNSS track CSV (e.g. flight-controller log or dataset adapter) when no SRT/KLV is available |
 | `--imu PATH` | no | Attitude/IMU CSV |
 | `--intrinsics PATH` | no | Camera YAML (else library lookup) |
 | `--ref-ortho PATH`, `--ref-dsm PATH` | no | Reference rasters for anchoring |
@@ -1035,12 +1054,16 @@ drishti run --video flight.mp4 --srt flight.srt \
 
 | Command | Purpose | Key flags | Example |
 |---|---|---|---|
-| `drishti ingest` | S0 only: probe, parse telemetry, time-sync estimate; prints a data-quality summary | `--video --srt/--klv --tz --out` | `drishti ingest --video DJI_0001.MP4 --out /tmp/check` |
+| `drishti ingest` | S0 only: probe, parse telemetry, time-sync estimate; prints a data-quality summary | `--video --srt/--klv --tz --out`; `--inspect-srt PATH` prints the detected SRT dialect and field coverage only | `drishti ingest --video DJI_0001.MP4 --out /tmp/check`; `drishti ingest --inspect-srt DJI_0001.SRT` |
 | `drishti preview` | Profile `preview`: S0, S1, P; serves tiles if `--serve` | `--video --srt --out --serve --port 8090` | `drishti preview --video f.mp4 --srt f.srt --serve` |
 | `drishti qa` | Re-run S9 on an existing run with new checkpoints/references | `--run DIR --checkpoints cp.csv [--ref-dsm dsm.tif] [--distances pairs.csv] [--format html,pdf,json]` | `drishti qa --run data/runs/2026… --checkpoints cp.csv` |
 | `drishti export` | Re-run S8 with other formats / CRS | `--run DIR --formats laz,las,ply,fbx,tiles3d --vertical egm96 --crs EPSG:32643 --bundle` | `drishti export --run … --formats ply,fbx` |
 | `drishti benchmark` | Run a dataset suite, collect timings and accuracy into a table | `--suite tests/benchmarks/suite.yaml --profile fast --repeat 3 --report bench.html` | `drishti benchmark --suite finale_dryrun.yaml` |
-| `drishti validate` | Validate an input file against its schema (SRT, CSV, YAML, GeoTIFF) | `--type srt|gcp|intrinsics|ref --file PATH` | `drishti validate --type gcp --file points.csv` |
+| `drishti validate` | Validate an input file against its schema (SRT, CSV, YAML, GeoTIFF) | `--type srt\|gcp\|intrinsics\|ref --file PATH` | `drishti validate --type gcp --file points.csv` |
+| `drishti selftest` | Environment check: CUDA, PyTorch, COLMAP (+CUDA), OpenMVS binaries, GDAL/PDAL, ffmpeg, model-weight SHA-256 against `models/MANIFEST.yaml`; with `--offline`, also asserts no network access | `--offline` | `drishti selftest --offline` |
+| `drishti check-licences` | Licence gate: fails (exit 6) if a profile references a weight marked `finale_allowed: false` in `models/MANIFEST.yaml` | `[--profile preview\|fast\|quality]` (default: all profiles) | `drishti check-licences --profile fast` |
+
+Two service entry points ship alongside the CLI but are not part of it: `drishti-admin` in the `api` container (e.g. `drishti-admin create-user --role admin`) and `drishti-worker` in the `worker` container (job runner that claims queued jobs from `data/drishti.db`).
 
 ### 8.4 Exit codes
 
@@ -1075,14 +1098,19 @@ drishti run --video flight.mp4 --srt flight.srt \
 
 | Method | Path | Role | Description |
 |---|---|---|---|
-| GET | `/health` | any | Liveness + offline status + GPU visibility |
+| GET | `/health` | any | Liveness + offline status + GPU visibility + resource snapshot (GPU memory, CPU, RAM, free disk); polled by the UI's resource meters |
 | GET | `/version` | any | Software versions |
 | POST | `/auth/login` | — | Username/password → session |
-| POST | `/uploads` | operator | Start chunked upload |
+| POST | `/missions` | operator | Create a mission (one flight: name, area tag) → `mission_id` |
+| GET | `/missions` | analyst | List missions with latest-run summary (filters: `status`, `since`, `q`) |
+| GET | `/missions/{mission_id}` | analyst | Mission detail: uploads, ingest-check status, runs |
+| POST | `/missions/{mission_id}/ingest-check` | operator | Quick S0 (+ S1 frame-quality sampling) check on the mission's uploads — same as `drishti ingest` |
+| GET | `/missions/{mission_id}/ingest-check` | analyst | Ingest-check report: track, time offset, frame quality, warnings |
+| POST | `/uploads` | operator | Start chunked upload (optional `mission_id`) |
 | PUT | `/uploads/{upload_id}/chunks/{n}` | operator | Upload chunk *n* (binary) |
 | POST | `/uploads/{upload_id}/complete` | operator | Finalise; server verifies SHA-256 |
-| POST | `/runs` | operator | Create run from uploads (or server-local paths under `data/`) |
-| GET | `/runs` | analyst | List runs (filters: `status`, `since`) |
+| POST | `/runs` | operator | Create run from uploads (or server-local paths under `data/`); optional `mission_id` |
+| GET | `/runs` | analyst | List runs (filters: `status`, `since`, `mission_id`) |
 | GET | `/runs/{run_id}` | analyst | Run detail (manifest summary + live state) |
 | POST | `/runs/{run_id}/cancel` | operator | Request cancellation |
 | POST | `/runs/{run_id}/resume` | operator | Resume interrupted/failed run (optional config overrides) |
@@ -1093,9 +1121,38 @@ drishti run --video flight.mp4 --srt flight.srt \
 | POST | `/runs/{run_id}/checkpoints` | operator | Upload checkpoint CSV → S9-only job |
 | GET | `/runs/{run_id}/report` | analyst | Accuracy report (`?format=json|html|pdf`) |
 | GET | `/runs/{run_id}/logs` | operator | Tail of structured log (`?stage=S3&level=WARNING`) |
+| GET | `/runs/{run_id}/measurements` | analyst | List saved viewer measurements (GeoJSON FeatureCollection) |
+| POST | `/runs/{run_id}/measurements` | analyst | Save a measurement (GeoJSON Feature with value and uncertainty) |
+| DELETE | `/runs/{run_id}/measurements/{measurement_id}` | analyst | Delete a saved measurement |
+| POST | `/runs/{run_id}/measure/{kind}` | analyst | Server-side heavy measurement on the DSM/mesh; `kind` = `volume` \| `area` \| `profile` |
 | WS | `/runs/{run_id}/progress` | analyst | Progress, preview updates, completion |
 
+**Static run files.** Run outputs are also served read-only by nginx at `/files/runs/{run_id}/{path}` — **outside** the `/api/v1` prefix, same session/token, HTTP Range supported (3D Tiles, COGs, preview tiles). `{path}` is relative to the run directory ([04 §7](04-system-architecture.md#7-run-directory-layout)), e.g. `08_export/tiles/mesh/tileset.json`, `08_export/rasters/ortho.tif`, `09_qa/accuracy.json`, `preview/tiles/{z}/{x}/{y}.webp`. Artefact listings (`GET /runs/{run_id}/artifacts`) return these URLs; clients should prefer them over constructing paths.
+
 ### 9.3 Request / response examples
+
+#### `POST /missions`, `POST /missions/{mission_id}/ingest-check`
+
+A **mission** is one flight (video plus sidecars); a **run** is one pipeline execution on it (profile + anchoring options). A mission groups uploads and runs so the UI can compare runs; it has no files of its own — every run still has its own self-contained run directory (ADR-009).
+
+```http
+POST /api/v1/missions
+{ "name": "Bridge-Recon-07", "area_tag": "Sector-4" }
+→ 201 { "mission_id": "m_5d21e0", "name": "Bridge-Recon-07", "created_at": "2026-11-14T05:10:02Z", "uploads": [], "runs": [] }
+
+POST /api/v1/missions/m_5d21e0/ingest-check
+{ "uploads": { "video": "up_7f3a1c", "srt": "up_7f3a1d" }, "timezone": "Asia/Kolkata" }
+→ 202 { "job_id": "job_ing_0a11", "type": "ingest_check", "status": "queued" }
+
+GET /api/v1/missions/m_5d21e0/ingest-check
+→ 200 { "status": "done", "video": { "codec": "hevc", "width": 3840, "height": 2160, "fps": 29.97, "duration_s": 588.1 },
+        "telemetry": { "source": "srt", "layout": "A", "coverage": 0.998, "gps_gaps": 0 },
+        "time_offset": { "offset_s": 0.37, "sigma_s": 0.03 },
+        "frames": { "sharp_ratio": 0.86, "hover_segments": 1 },
+        "track_geojson": "…", "warnings": [ { "code": "W-ING-01", "msg": "Timezone assumed Asia/Kolkata" } ] }
+```
+
+The report content is the same data-quality summary `drishti ingest` prints; field values above are placeholders.
 
 #### `POST /uploads`
 
@@ -1122,6 +1179,7 @@ Idempotency-Key: 5c1f0a0e-2b0e-4d7e-9a53-2f7d8c1b9e11
 
 {
   "name": "Campus strip 18-Oct",
+  "mission_id": "m_5d21e0",
   "profile": "fast",
   "inputs": {
     "video": { "upload_id": "up_7f3a1c" },
@@ -1215,6 +1273,27 @@ HTTP/1.1 202 Accepted
 
 Rejections are listed per row, e.g. `{"row": 7, "id": "CP07", "code": "E-ING-12", "detail": "Point outside model footprint"}`.
 
+#### `POST /runs/{run_id}/measurements`, `POST /runs/{run_id}/measure/{kind}`
+
+Saved measurements are stored per run (SQLite) and exported as GeoJSON with their uncertainty fields; coordinates are WGS 84 lon/lat with ellipsoidal heights (RFC 7946 order).
+
+```http
+POST /api/v1/runs/20261018-104207-a3f9c1/measurements
+{ "type": "Feature",
+  "geometry": { "type": "LineString", "coordinates": [[78.34991, 17.44561, 471.2], [78.35012, 17.44570, 471.9]] },
+  "properties": { "kind": "distance", "value_m": 24.61, "sigma_m": 0.07, "uncertainty_level": "1sigma",
+                  "includes_inferred": false, "label": "Bridge span A" } }
+→ 201 { "measurement_id": "ms_3f0c", "created_at": "…" }
+
+POST /api/v1/runs/20261018-104207-a3f9c1/measure/volume
+{ "polygon": { "type": "Polygon", "coordinates": [[[78.3499, 17.4456], [78.3503, 17.4456], [78.3503, 17.4460], [78.3499, 17.4456]]] },
+  "base": { "method": "best_fit_plane" }, "surface": "dsm" }
+→ 200 { "cut_m3": 412.7, "fill_m3": 18.3, "net_m3": 394.4, "sigma_m3": 21.0, "area_m2": 1850.2,
+        "cells": 185020, "includes_inferred": false }
+```
+
+`base.method` = `dtm` (default) \| `best_fit_plane` \| `lowest_rim` \| `fixed` (with `elevation_m`). `kind` = `area` returns planimetric and surface area; `kind` = `profile` takes a `LineString` and returns sampled heights. Uncertainty follows the error budget in `accuracy.json` (§7.6). Values above are placeholders.
+
 #### `GET /runs/{run_id}/report?format=json`
 
 Returns the `accuracy.json` document (§7.6). `format=pdf` → `application/pdf`; `format=html` → self-contained HTML (inline CSS/images, no external resources).
@@ -1265,7 +1344,7 @@ Heartbeats every 15 s; the client reconnects with `since_seq`.
 |---|---|---|
 | 400 | `E-API-01` | Malformed request / unknown field |
 | 401 / 403 | `E-API-02` / `E-API-03` | Not authenticated / role not permitted |
-| 404 | `E-API-04` | Run, upload or artefact not found |
+| 404 | `E-API-04` | Mission, run, upload, measurement or artefact not found |
 | 409 | `E-API-05` | State conflict (e.g. delete while running, resume while running) |
 | 413 | `E-API-06` | Chunk too large / quota exceeded |
 | 422 | `E-ING-01…` | Input validation: `E-ING-01` unsupported container/codec, `E-ING-02` unparseable SRT, `E-ING-03` telemetry coverage < 95 %, `E-ING-10` KLV checksum failures > threshold, `E-ING-11` CSV schema error, `E-ING-12` point outside footprint, `E-ING-13` GCP/CP id overlap |

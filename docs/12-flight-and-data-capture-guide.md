@@ -288,7 +288,7 @@ Fixed, calibrated intrinsics are the cheapest defence against doming (fixing K1 
    - appears at multiple **tilts** (±30–45°) and distances.
 4. Extract about 40–80 sharp frames (`scripts/calibrate_camera.py` rejects blurred ones with variance-of-Laplacian).
 5. Solve with OpenCV (`cv2.calibrateCamera`, OPENCV/Brown model: fx, fy, cx, cy, k1, k2, p1, p2, [k3]). Require **RMS reprojection error < 0.5 px**. Inspect for per-corner outliers.
-6. Save to `configs/cameras/<drone_model>_<WxH>_<fps>_<dewarp>.json`, with the COLMAP camera-model string, the date and the RMS.
+6. Save to `configs/cameras/<drone_model>_<WxH>_<fps>_<dewarp>.yaml` (camera intrinsics YAML, schema in [08 §2.6](08-data-formats-and-interfaces.md)), with the COLMAP camera-model string, the date and the RMS.
 
 ### 7.2 Method B: in-flight calibration flight
 

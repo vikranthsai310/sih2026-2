@@ -50,23 +50,26 @@ The only loop is S4 → S3: the fine time offset and the anchoring transform are
 
 ### 0.3 Run folder layout (artefacts)
 
-All artefacts of one run live in `data/runs/<run_id>/`. File schemas are specified in [`08-data-formats-and-interfaces.md`](08-data-formats-and-interfaces.md); names below are canonical.
+All artefacts of one run live in `data/runs/<run_id>/`. The canonical layout is [`04-system-architecture.md` §7](04-system-architecture.md#7-run-directory-layout); file schemas are specified in [`08-data-formats-and-interfaces.md`](08-data-formats-and-interfaces.md). The tree below follows 04 and adds a few stage-internal intermediates used in this document (`frame_index.parquet`, `02_masks/mvs/`, `align_report.json`, `dtm_raw.tif`, `doming.json`, `train_report.json`, `lod2/lod2.cityjson`).
 
 ```
 data/runs/<run_id>/
-├── run.yaml                      # resolved config (profile + overrides), versions, hashes
-├── log/                          # per-stage logs + timing.json
-├── s0_ingest/  video_meta.json  telemetry.parquet  frame_index.parquet  timesync.json  overlay_mask.png
-├── s1_frames/  images/*.jpg     keyframes.parquet  frame_scores.parquet
-├── s2_masks/   sfm/*.png        mvs/*.png           semantics/*.png   mask_stats.json
-├── s3_sfm/     database.db      sparse/0/{cameras,images,points3D}.bin   sfm_report.json
-├── s4_georef/  transform.json   sparse_geo/          align_report.json   anchor_report.json
-├── s5_dense/   scene.mvs  dense.ply  mesh.ply  mesh_textured.{obj,mtl,png}  dsm.tif  dtm.tif  ortho.tif
-├── s6_completion/ classified.laz  lod2.cityjson  lod2_mesh.ply  inferred_mask.json
-├── s7_splat/   splat.ply  splat.glb  train_report.json
-├── s8_export/  cloud.laz  mesh.glb  mesh.obj  tiles/tileset.json  splat_tiles/  dsm_cog.tif  dtm_cog.tif  ortho_cog.tif
-├── s9_qa/      accuracy.json  checkpoints.csv  doming.json  confidence.tif  report.html  report.pdf
-└── preview/    tiles/{z}/{x}/{y}.png  preview_state.json
+├── manifest.json                 # run record (08 §6)
+├── config.resolved.yaml          # resolved config (profile + overrides)
+├── inputs/                       # input files (hard-links or copies)
+├── logs/                         # run.jsonl, events.jsonl, tools/ (raw tool stdout/stderr)
+├── 00_ingest/  stage.json  video_info.json  telemetry.csv  frame_index.parquet  timesync.json  overlay_mask.png
+├── 01_frames/  stage.json  images/*.jpg  keyframes.csv  blur.csv
+├── 02_masks/   stage.json  dynamic/*.png  mvs/*.png  semantic/*.png  stats.json
+├── 03_sfm/     stage.json  database.db  sparse/0/{cameras,images,points3D,rigs,frames}.bin  poses.csv  sfm_report.json
+├── 04_georef/  stage.json  transform.json  anchoring.json  align_report.json  sparse_geo/  poses_geo.csv  registration/
+├── 05_dense/   stage.json  scene.mvs  dense.ply  mesh_refined.ply  textured/  rasters/{dsm,ortho,dtm_raw}.tif
+├── 06_completion/ stage.json  classified.laz  dtm.tif  lod2/{buildings.geojson,inferred.ply,lod2.cityjson}
+├── 07_splat/   stage.json  splat.ply  splat.glb  train_report.json        # optional, display-only
+├── 08_export/  stage.json  pointcloud/<run_id>.laz  mesh/{model.obj,model.mtl,textures/,model.glb,offset.json}
+│               tiles/{mesh,pointcloud,splat}/tileset.json  rasters/{ortho,dsm,dtm,confidence}.tif  bundle/
+├── 09_qa/      stage.json  accuracy.json  residuals.csv  doming.json  report.html  report.pdf  plots/
+└── preview/    latest.json  tiles/{z}/{x}/{y}.webp
 ```
 
 ---
@@ -77,7 +80,7 @@ data/runs/<run_id>/
 
 **Inputs.** `--video` (MP4/MOV/TS, 1080p/4K), `--srt` (DJI SRT) or embedded KLV (MISB ST 0601 in STANAG 4609 TS), optional `--rtk` (PPK/RTK positions), `--imu`, `--intrinsics` (calibration YAML), flight log CSV.
 
-**Outputs.** `video_meta.json` (codec, resolution, fps, rotation, duration, pts timebase), `telemetry.parquet` (one row per telemetry sample: `t_tel`, lat, lon, h_ellip, rel_alt, abs_alt, gimbal yaw/pitch/roll, focal/zoom, ISO/shutter, source), `frame_index.parquet` (one row per decoded frame: `frame_idx`, `pts_s`, interpolated telemetry at `pts_s + δ_coarse`, cut flag), `timesync.json` (δ_coarse, method, confidence), `overlay_mask.png`.
+**Outputs.** `video_info.json` (codec, resolution, fps, rotation, duration, pts timebase), `telemetry.csv` (one row per telemetry sample: `t_tel`, lat, lon, h_ellip, rel_alt, abs_alt, gimbal yaw/pitch/roll, focal/zoom, ISO/shutter, source), `frame_index.parquet` (one row per decoded frame: `frame_idx`, `pts_s`, interpolated telemetry at `pts_s + δ_coarse`, cut flag), `timesync.json` (δ_coarse, method, confidence), `overlay_mask.png`.
 
 ### S0.1 Algorithm
 
@@ -152,7 +155,7 @@ def coarse_offset(flow_mag, agl, t_frames, gnss_spline, search=2.0, fps=29.97):
 **Goal.** Reduce ≈18 k frames to a few hundred to ~1.5 k sharp, well-spaced keyframes that give enough overlap and parallax for SfM/MVS, without spending compute on redundant frames. Evidence: video sampled at one frame per 2.5 s matched a photo flight (building-boundary RMSE 1.1–2.7 cm vs 1.3–2.8 cm), and accuracy degraded at 4 s and 5.5 s ([Remote Sens. 2021, 13(14), 2745](https://doi.org/10.3390/rs13142745), abstract-level numbers).
 
 **Inputs.** Analysis stream + ring buffer from S0, `frame_index.parquet`, `overlay_mask.png`.
-**Outputs.** `s1_frames/images/kf_000123.jpg` (full res, JPEG q=95, EXIF GPS written for tool interoperability), `keyframes.parquet` (frame_idx, pts, reason, sharpness, parallax, predicted overlap), `frame_scores.parquet` (all frames: sharpness, flow stats).
+**Outputs.** `01_frames/images/kf_000123.jpg` (full res, JPEG q=95, EXIF GPS written for tool interoperability), `keyframes.csv` (frame_idx, pts, reason, sharpness, parallax, predicted overlap), `blur.csv` (all frames: sharpness, flow stats).
 
 ### S1.1 Overlap / parallax trigger
 
@@ -239,8 +242,8 @@ def select_keyframes(stream, cfg):
 
 **Goal.** Produce per-keyframe binary masks that remove features/pixels which would corrupt SfM and MVS (moving objects, sky, overlays, water, the drone's own parts), and per-keyframe semantic label maps that S6 lifts onto the 3D model.
 
-**Inputs.** `s1_frames/images`, `overlay_mask.png`.
-**Outputs.** `s2_masks/sfm/*.png` (0 = ignore for feature extraction, COLMAP mask convention: black pixels ignored), `s2_masks/mvs/*.png` (OpenMVS mask, label image), `s2_masks/semantics/*.png` (uint8 class ids), `mask_stats.json` (per-class pixel fractions per frame).
+**Inputs.** `01_frames/images`, `overlay_mask.png`.
+**Outputs.** `02_masks/dynamic/*.png` (0 = ignore for feature extraction, COLMAP mask convention: black pixels ignored), `02_masks/mvs/*.png` (OpenMVS mask, label image), `02_masks/semantic/*.png` (uint8 class ids), `stats.json` (per-class pixel fractions per frame).
 
 ### S2.1 Mask classes
 
@@ -267,7 +270,7 @@ def select_keyframes(stream, cfg):
 2. **Temporal consistency (quality profile)**: SAM 2 video predictor seeded with YOLO boxes, propagated across keyframes to fill missed detections and sharpen boundaries (SAM 2 is Apache-2.0). SAM 2 is a compute bottleneck on large scenes ([DroneSplat](https://arxiv.org/abs/2503.16964)), so `fast` uses YOLO masks dilated by 8 px only.
 3. **Semantic segmentation** (classes 4, 5, 8–11) with a licence-clean aerial segmentation model owned by R4 (fine-tuned on permissively licensed aerial data — licence of both dataset and weights recorded in 07). Classical backstops: sky = top-connected, low-gradient, high-brightness region in frames with gimbal pitch > −60°; vegetation prior = excess-green index $\text{ExG} = 2g - r - b$ on chromaticity-normalised RGB.
 4. **Drone-parts mask**: static region detected as in the overlay step, but only at image borders; plus user-supplied static mask in config.
-5. **Compose** masks: `sfm_mask = ~(dyn ∪ sky ∪ water ∪ overlay ∪ parts)`, dilated 4 px (fast). Write as PNG named `<image_name>.png` in `s2_masks/sfm/` (COLMAP `--ImageReader.mask_path` expects `image.jpg.png`).
+5. **Compose** masks: `sfm_mask = ~(dyn ∪ sky ∪ water ∪ overlay ∪ parts)`, dilated 4 px (fast). Write as PNG named `<image_name>.png` in `02_masks/dynamic/` (COLMAP `--ImageReader.mask_path` expects `image.jpg.png`).
 6. **Residual masking later**: dynamic objects missed here appear as high-residual regions in MVS depth-consistency (S5) and in GS training (S7 robust loss); those are flagged, not re-masked.
 
 ### S2.3 Parameters
@@ -289,7 +292,7 @@ def select_keyframes(stream, cfg):
 
 ### S2.5 Quality checks
 
-- `mask_stats.json`: per-class mean fraction; sanity limits (sky only in oblique frames).
+- `stats.json`: per-class mean fraction; sanity limits (sky only in oblique frames).
 - Visual QA strip (every 20th keyframe with mask overlay) rendered into the S9 report appendix.
 
 ---
@@ -299,7 +302,7 @@ def select_keyframes(stream, cfg):
 **Goal.** Recover accurate camera poses and a sparse point cloud for all keyframes, in a metric, gravity-aware local frame, with intrinsics that do **not** drift into the doming mode, and with rolling shutter modelled when it matters.
 
 **Inputs.** Keyframes, SfM masks, `frame_index.parquet` (priors), calibration YAML if supplied.
-**Outputs.** `s3_sfm/database.db`, `s3_sfm/sparse/<k>/` (one folder per connected model), `sfm_report.json` (registered %, reprojection error, track stats, per-image prior residuals, intrinsics used).
+**Outputs.** `03_sfm/database.db`, `03_sfm/sparse/<k>/` (one folder per connected model), `sfm_report.json` (registered %, reprojection error, track stats, per-image prior residuals, intrinsics used).
 
 ### S3.1 Camera model & intrinsics strategy
 
@@ -322,15 +325,15 @@ Rationale: self-calibrating BA on near-parallel nadir images cannot recover radi
 ```bash
 # 1. features (masks honoured; single camera per video segment)
 colmap feature_extractor \
-  --database_path s3_sfm/database.db --image_path s1_frames/images \
-  --ImageReader.mask_path s2_masks/sfm \
+  --database_path 03_sfm/database.db --image_path 01_frames/images \
+  --ImageReader.mask_path 02_masks/dynamic \
   --ImageReader.camera_model OPENCV --ImageReader.single_camera_per_folder 1 \
   --ImageReader.camera_params "$FX,$FY,$CX,$CY,$K1,$K2,$P1,$P2" \
   --FeatureExtraction.type ALIKED_N16ROT \
   --FeatureExtraction.max_image_size 2048 --FeatureExtraction.use_gpu 1
 
 # 2a. sequential pairs (+ loop detection with vocabulary tree)
-colmap sequential_matcher --database_path s3_sfm/database.db \
+colmap sequential_matcher --database_path 03_sfm/database.db \
   --SequentialMatching.overlap 15 --SequentialMatching.quadratic_overlap 1 \
   --SequentialMatching.loop_detection 1 \
   --SequentialMatching.loop_detection_period 10 \
@@ -338,7 +341,7 @@ colmap sequential_matcher --database_path s3_sfm/database.db \
   --FeatureMatching.type ALIKED_LIGHTGLUE --FeatureMatching.use_gpu 1
 
 # 2b. spatial pairs from GNSS priors written into the database (see S3.3)
-colmap spatial_matcher --database_path s3_sfm/database.db \
+colmap spatial_matcher --database_path 03_sfm/database.db \
   --SpatialMatching.ignore_z 0 --SpatialMatching.max_num_neighbors 30 \
   --SpatialMatching.max_distance 120 \
   --FeatureMatching.type ALIKED_LIGHTGLUE
@@ -357,8 +360,8 @@ For every keyframe $i$ we write into the database `pose_priors` table (via `pyco
 
 1. **Global mapper** (GLOMAP merged into COLMAP; "orders of magnitude faster" than incremental at comparable accuracy and fine with sequential video — [arXiv 2407.20219](https://arxiv.org/html/2407.20219v2)):
    ```bash
-   colmap global_mapper --database_path s3_sfm/database.db \
-     --image_path s1_frames/images --output_path s3_sfm/sparse
+   colmap global_mapper --database_path 03_sfm/database.db \
+     --image_path 01_frames/images --output_path 03_sfm/sparse
    ```
    with intrinsic refinement disabled per S3.1 (the global mapper's BA options equivalent to `ba_refine_focal_length 0`, `ba_refine_extra_params 0`, `ba_refine_principal_point 0`).
 2. **Quality profile / fallback:** `colmap pose_prior_mapper` (incremental mapper with position priors) using `--prior_position_std_x/y/z` and `--use_robust_loss_on_prior_position 1`, with `--Mapper.ba_refine_focal_length 0 --Mapper.ba_refine_extra_params 0`. Slower but more robust in weak-texture corridors.
@@ -437,8 +440,8 @@ flowchart TD
 
 **Goal.** Place the SfM model in the world: WGS84 → projected UTM (output CRS), removing scale, rotation and — as far as the available anchors allow — the GNSS bias. This is the core differentiator; the full theory is in [`06-georeferencing-and-accuracy.md`](06-georeferencing-and-accuracy.md).
 
-**Inputs.** `s3_sfm/sparse`, `telemetry.parquet`, optional `--rtk`, `--ref-ortho`, `--ref-dsm`, `--gcp`.
-**Outputs.** `transform.json` (Sim(3) local→ENU, ENU origin, output CRS WKT, time offset δ, lever arm, applied anchor corrections with uncertainties), `sparse_geo/` (georeferenced COLMAP model), `align_report.json`, `anchor_report.json`.
+**Inputs.** `03_sfm/sparse`, `telemetry.csv`, optional `--rtk`, `--ref-ortho`, `--ref-dsm`, `--gcp`.
+**Outputs.** `transform.json` (Sim(3) local→ENU, ENU origin, output CRS WKT, time offset δ, lever arm, applied anchor corrections with uncertainties), `sparse_geo/` (georeferenced COLMAP model), `align_report.json`, `anchoring.json`.
 
 ### S4.1 Algorithm
 
@@ -496,39 +499,39 @@ flowchart LR
 
 **Goal.** Metric dense point cloud, watertight-enough mesh, texture, and the raster products DSM, DTM and orthomosaic — all in the georeferenced frame from S4. MVS, not Gaussian splatting, is the measurement layer: 3DGS geometry is "generally slightly lower than traditional photogrammetry", especially with small or low-resolution inputs ([ISPRS Archives 2026](https://isprs-archives.copernicus.org/articles/XLVIII-2-W12-2026/143/2026/isprs-archives-XLVIII-2-W12-2026-143-2026.pdf)).
 
-**Inputs.** `s4_georef/sparse_geo`, undistorted keyframes, MVS masks.
-**Outputs.** `scene.mvs`, `dense.ply` (with per-point confidence, view count), `mesh.ply`, `mesh_textured.obj/.mtl/.png` (+ `.glb`), `dsm.tif`, `dtm.tif`, `ortho.tif`.
+**Inputs.** `04_georef/sparse_geo`, undistorted keyframes, MVS masks.
+**Outputs.** `scene.mvs`, `dense.ply` (with per-point confidence, view count), `mesh_refined.ply` (unrefined mesh when `RefineMesh` is off), `textured/` (textured OBJ/MTL/atlas), `rasters/dsm.tif`, `rasters/ortho.tif`, preliminary `rasters/dtm_raw.tif` / `rasters/dtm.tif` (S6 publishes the final `06_completion/dtm.tif`).
 
 ### S5.1 Algorithm and commands
 
 ```bash
 # 0. undistort into a local-ENU-shifted COLMAP model (coordinates near origin → float-safe)
-colmap image_undistorter --image_path s1_frames/images --input_path s4_georef/sparse_geo \
-  --output_path s5_dense/undist --output_type COLMAP --max_image_size 2560
+colmap image_undistorter --image_path 01_frames/images --input_path 04_georef/sparse_geo \
+  --output_path 05_dense/undist --output_type COLMAP --max_image_size 2560
 
 # 1. import
-InterfaceCOLMAP -i s5_dense/undist -o s5_dense/scene.mvs --image-folder s5_dense/undist/images
+InterfaceCOLMAP -i 05_dense/undist -o 05_dense/scene.mvs --image-folder 05_dense/undist/images
 
 # 2. densify (fast profile shown)
-DensifyPointCloud s5_dense/scene.mvs -o s5_dense/dense.mvs \
+DensifyPointCloud 05_dense/scene.mvs -o 05_dense/dense.mvs \
   --resolution-level 1 --max-resolution 2560 --min-resolution 640 \
   --number-views 5 --number-views-fuse 3 \
   --estimate-colors 2 --estimate-normals 2 \
-  --filter-point-cloud 1 --mask-path s2_masks/mvs --ignore-mask-label 0 \
+  --filter-point-cloud 1 --mask-path 02_masks/mvs --ignore-mask-label 0 \
   --cuda-device 0
 
 # 3. mesh (Delaunay + graph-cut)
-ReconstructMesh s5_dense/dense.mvs -o s5_dense/mesh.mvs \
+ReconstructMesh 05_dense/dense.mvs -o 05_dense/mesh.mvs \
   --min-point-distance 1.5 --free-space-support 1 \
   --remove-spurious 20 --remove-spikes 1 --close-holes 30 --smooth 2 --decimate 0.5
 
 # 4. refine (quality profile only)
-RefineMesh s5_dense/mesh.mvs -o s5_dense/mesh_ref.mvs \
+RefineMesh 05_dense/mesh.mvs -o 05_dense/mesh_ref.mvs \
   --resolution-level 1 --min-resolution 640 --max-views 8 \
   --scales 2 --scale-step 0.8 --max-face-area 16 --cuda-device 0
 
 # 5. texture (global + local seam levelling)
-TextureMesh s5_dense/mesh.mvs -o s5_dense/mesh_textured.mvs \
+TextureMesh 05_dense/mesh.mvs -o 05_dense/mesh_textured.mvs \
   --resolution-level 1 --decimate 0.5 --cost-smoothness-ratio 0.1 \
   --global-seam-leveling 1 --local-seam-leveling 1 \
   --texture-size-multiple 0 --patch-packing-heuristic 3 --empty-color 0 \
@@ -542,24 +545,24 @@ TextureMesh s5_dense/mesh.mvs -o s5_dense/mesh_textured.mvs \
 ```jsonc
 // s5 pipeline: dense.ply → cleaned LAS → DSM, DTM (heights WGS84-ellipsoidal; S8 also writes an EGM2008 variant)
 [
-  "s5_dense/dense.ply",
+  "05_dense/dense.ply",
   {"type": "filters.transformation", "matrix": "<ENU→UTM 4x4 from transform.json>"},
   {"type": "filters.outlier", "method": "statistical", "mean_k": 12, "multiplier": 2.5},
   {"type": "filters.range", "limits": "Classification![7:7]"},
   {"type": "filters.smrf", "slope": 0.15, "window": 18, "threshold": 0.5, "scalar": 1.25},
-  {"type": "writers.las", "filename": "s5_dense/dense_ground.laz", "a_srs": "EPSG:32643",
+  {"type": "writers.las", "filename": "05_dense/dense_ground.laz", "a_srs": "EPSG:32643",
    "compression": "laszip", "extra_dims": "all"},
-  {"type": "writers.gdal", "filename": "s5_dense/dsm.tif", "resolution": 0.25,
+  {"type": "writers.gdal", "filename": "05_dense/rasters/dsm.tif", "resolution": 0.25,
    "output_type": "max", "window_size": 3, "data_type": "float32", "nodata": -9999},
   {"type": "filters.range", "limits": "Classification[2:2]"},
-  {"type": "writers.gdal", "filename": "s5_dense/dtm_raw.tif", "resolution": 0.5,
+  {"type": "writers.gdal", "filename": "05_dense/rasters/dtm_raw.tif", "resolution": 0.5,
    "output_type": "idw", "window_size": 6}
 ]
 ```
 
 ```bash
-gdal_fillnodata.py -md 40 -si 2 s5_dense/dtm_raw.tif s5_dense/dtm.tif      # interpolate under buildings
-gdal_translate -of COG -co COMPRESS=DEFLATE -co PREDICTOR=3 s5_dense/dsm.tif s8_export/dsm_cog.tif
+gdal_fillnodata.py -md 40 -si 2 05_dense/rasters/dtm_raw.tif 05_dense/rasters/dtm.tif      # interpolate under buildings
+gdal_translate -of COG -co COMPRESS=DEFLATE -co PREDICTOR=3 05_dense/rasters/dsm.tif 08_export/rasters/dsm.tif
 ```
 
 **Orthomosaic (ours):** orthographic rendering of the textured mesh (true ortho — buildings do not lean) with an OpenGL/EGL offscreen renderer (`moderngl`) tile by tile at the ortho GSD, with the DSM as depth; pixels whose best texture view has incidence > 60° are marked low-confidence in an alpha/quality band. Fallback: PDAL `writers.gdal` of RGB point colours (`dimension: Red/Green/Blue`, `output_type: mean`) for a point-based ortho.
@@ -602,7 +605,7 @@ UTM EPSG code (`32643` above) is computed from the centroid; the example is a pl
 **Goal.** Label the dense point cloud (ground, building, road, vegetation, vehicle/person, water, other), and complete under-observed structures with **metric**, plane-based LoD2 building models — every synthesised surface flagged **inferred**.
 
 **Inputs.** `dense.ply`, `dsm.tif`, `dtm.tif`, per-keyframe semantics, camera poses.
-**Outputs.** `classified.laz` (ASPRS LAS classes + `confidence_class` extra dim), `lod2.cityjson`, `lod2_mesh.ply`, `inferred_mask.json` (face ids / polygons of inferred surfaces), water polygons.
+**Outputs.** `classified.laz` (ASPRS LAS classes + `conf_class` extra dim), `06_completion/dtm.tif` (final DTM), `lod2/buildings.geojson`, `lod2/inferred.ply` (inferred surfaces), `lod2/lod2.cityjson`, water polygons.
 
 ### S6.1 Semantic classification (ours: multi-view label fusion + geometric rules)
 
@@ -643,7 +646,7 @@ flowchart LR
 5. **Face selection**: PolyFit-style — generate candidate faces by pairwise plane intersections; select a subset $x_f\in\{0,1\}$ minimising
    $$E = \lambda_{\text{fit}}\Big(1 - \sum_f \frac{\text{support}(f)}{N}\,x_f\Big) + \lambda_{\text{cov}}\sum_f \frac{\text{uncovered}(f)}{\text{area}(f)}\,x_f + \lambda_{\text{cx}}\sum_{e}\text{sharp}(e)$$
    subject to manifold/watertight edge constraints; solved as a MILP with SCIP or CBC (open-source solvers). PolyFit alone assumes a complete set of planar primitives; City3D's inferred vertical planes relax that.
-6. **Flagging**: face $f$ is **observed** if the fraction of its area within 0.3 m of a dense point exceeds 50 %; otherwise **inferred**. Inferred faces get `confidence_class = inferred`, a hatched style in the viewer, and are excluded from default measurement snapping (user can opt in).
+6. **Flagging**: face $f$ is **observed** if the fraction of its area within 0.3 m of a dense point exceeds 50 %; otherwise **inferred**. Inferred faces get `conf_class = inferred`, a hatched style in the viewer, and are excluded from default measurement snapping (user can opt in).
 7. **Fallback for non-planar / complex buildings** (domes, temples, industrial): keep the MVS mesh; only mark missing facades as holes (no inference).
 
 ### S6.3 Parameters
@@ -669,7 +672,7 @@ flowchart LR
 
 **Goal.** Photoreal 3D Gaussian Splatting layer for *viewing only*, trained in the background from the same georeferenced poses. Never used for measurements.
 
-**Inputs.** Undistorted keyframes + poses (`s4_georef/sparse_geo`), `dense.ply` (initialisation), MVS masks.
+**Inputs.** Undistorted keyframes + poses (`04_georef/sparse_geo`), `dense.ply` (initialisation), MVS masks.
 **Outputs.** `splat.ply`, `splat.glb` (glTF `KHR_gaussian_splatting`, optionally SPZ-compressed), `train_report.json`.
 
 ### S7.1 Algorithm
@@ -699,7 +702,7 @@ flowchart LR
 
 **Goal.** Write every deliverable in standard formats and a streamable 3D Tiles set for CesiumJS.
 
-**Outputs** (all in `s8_export/`): `cloud.laz` (LAS 1.4, point format 7/8, CRS WKT incl. vertical, extra dims `confidence`, `n_views`, `confidence_class`), `mesh.obj` + `mesh.glb` (local ENU with `transform.json`, plus a UTM-shifted OBJ with offset file), `tiles/tileset.json` (3D Tiles 1.1 mesh), `pointcloud_tiles/` (py3dtiles), `splat_tiles/`, `dsm_cog.tif`, `dtm_cog.tif`, `ortho_cog.tif`, `confidence_cog.tif`, `lod2.cityjson` (+ optional CityGML).
+**Outputs** (all in `08_export/`, names per [04 §7](04-system-architecture.md#7-run-directory-layout) and [08 §7](08-data-formats-and-interfaces.md#7-output-formats)): `pointcloud/<run_id>.laz` (LAS 1.4, point format 7, CRS WKT incl. vertical, extra dims `confidence`, `conf_class`, `n_views`, `tri_angle_deg`), `mesh/model.glb` (local ENU) + `mesh/model.obj`/`model.mtl`/`textures/` (UTM-shifted, with `mesh/offset.json`), `tiles/mesh/tileset.json` (3D Tiles 1.1 mesh), `tiles/pointcloud/tileset.json` (py3dtiles), `tiles/splat/tileset.json`, `rasters/dsm.tif`, `rasters/dtm.tif`, `rasters/ortho.tif` (COGs; `rasters/confidence.tif` is published here by S9), `lod2.cityjson` (+ optional CityGML), `bundle/` (sealed after S9).
 
 ### S8.1 3D Tiles tiling algorithm (ours)
 
@@ -709,7 +712,7 @@ flowchart LR
 4. `geometricError` of a node = max Hausdorff distance between its simplified mesh and the leaf geometry beneath it (sampled); leaves = 0; root = diagonal/10.
 5. Write each node as `.glb` (Draco compression optional; KTX2 textures optional), with per-vertex `_CONFIDENCE` attribute and feature ids via `EXT_mesh_features` / `EXT_structural_metadata` (class, confidence_class, inferred flag).
 6. `refine: "REPLACE"`; bounding volumes as oriented boxes in ENU.
-7. Point cloud: `py3dtiles convert cloud.laz --out pointcloud_tiles --srs_in <EPSG> --srs_out 4978`. Alternative mesh tiler: ODM's `obj2tiles` (licence to verify in [07](07-tech-stack.md)).
+7. Point cloud: `py3dtiles convert pointcloud/<run_id>.laz --out tiles/pointcloud --srs_in <EPSG> --srs_out 4978`. Alternative mesh tiler: ODM's `obj2tiles` (licence to verify in [07](07-tech-stack.md)).
 
 ### S8.2 Parameters
 
@@ -721,7 +724,7 @@ flowchart LR
 | COG compression | — | DEFLATE, pred 3 | DEFLATE, pred 3 |
 | LAZ | — | yes | yes |
 
-**QA:** validate `tileset.json` with the 3D Tiles validator; `gdalinfo` checks COG layout and CRS; LAS header CRS and bounds; round-trip test: sample 100 vertices from the GLB tiles, transform to UTM, compare with `cloud.laz` nearest points (< 1 cm).
+**QA:** validate `tileset.json` with the 3D Tiles validator; `gdalinfo` checks COG layout and CRS; LAS header CRS and bounds; round-trip test: sample 100 vertices from the GLB tiles, transform to UTM, compare with `pointcloud/<run_id>.laz` nearest points (< 1 cm).
 
 ---
 
@@ -730,7 +733,7 @@ flowchart LR
 **Goal.** Measure and report accuracy and confidence honestly: absolute (checkpoints → RMSE, bias vs noise, CE90/LE90), relative (length errors), doming, completeness, and a per-point/per-face confidence map. Full method in [06 §13–15](06-georeferencing-and-accuracy.md).
 
 **Inputs.** All products, `--checkpoints` (CSV, ≥ 30 per ASPRS Ed. 2), optional reference DSM/LiDAR, stage reports.
-**Outputs.** `accuracy.json`, `checkpoints.csv` (per-point residuals), `doming.json`, `confidence.tif` + per-point classes, `report.html`, `report.pdf`.
+**Outputs.** `accuracy.json`, `residuals.csv` (per-checkpoint residuals), `doming.json`, `plots/`, `confidence.tif` (published to `08_export/rasters/confidence.tif`) + per-point classes, `report.html`, `report.pdf`.
 
 ### S9.1 Algorithm
 
@@ -760,7 +763,7 @@ flowchart LR
 **Goal.** Show a georeferenced 2D mosaic in the viewer ≤ 60 s after upload starts and update it at ≥ 1–2 Hz while the 3D pipeline runs. Incremental CPU mosaicking at ≈ 2.3 fps is demonstrated in the literature ([ISPRS Annals 2025](https://isprs-annals.copernicus.org/articles/X-2-W2-2025/65/2025/)); we do not claim live 3D.
 
 **Inputs.** Stream of preview keyframes (S1 in `preview` settings, running concurrently with the main S1), telemetry from S0.
-**Outputs.** XYZ web tiles `preview/tiles/{z}/{x}/{y}.png` (EPSG:3857), `preview_state.json`, WebSocket tile-update events.
+**Outputs.** XYZ web tiles `preview/tiles/{z}/{x}/{y}.webp` (EPSG:3857), `preview/latest.json`, WebSocket tile-update events.
 
 ### P.1 Algorithm (ours)
 
@@ -771,7 +774,7 @@ flowchart LR
    The prior keeps the mosaic georeferenced (no unbounded drift); the pairwise term removes seams. Solved with a few Gauss–Newton iterations (SciPy `least_squares`, Huber).
 4. **Warp & blend.** Warp each frame into Web-Mercator tiles at zoom $z = \lceil \log_2(\frac{2\pi R \cos\varphi}{256\cdot \text{GSD}_{\text{preview}}})\rceil$ (capped at 20); feather blending with distance-to-border weights; newer, sharper frames win ties.
 5. **Publish** changed tiles; the viewer overlays them on the base map with a "PREVIEW – not metric" badge.
-6. **Hand-over.** When S5 finishes, the viewer switches the 2D layer to `ortho_cog.tif`.
+6. **Hand-over.** When S5 finishes, the viewer switches the 2D layer to `08_export/rasters/ortho.tif`.
 
 ### P.2 Parameters
 
@@ -819,7 +822,7 @@ flowchart LR
 - **CPU work in parallel.** P (preview) and S0 telemetry processing run on CPU threads pinned away from the decoder; S8 tiling and S9 report run on CPU while S7 trains on the GPU.
 - **NVDEC vs CUDA.** Decoding uses the dedicated NVDEC engine, so it overlaps with CUDA work (S2) at little cost.
 - **Two GPUs** (if available): S7 is pinned to GPU 1, everything else to GPU 0.
-- **Checkpointing.** Every stage writes its outputs atomically (`*.tmp` → rename) and a `done.json` with input hashes; a rerun skips completed stages whose input hashes match (enables fast iteration and crash recovery during the 36-h finale).
+- **Checkpointing.** Every stage writes its outputs atomically (`*.tmp` → rename) and a `stage.json` with input hashes; a rerun skips completed stages whose input hashes match (enables fast iteration and crash recovery during the 36-h finale).
 - **Timeouts.** Each stage has a soft budget (above) and a hard timeout (3× budget) after which the fallback path is taken, so one command always ends with *some* product.
 
 ```mermaid

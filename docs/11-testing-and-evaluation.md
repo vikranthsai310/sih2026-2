@@ -194,7 +194,7 @@ Framework: `pytest` with `hypothesis` for property-based tests. Tests live in `t
 | IT-5 | With reference ortho + DSM | Tiny clip + cropped reference rasters | `fast` | S4 registration runs. The anchoring tier in the report = `ortho+dsm`. | Manual GPU |
 | IT-6 | With RTK file | MARS-LVIG short subset (RTK poses as an "RTK file") | `fast` | Anchoring tier = `rtk`. Checkpoint CE90 computed against LiDAR-derived points. | Manual GPU |
 | IT-7 | CLI contract | `drishti run --video … --srt … --profile fast --out …` (charter §9) | — | Exit code 0. `--help` lists every documented flag. Unknown flags are rejected. | Every push (argument parsing only) |
-| IT-8 | API + websocket | Start the FastAPI server, upload the tiny clip through the API, subscribe to `/ws/runs/{id}` | `preview` | Ordered `seq`. `done` event received. Reconnect with `since=` replays missed events. | Nightly |
+| IT-8 | API + websocket | Start the FastAPI server, upload the tiny clip through the API, subscribe to `WS /api/v1/runs/{run_id}/progress` | `preview` | Ordered `seq`. `run_completed` event received. Reconnect with `since_seq` replays missed events. | Nightly |
 | IT-9 | **Offline conformance** | IT-1 inside Docker with `--network none` | `fast` | Pipeline and viewer build succeed with **no network access** (charter principle 4) | Nightly |
 | IT-10 | Resume after crash | Kill the job runner during S5 | `fast` | Restart resumes from S5 using the cached S0–S4 outputs | Weekly |
 
@@ -292,22 +292,22 @@ Each factor is tested on at least one base sequence (MARS-LVIG short segment and
 
 | # | Factor | How injected / obtained | Levels | Expected behaviour | Pass criterion |
 |---|---|---|---|---|---|
-| R1 | Motion blur | Synthetic linear motion-blur kernels on a random subset of frames; real fast-yaw segments | 0 %, 10 %, 30 %, 50 % of frames; kernel 5–25 px | S1 rejects blurred frames. Ingest Check warns. | ≤ 10 % degradation in CE90 and completeness up to 30 % blurred frames |
-| R2 | Low light | Gamma/exposure reduction + Poisson-Gaussian noise; real dusk flight if possible | EV −1, −2, −3 | Fewer features. The confidence map shows more observed-low. | Completes at EV −2. Warns at EV −3. |
-| R3 | Compression | Re-encode with H.264/H.265 at controlled bitrates | 60, 20, 8, 4 Mbit/s (4K) | Graceful degradation | 🎯 CE90 within target at ≥ 20 Mbit/s. Warning below 8 Mbit/s. |
-| R4 | Moving vehicles / people | Busy road segments in our own flight; synthetic moving objects in the simulator | none / light / heavy traffic | S2 masks them. No ghost geometry. | No reconstructed vehicle "smears" larger than 2 m² in the mesh (visual audit + class check) |
-| R5 | Water | River/pond scenes | 0 %, 20 %, 50 % of frame area | Water masked or flagged observed-low. No spurious surfaces. | SfM does not break. Water area labelled `water` or observed-low. |
-| R6 | Repetitive texture | Crop fields, solar farms, rooftops | Real scenes | Relies on GPS priors to avoid mismatches | Registered ≥ 90 % of frames. No folded geometry. |
-| R7 | GPS dropouts | Delete SRT entries | 5 s, 30 s, 60 s gaps; 10 % random | Interpolate/extrapolate with visual odometry across the gap | Absolute error inside the gap ≤ 2× outside it. Ingest Check warns. |
-| R8 | GPS noise injection | Add white noise σ ∈ {1, 3, 5} m + random walk + a constant bias (5 m E, 8 m U) | as listed | The bias is removed by anchoring. Noise is averaged. | With anchoring: CE90 still ≤ 1 m 🎯. Without anchoring: the reported CE90 honestly reflects the degradation. |
-| R9 | **Wrong time offset** | Shift the SRT by δ | ±0.2, ±0.5, ±1, ±3 s | S0 estimator recovers δ (see §2.1) | Residual error ≤ 1 frame. With the estimator disabled (E1), the error is visible in the metrics. |
-| R10 | Pure nadir vs oblique | Own flight with gimbal −90° vs −60° (forward-oblique ~30°) | 2 flights, same route | Nadir: doming risk flagged | Doming ≤ 0.2 m 🎯 for oblique. For nadir: report whatever value we get, honestly. |
-| R11 | Different drones / resolutions | DJI Mini-class, Mavic-class, M3E-class if available; 1080p vs 4K | ≥ 2 drones | Camera auto-detected. Rolling-shutter profile or estimated readout. | Completes. Relative accuracy ≤ 0.5 % 🎯 for all. |
-| R12 | Altitude / speed | Own flights at 60, 90, 120 m AGL (green zone, ≤ 120 m per Drone Rules 2021); 3, 6, 10 m/s | grid | Faster speed means more rolling shutter and blur | Report as a table. Identify the operating envelope for doc 12. |
-| R13 | Thermal / IR video (if available) | Thermal clip from a dual-sensor drone | 1 clip | Low texture. Expect lower completeness. | Completes, or fails with a clear "insufficient features" message |
-| R14 | Burned-in OSD overlay | Screen-recorded video with a HUD | 1 clip | Overlay detected and masked | No overlay features used in SfM |
-| R15 | Variable frame rate / rotated video | Phone-style VFR, 90° rotation flag | 1 clip each | Correct frame timing and orientation | Completes with correct geometry |
-| R16 | Corrupted / truncated file | Cut the last 10 % of an MP4 (no moov atom) | 1 clip | Recovers what it can, or fails with a clear error | No crash without an error message; error shown in the UI |
+| RB1 | Motion blur | Synthetic linear motion-blur kernels on a random subset of frames; real fast-yaw segments | 0 %, 10 %, 30 %, 50 % of frames; kernel 5–25 px | S1 rejects blurred frames. Ingest Check warns. | ≤ 10 % degradation in CE90 and completeness up to 30 % blurred frames |
+| RB2 | Low light | Gamma/exposure reduction + Poisson-Gaussian noise; real dusk flight if possible | EV −1, −2, −3 | Fewer features. The confidence map shows more observed-low. | Completes at EV −2. Warns at EV −3. |
+| RB3 | Compression | Re-encode with H.264/H.265 at controlled bitrates | 60, 20, 8, 4 Mbit/s (4K) | Graceful degradation | 🎯 CE90 within target at ≥ 20 Mbit/s. Warning below 8 Mbit/s. |
+| RB4 | Moving vehicles / people | Busy road segments in our own flight; synthetic moving objects in the simulator | none / light / heavy traffic | S2 masks them. No ghost geometry. | No reconstructed vehicle "smears" larger than 2 m² in the mesh (visual audit + class check) |
+| RB5 | Water | River/pond scenes | 0 %, 20 %, 50 % of frame area | Water masked or flagged observed-low. No spurious surfaces. | SfM does not break. Water area labelled `water` or observed-low. |
+| RB6 | Repetitive texture | Crop fields, solar farms, rooftops | Real scenes | Relies on GPS priors to avoid mismatches | Registered ≥ 90 % of frames. No folded geometry. |
+| RB7 | GPS dropouts | Delete SRT entries | 5 s, 30 s, 60 s gaps; 10 % random | Interpolate/extrapolate with visual odometry across the gap | Absolute error inside the gap ≤ 2× outside it. Ingest Check warns. |
+| RB8 | GPS noise injection | Add white noise σ ∈ {1, 3, 5} m + random walk + a constant bias (5 m E, 8 m U) | as listed | The bias is removed by anchoring. Noise is averaged. | With anchoring: CE90 still ≤ 1 m 🎯. Without anchoring: the reported CE90 honestly reflects the degradation. |
+| RB9 | **Wrong time offset** | Shift the SRT by δ | ±0.2, ±0.5, ±1, ±3 s | S0 estimator recovers δ (see §2.1) | Residual error ≤ 1 frame. With the estimator disabled (E1), the error is visible in the metrics. |
+| RB10 | Pure nadir vs oblique | Own flight with gimbal −90° vs −60° (forward-oblique ~30°) | 2 flights, same route | Nadir: doming risk flagged | Doming ≤ 0.2 m 🎯 for oblique. For nadir: report whatever value we get, honestly. |
+| RB11 | Different drones / resolutions | DJI Mini-class, Mavic-class, M3E-class if available; 1080p vs 4K | ≥ 2 drones | Camera auto-detected. Rolling-shutter profile or estimated readout. | Completes. Relative accuracy ≤ 0.5 % 🎯 for all. |
+| RB12 | Altitude / speed | Own flights at 60, 90, 120 m AGL (green zone, ≤ 120 m per Drone Rules 2021); 3, 6, 10 m/s | grid | Faster speed means more rolling shutter and blur | Report as a table. Identify the operating envelope for doc 12. |
+| RB13 | Thermal / IR video (if available) | Thermal clip from a dual-sensor drone | 1 clip | Low texture. Expect lower completeness. | Completes, or fails with a clear "insufficient features" message |
+| RB14 | Burned-in OSD overlay | Screen-recorded video with a HUD | 1 clip | Overlay detected and masked | No overlay features used in SfM |
+| RB15 | Variable frame rate / rotated video | Phone-style VFR, 90° rotation flag | 1 clip each | Correct frame timing and orientation | Completes with correct geometry |
+| RB16 | Corrupted / truncated file | Cut the last 10 % of an MP4 (no moov atom) | 1 clip | Recovers what it can, or fails with a clear error | No crash without an error message; error shown in the UI |
 
 ---
 
@@ -354,7 +354,7 @@ For n checkpoints with residuals Δx_i, Δy_i, Δz_i (product − checkpoint):
 | Ground truth | ≥ 10 distances between pairs of checkpoints or taped features, spanning 5 m to more than 200 m, in several directions (along track, across track, diagonal), plus ≥ 3 vertical differences (e.g. building height by total station or laser rangefinder) |
 | Measured in | The 3D Viewer measurement tool **and** directly in the exported point cloud (both must agree within 1 cm) |
 | Metrics | Signed error, absolute error, error % of length. Max and RMS. |
-| 🎯 Targets | ≤ 0.5 % of measured length. ≤ 10 cm on 20 m (charter). For comparison, the DJI/DroneDeploy whitepaper reports distances within 0.1–0.3 % with RTK ([DJI P4 RTK whitepaper](https://docs.djicdn.com/DJI+Enterprise/measurement-accuracy-dji-phantom-4-rtk-whitepaper-f[1].pdf)). |
+| 🎯 Targets | ≤ 0.5 % of measured length. ≤ 10 cm on 20 m (charter). Short (~300 m) clips need an extra scale source (RTK/PPK, anchoring or a known length); GNSS-only scale can reach ~0.7 % there. For comparison, the DJI/DroneDeploy whitepaper reports distances within 0.1–0.3 % with RTK ([DJI P4 RTK whitepaper](https://docs.djicdn.com/DJI+Enterprise/measurement-accuracy-dji-phantom-4-rtk-whitepaper-f[1].pdf)). |
 | Also tested | Area of a surveyed polygon (≥ 3), volume of a surveyed stockpile or earthwork if available |
 
 ### 8.4 Doming test
@@ -407,7 +407,7 @@ Each metric is reported separately for **anchored** and **GNSS-only** runs, and 
 [ ] C2C / C2M / M3C2 vs LiDAR (if available)
 [ ] Confidence-class breakdown
 [ ] Outliers listed with reasons (none silently removed)
-[ ] Report PDF + JSON archived under data/runs/<run_id>/qa/ and summarised in §12
+[ ] Report PDF + JSON archived under data/runs/<run_id>/09_qa/ and summarised in §12
 ```
 
 ---
@@ -421,7 +421,7 @@ Each metric is reported separately for **anchored** and **GNSS-only** runs, and 
 | **UAVD4L** (3DV 2024) | About 2.5 km² urban/rural area with an RTK/GCP-aligned textured mesh and DSM from oblique aerial photography, UAV query images | **S4 registration to a prior model / reference ortho-DSM** (anchoring method b) | Localisation dataset. Query imagery is not a continuous single-pass video. | [arXiv 2401.05971](https://arxiv.org/abs/2401.05971); [GitHub](https://github.com/RingoWRW/UAVD4L) |
 | **Own green-zone flight(s)** | Real DJI video (4K) + SRT, gimbal nadir and 30° forward-oblique passes, **≥ 30 RTK checkpoints** + ≥ 10 taped distances, optional reference DSM | Everything end-to-end, especially **time sync (S0), rolling shutter, compression, real consumer-GNSS bias**, the headline before/after CE90 table, and the demo | Only flights in green zones up to 120 m AGL (Drone Rules 2021, [PIB](https://static.pib.gov.in/writereaddata/specificdocs/documents/2022/jan/doc202212810701.pdf)); limited scene variety | See [12-flight-and-data-capture-guide.md](12-flight-and-data-capture-guide.md) |
 | **Synthetic: Google Earth Studio** | Rendered fly-through video with an exported camera path (keyframe data) | Pipeline robustness, **time-offset injection** with exact camera timing, keyframing, unseen-location drills | Geometry truth is Google's own 3D, not survey truth. Check the terms of use; internal testing only, not shipped or shown as our data. | [earth.google.com/studio](https://earth.google.com/studio/) |
-| **Synthetic: simulator** (e.g. Unreal Engine + Cesium for Unreal, or a CARLA/AirSim-style setup) | Rendered video with exact poses, depth and geometry. Scriptable blur, rolling shutter, moving vehicles, water, lighting. | Exact-ground-truth tests for R1–R6 and R9; E2, E7 | Sim-to-real gap | Scripts in `scripts/sim/` |
+| **Synthetic: simulator** (e.g. Unreal Engine + Cesium for Unreal, or a CARLA/AirSim-style setup) | Rendered video with exact poses, depth and geometry. Scriptable blur, rolling shutter, moving vehicles, water, lighting. | Exact-ground-truth tests for RB1–RB6 and RB9; E2, E7 | Sim-to-real gap | Scripts in `scripts/sim/` |
 | ODM sample datasets | Drone image sets (some with video) | Baseline sanity, ODM comparison | Mostly stills, varied quality | [ODM GitHub](https://github.com/OpenDroneMap/ODM) and `odm_data_*` repos |
 
 Licences and download scripts for each dataset are recorded in [15-research-and-references.md](15-research-and-references.md) and `scripts/`. Where a licence is unclear, the dataset is used for internal evaluation only.
@@ -510,7 +510,7 @@ Each experiment changes **one factor** relative to the default `fast` configurat
 
 | # | Factor | Level | Completed? | CE90 (m) | Completeness (%) | Warning shown? | Verdict (pass / degrade / fail-loud / **fail-silent**) |
 |---|---|---|---|---|---|---|---|
-| R1 | Blur | 30 % | — | — | — | — | — |
+| RB1 | Blur | 30 % | — | — | — | — | — |
 | … | | | | | | | |
 
 A **fail-silent** result is automatically a Sev-1 bug (§16).
@@ -532,7 +532,7 @@ The release for the finale (M5) is accepted when **all "Must" criteria pass** on
 |---|---|---|---|---|
 | AC-1 | End-to-end processing time | ≤ 15 min for a 10-min 4K clip, `fast`, reference workstation | §12.6, B-L, median of 3 runs | Must |
 | AC-2 | First visual (2D preview) | ≤ 60 s after upload starts | §12.6 "P first tile" | Must |
-| AC-3 | Relative accuracy | ≤ 0.5 % of length; ≤ 10 cm on 20 m | §12.2 own flight, ≥ 10 distances | Must |
+| AC-3 | Relative accuracy | ≤ 0.5 % of length; ≤ 10 cm on 20 m (short ~300 m clips need an extra scale source — GNSS-only scale can reach ~0.7 %; charter §6) | §12.2 own flight, ≥ 10 distances | Must |
 | AC-4 | Absolute accuracy, GNSS only | Reported honestly (expected about 3–7 m CE90) | §12.1 row a with ≥ 30 checkpoints | Must (report), no threshold |
 | AC-5 | Absolute accuracy, anchored | ≤ 1 m CE90 and ≤ 1 m LE90 | §12.1 rows b/c/d, ≥ 30 independent checkpoints | Must (at least one of b/c/d) |
 | AC-6 | Absolute accuracy, RTK/PPK | ≤ 0.10 m CE90 | §12.1 row e (own RTK flight or MARS-LVIG RTK) | Should (depends on RTK hardware access) |
@@ -540,7 +540,7 @@ The release for the finale (M5) is accepted when **all "Must" criteria pass** on
 | AC-8 | Doming residual | ≤ 0.2 m peak along a 1 km strip | §12.2 vs LiDAR/DSM truth (MARS-LVIG and/or own) | Must on MARS-LVIG; Should on own flight |
 | AC-9 | Outputs | LAS/LAZ, OBJ + GLB, 3D Tiles, COG ortho + DSM/DTM, confidence map, report (HTML/PDF + JSON), all passing validators | §2.9 validators on the release run | Must |
 | AC-10 | Offline | Full pipeline + viewer with no network | IT-9 passes on the finale laptop | Must |
-| AC-11 | Robustness | No **fail-silent** result across R1–R16 | §12.5 | Must |
+| AC-11 | Robustness | No **fail-silent** result across RB1–RB16 | §12.5 | Must |
 | AC-12 | Honest reporting | Every accuracy number in the UI/report has method, n, conditions; inferred geometry flagged | Report review checklist §8.7 | Must |
 | AC-13 | Licence-clean | No forbidden weights in the default build | Licence check test (§2.3) + [07-tech-stack.md](07-tech-stack.md) | Must |
 | AC-14 | Unseen-video drill | Pass the rehearsal protocol (§14) in ≥ 2 of the last 3 drills | Drill scorecards | Must |

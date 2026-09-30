@@ -164,7 +164,7 @@
 
 | Term | Definition | Used in |
 |---|---|---|
-| **Relative accuracy** | How correct the model's **internal** geometry is (lengths, angles, areas, volumes), regardless of where it sits on Earth. Our target is ≤ 0.5 % length error. | 03, 06, 11 · S9 |
+| **Relative accuracy** | How correct the model's **internal** geometry is (lengths, angles, areas, volumes), regardless of where it sits on Earth. Our target is ≤ 0.5 % length error (short ~300 m clips need an extra scale source such as RTK/PPK, anchoring or a known length). | 03, 06, 11 · S9 |
 | **Reprojection error** | The pixel distance between where a reconstructed 3D point projects into an image and where it was actually detected. It is the quantity bundle adjustment minimises. | 05 · S3 |
 | **RMSE (Root Mean Square Error)** | The square root of the average squared error. It is the core accuracy statistic in ASPRS Ed. 2, reported per axis (RMSE_x, RMSE_y, RMSE_z) or horizontally (RMSE_H). | 06, 11 · S9 |
 | **Rolling shutter** | A sensor readout where image rows are exposed one after another, so a moving drone skews the image. Measured readouts include 74 ms (Phantom 2 Vision+) and 30 ms (Inspire 1). S3 models it. | 01, 05 · S3 |

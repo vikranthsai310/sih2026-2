@@ -183,13 +183,17 @@
 | **React + Vite + TypeScript** | UI shell | Team familiarity, fast HMR | Vue/Svelte: fine, but less team experience | MIT 🟢 |
 | **CesiumJS** | Globe, 3D Tiles, glTF, COG imagery, splats | Native OGC 3D Tiles. KHR_gaussian_splatting in 1.139 (Mar 2026) and splat LOD in 3D Tiles (Apr 2026) ([Cesium blog](https://cesium.com/blog/2026/04/27/3d-gaussian-splats-lod/)). | See §6.3 | **≥ 1.139** if the splat layer is used. Otherwise pin at implementation time. **Do not use Cesium ion at runtime** (cloud). | Apache-2.0 🟢 |
 | resium (optional) | React bindings for Cesium | Less glue code | Raw Cesium in a `useEffect` also works | ⚪ verify (believed MIT) |
+| TanStack Query (proposed, [09 §8.1](09-viewer-and-ui.md)) | Server state: REST cache, retries, background refresh | Offline-tolerant caching with little code | Hand-written fetch + context: more code for retries/reconnect | ⚪ verify (believed MIT) |
+| Zustand (proposed, [09 §8.1](09-viewer-and-ui.md)) | Client state stores (viewer, layers, tools, measurements, UI) | Small; usable from Cesium event handlers outside React | Redux Toolkit: heavier | ⚪ verify (believed MIT) |
+| react-i18next | EN / हि UI strings ([09 §13](09-viewer-and-ui.md)) | Standard React i18n | Hand-rolled lookup: no plural/format handling | ⚪ verify (believed MIT) |
+| SVG chart library (visx or uPlot, proposed) | Accuracy, doming, profile and bias-vs-noise charts | Lightweight, no canvas conflicts with Cesium | Heavier charting suites | ⚪ verify (visx believed MIT, uPlot believed MIT) |
 
 ### 3.14 Tooling
 
 | Tool | Use | Licence |
 |---|---|---|
 | ruff, black, mypy, pytest, pytest-cov, pre-commit | Python lint, format, types, tests | MIT 🟢 |
-| eslint, prettier, vitest, Playwright | TS lint, format, unit and e2e tests | MIT / Apache-2.0 🟢 |
+| eslint, prettier, vitest, React Testing Library, Playwright, axe-core | TS lint, format, unit, e2e and accessibility tests ([09 §8.1](09-viewer-and-ui.md)); axe-core is MPL-2.0 (⚠ verify) | MIT / Apache-2.0 🟢 |
 | exiftool (dev only) | Inspect EXIF/XMP, cross-check SRT | Perl Artistic/GPL 🟡 (not bundled) |
 | OpenDroneMap (Docker `opendronemap/odm:gpu`) | **M1 baseline** and fallback comparator | AGPL-3.0 🟡 |
 
@@ -233,7 +237,7 @@ Notes:
 | Python deps | `pyproject.toml` ranges plus `uv.lock` (exact). Conda binaries in `environment.yml` with exact versions. |
 | COLMAP, OpenMVS | Built into the pipeline Docker image from a **tagged release or commit SHA** recorded in `docker/versions.env` |
 | PyTorch | One CUDA 12.x wheel index, recorded in `docker/versions.env` |
-| Model weights | `weights/MANIFEST.yaml`: name, source URL, **SHA256**, licence, `finale_allowed: true/false`. `drishti check-licences` fails the build if a `finale_allowed: false` weight is referenced by a finale profile. |
+| Model weights | `models/MANIFEST.yaml`: name, source URL, **SHA256**, licence, `finale_allowed: true/false`. `drishti check-licences` fails the build if a `finale_allowed: false` weight is referenced by a finale profile. |
 | Web | `web/package-lock.json`. `npm ci` only. |
 | Updates | Only on a `chore/deps-*` branch with the full golden-dataset test run (see [`11-testing-and-evaluation.md`](11-testing-and-evaluation.md)) |
 
