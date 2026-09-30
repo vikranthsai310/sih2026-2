@@ -10,7 +10,7 @@
 
 - Terms are **alphabetical**. Terms that start with a digit come first.
 - **Used in** points to the document (by number, e.g. `06`) and/or pipeline stage (`S0`–`S9`, `P`) where the term matters most. Stage IDs follow [00-project-charter.md](00-project-charter.md) §7.
-- Numbers quoted in definitions come from the research report ([reports/Single pass drone 3D reconstruction.md](../reports/Single%20pass%20drone%203D%20reconstruction.md)) with its sources. See [15-research-and-references.md](15-research-and-references.md).
+- Numbers quoted in definitions come from the research report ([reports/Drishti3D_Research_Report.pdf](../reports/Drishti3D_Research_Report.pdf)) with its sources. See [15-research-and-references.md](15-research-and-references.md).
 - If you add a term, keep the definition to 1–3 plain sentences and add the "Used in" line.
 
 **Jump to:** [0–9](#09) · [A](#a) · [B](#b) · [C](#c) · [D](#d) · [E](#e) · [F](#f) · [G](#g) · [I](#i) · [K](#k) · [L](#l) · [M](#m) · [N](#n) · [O](#o) · [P](#p) · [R](#r) · [S](#s) · [T](#t) · [U](#u) · [V](#v) · [W](#w) · [Y](#y)

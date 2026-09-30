@@ -10,7 +10,7 @@
 
 | Item | Path | What it is |
 |---|---|---|
-| Research report | [`reports/Single pass drone 3D reconstruction.md`](../reports/Single%20pass%20drone%203D%20reconstruction.md) | The synthesis: "GPS anchoring turns single-pass video metric". Read this first. |
+| Research report | [`reports/Drishti3D_Research_Report.pdf`](../reports/Drishti3D_Research_Report.pdf) | The synthesis: "GPS anchoring turns single-pass video metric". Read this first. |
 | Research notes | [`research_notes/Single pass drone 3D reconstruction/`](../research_notes/Single%20pass%20drone%203D%20reconstruction/) | Six raw note files with cited findings, inferences and gaps |
 | — | `commercial_and_defense_products.md` | DJI, Pix4D, Skydio, SkyeBrowse, Metashape, iTwin, Esri; Raptor, Edgybees, OWT/RAPTRS, WRIVA |
 | — | `georeferencing_and_accuracy.md` | Consumer GNSS vs RTK/PPK, video vs stills, doming, time sync, rolling shutter, ASPRS |

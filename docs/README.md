@@ -44,7 +44,7 @@
 
 ## Supporting material (outside `docs/`)
 
-- [`../reports/Single pass drone 3D reconstruction.md`](../reports/Single%20pass%20drone%203D%20reconstruction.md) — full research report (who has solved what, with citations).
+- 📄 **[Research report (PDF)](../reports/Drishti3D_Research_Report.pdf)** — full research report (who has solved what, with citations). [Markdown source](../reports/Single%20pass%20drone%203D%20reconstruction.md) · rebuild with `python scripts/build_report_pdf.py`.
 - [`../research_notes/`](../research_notes/) — raw research notes behind the report (six topics).
 
 ## Pipeline at a glance

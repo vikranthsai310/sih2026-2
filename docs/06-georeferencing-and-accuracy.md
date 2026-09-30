@@ -500,7 +500,7 @@ $$\text{RMSE}_a^2 = \mu_a^2 + \tfrac{n-1}{n}\sigma_a^2 \approx \mu_a^2 + \sigma_
 
 ### 13.6 Evaluation datasets
 
-MARS-LVIG (21 downward sequences, 80–130 m, RTK poses + L1 LiDAR map) is the public stand-in for a single pass; UseGeo provides GT depth/LiDAR; UAVD4L provides an RTK/GCP-aligned mesh + DSM for testing registration to a prior model ([report](../reports/Single%20pass%20drone%203D%20reconstruction.md)). Plus one real green-zone flight with ≥ 30 RTK checkpoints (M3). Details in [11](11-testing-and-evaluation.md).
+MARS-LVIG (21 downward sequences, 80–130 m, RTK poses + L1 LiDAR map) is the public stand-in for a single pass; UseGeo provides GT depth/LiDAR; UAVD4L provides an RTK/GCP-aligned mesh + DSM for testing registration to a prior model ([report](../reports/Drishti3D_Research_Report.pdf)). Plus one real green-zone flight with ≥ 30 RTK checkpoints (M3). Details in [11](11-testing-and-evaluation.md).
 
 ---
 

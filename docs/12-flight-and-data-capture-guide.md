@@ -124,7 +124,7 @@ These settings matter because they control how accurately our pipeline can recon
 ### 5.1 Why the profile matters (evidence)
 
 - **Pure nadir straight lines cause doming.** Self-calibrating bundle adjustment on near-parallel views cannot recover radial distortion. The result is a dome or bowl deformation of **metre magnitude in simulation and about 0.2 m in a real test**. **Oblique images at 20–30° cut DEM deformation by one to two orders of magnitude.** A second flight line at a different azimuth did *not* help much, but varying pointing or altitude did ([James & Robson 2014](https://discovery.ucl.ac.uk/id/eprint/1443475/1/esp3609.pdf)). Newer guidance: 20–45° obliques in ≥ 10 % of images ([Drones 2025, 9(6), 387](https://doi.org/10.3390/drones9060387)).
-- **Roll about the flight axis is unobservable from collinear GPS.** A dead-straight line gives GPS positions on one line, so aligning to them cannot fix rotation about that line. A gentle curve or altitude change helps (derived inference, [report](../reports/Single%20pass%20drone%203D%20reconstruction.md)).
+- **Roll about the flight axis is unobservable from collinear GPS.** A dead-straight line gives GPS positions on one line, so aligning to them cannot fix rotation about that line. A gentle curve or altitude change helps (derived inference, [report](../reports/Drishti3D_Research_Report.pdf)).
 - **Frame spacing.** Video sampled at about 1 frame per 2.5 s matched a photo flight (building-boundary RMSE 1.1–2.7 cm vs 1.3–2.8 cm), and accuracy degraded at 4 s and 5.5 s ([Remote Sens. 2021](https://doi.org/10.3390/rs13142745)).
 
 ### 5.2 Formulas: GSD, footprint, blur, overlap
@@ -317,7 +317,7 @@ Use these while our own flights are pending and for reproducible benchmarks. **C
 | **UAVScenes** (2025) | Multi-modal UAV benchmark related to MARS-LVIG ([arXiv 2507.22412](https://arxiv.org/pdf/2507.22412)). Used in the GeoFF3D evaluation. | Long-sequence comparisons with published feed-forward results | ⚠ verify contents and licence |
 | **ODM sample data** (`OpenDroneMap/odm_data_*` repos) | Small real drone image sets for smoke tests ([ODM GitHub](https://github.com/OpenDroneMap/ODM)) | CI smoke tests, M1 baseline | Mostly stills. Few or no video + SRT sets. ⚠ verify per repo. |
 | **SensatUrban** | Large photogrammetric urban point clouds (UK cities) with **per-point semantic labels** (ground, vegetation, building, road, car, etc.). *From background knowledge; not verified in our research notes.* | S6 classification training and validation | ⚠ verify licence (often research/non-commercial) and exact class list |
-| **Own flights** (§5–§6) | DJI MP4 + SRT + ≥ 30 RTK checkpoints | **Final accuracy table**, demo | The only source of real forward-oblique single-pass video with ground truth. No public benchmark exists for this ([report](../reports/Single%20pass%20drone%203D%20reconstruction.md)). |
+| **Own flights** (§5–§6) | DJI MP4 + SRT + ≥ 30 RTK checkpoints | **Final accuracy table**, demo | The only source of real forward-oblique single-pass video with ground truth. No public benchmark exists for this ([report](../reports/Drishti3D_Research_Report.pdf)). |
 
 ---
 

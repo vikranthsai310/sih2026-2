@@ -24,7 +24,7 @@ Accurate 3D models of terrain and structures normally need planned multi-pass gr
 
 ## 3. Core insight (why we will win)
 
-Research (see `reports/Single pass drone 3D reconstruction.md`) shows:
+Research (see the [research report, PDF](../reports/Drishti3D_Research_Report.pdf)) shows:
 
 1. **Relative 3D shape from video is essentially solved** — COLMAP/OpenMVS, learned SLAM and feed-forward models give sub-percent drift and cm-level internal consistency.
 2. **Absolute placement is the open problem.** Consumer drone GNSS puts the model **~2–4 m off**, but the error is a near-*rigid bias* (e.g. Z bias 3.93 m with only 0.18 m spread). One good anchor removes most of it.

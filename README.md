@@ -46,7 +46,7 @@ Everything is in [`docs/`](docs/README.md). Start with the [Project Charter](doc
 | Validation & ops | [11 Testing](docs/11-testing-and-evaluation.md) · [12 Flight guide](docs/12-flight-and-data-capture-guide.md) |
 | Delivery | [13 Plan](docs/13-project-plan.md) · [14 Demo & pitch](docs/14-demo-and-pitch.md) · [15 References](docs/15-research-and-references.md) · [16 Glossary](docs/16-glossary.md) |
 
-Research: [`reports/Single pass drone 3D reconstruction.md`](reports/Single%20pass%20drone%203D%20reconstruction.md) and [`research_notes/`](research_notes/).
+Research: 📄 **[Research report (PDF)](reports/Drishti3D_Research_Report.pdf)** · [Markdown source](reports/Single%20pass%20drone%203D%20reconstruction.md) · [`research_notes/`](research_notes/). Rebuild the PDF with `python scripts/build_report_pdf.py`.
 
 ## Status
 
