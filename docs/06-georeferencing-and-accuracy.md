@@ -535,7 +535,7 @@ $\sigma_{\mathbf X} = \sqrt{\lambda_{\max}(\boldsymbol\Sigma_{\mathbf X})}$ (wor
 | **observed-low** | observed ($n_{\text{views}} \ge 2$) but fails any observed-high test |
 | **inferred** | no direct observation: LoD2 inferred faces (S6), water planes, mesh hole filling (`--close-holes`), DTM interpolation under buildings, masked-vehicle ground |
 
-For **mesh faces**: class = worst class covering > 50 % of the face area (sampled points within 0.3 m); faces with no dense support → inferred. For **rasters** (`confidence.tif`): per cell, band 1 = class (majority), band 2 = continuous $\sigma_{\mathbf X}$ (m). Viewer colours: observed-high green, observed-low amber, inferred hatched magenta (see [09](09-viewer-and-ui.md)).
+For **mesh faces**: class = worst class covering > 50 % of the face area (sampled points within 0.3 m); faces with no dense support → inferred. For **rasters** (`confidence.tif`): per cell, band 1 = class (majority), band 2 = continuous $\sigma_{\mathbf X}$ (m). Viewer colours (Okabe–Ito, colour-blind safe): observed-high blue `#0072B2`, observed-low orange `#E69F00`, inferred reddish-purple `#CC79A7` with 45° hatch (see [09](09-viewer-and-ui.md) and [18 §4.3](18-design-system.md)).
 
 ```python
 def classify_point(p, gsd, cfg):

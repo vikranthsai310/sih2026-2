@@ -731,9 +731,9 @@ These charts carry our main claim ("proof, not claims", charter §4), so they fo
 
 | # | Item | Status |
 |---|---|---|
-| Δ1 | Analyst `--warn` is `#8A5A00` instead of 09 §7.4's `#9A6700`, because `#9A6700` is 4.34 : 1 on `--surface-2` (below AA for text). On `--surface` both pass. Propose updating 09 §7.4. | Proposed |
+| Δ1 | Analyst `--warn` is `#8A5A00` instead of 09 §7.4's `#9A6700`, because `#9A6700` is 4.34 : 1 on `--surface-2` (below AA for text). On `--surface` both pass. 09 §7.4 updated. | Resolved |
 | Δ2 | 09 §7.4 calls the light theme "office"; this document calls it "Analyst". Same theme, same tokens. | Naming only |
-| Δ3 | [06 §14.3](06-georeferencing-and-accuracy.md#143-mapping-to-confidence-classes) says "observed-high green, observed-low amber, inferred hatched magenta". 09 §7.1 and this document use Okabe–Ito blue / orange / reddish purple. 06 should be aligned to 09. | Open (06 owner R2) |
+| Δ3 | [06 §14.3](06-georeferencing-and-accuracy.md#143-mapping-to-confidence-classes) says "observed-high green, observed-low amber, inferred hatched magenta". 09 §7.1 and this document use Okabe–Ito blue / orange / reddish purple. 06 §14.3 aligned to 09 and this document. | Resolved |
 | Δ4 | Touch targets: 09 U6 sets 48 px everywhere; this document keeps 48 px for Field mode and allows 44 px for the Analyst theme with a pointer (WCAG AAA 2.5.5 level). 56 px primaries are unchanged. | Proposed |
 | Δ5 | Semantic palette (§4.4): vehicle ↔ vegetation and ground ↔ building are hard to separate. Mitigated by hatch, labels and solo toggles. Revisit with a validated 7-colour set if user testing shows confusion. | Open (R5) |
 | Δ6 | "Import mission bundle (`.d3d.zip`)" on the Missions screen has no API in [08 §9](08-data-formats-and-interfaces.md#9-rest-and-websocket-api) (08 only has a per-run `bundle` artefact for *export*). The wireframes show import as a disabled "Future" action. | Future |

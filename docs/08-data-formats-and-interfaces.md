@@ -1148,6 +1148,7 @@ Two service entry points ship alongside the CLI but are not part of it: `drishti
 | POST | `/runs/{run_id}/measurements` | analyst | Save a measurement (GeoJSON Feature with value and uncertainty) |
 | DELETE | `/runs/{run_id}/measurements/{measurement_id}` | analyst | Delete a saved measurement |
 | POST | `/runs/{run_id}/measure/{kind}` | analyst | Server-side heavy measurement on the DSM/mesh; `kind` = `volume` \| `area` \| `profile` |
+| POST | `/runs/{run_id}/compare` | analyst | Build a comparison product against another run or accuracy tier: body `{ "other_run_id", "products": ["diff_dsm","checkpoint_ce90"] }` → writes `09_qa/compare/<other_run_id>/diff_dsm.tif` (COG) and returns its `/files/runs/...` URL plus both runs' CE90/LE90. Used by the Compare view (FR-UI-10) |
 | WS | `/runs/{run_id}/progress` | analyst | Progress, preview updates, completion |
 
 **Static run files.** Run outputs are also served read-only by nginx at `/files/runs/{run_id}/{path}` — **outside** the `/api/v1` prefix, same session/token, HTTP Range supported (3D Tiles, COGs, preview tiles). `{path}` is relative to the run directory ([04 §7](04-system-architecture.md#7-run-directory-layout)), e.g. `08_export/tiles/mesh/tileset.json`, `08_export/rasters/ortho.tif`, `09_qa/accuracy.json`, `preview/tiles/{z}/{x}/{y}.webp`. Artefact listings (`GET /runs/{run_id}/artifacts`) return these URLs; clients should prefer them over constructing paths.

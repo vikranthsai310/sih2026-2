@@ -217,7 +217,7 @@ Legend: `[ Button ]` button · `( )` radio · `[x]` checkbox · `▾` dropdown �
 │  (•) fast      metric 3D · target ≤ 15 min for 10-min 4K           ← default                 │
 │  ( ) quality   maximum detail · no time limit                                                │
 │  [x] Build photoreal splat layer (S7, display only, runs after the metric product)           │
-│  [x] Mask vehicles and people (S2)          Output CRS [ Auto (UTM 43N / EPSG:32643) ▾ ]     │
+│  [x] Mask vehicles and people (S2)          Output CRS [ Auto (UTM 44N / EPSG:32644) ▾ ]     │
 │  Heights  [ Orthometric (EGM2008) ▾ ]                                                        │
 │                                                                                              │
 │ ⚠ No reference ortho, DSM, RTK or GCP given: absolute accuracy will be GNSS-only             │
@@ -365,7 +365,7 @@ The primary button is disabled only on **fail**. Warnings never block the user; 
 │ ☐ Flight track│                                                              ││               │
 │ ☐ Checkpoints │                                                              ││               │
 ├───────────────┴──────────────────────────────────────────────────────────────┴───────────────┤
-│ ⌖ 17.38521° N 78.48673° E · h 512.4 m (EGM2008) · UTM 43N 217 431.2 E 1 923 884.7 N          │
+│ ⌖ 17.38521° N 78.48673° E · h 512.4 m (EGM2008) · UTM 44N 217 431.2 E 1 923 884.7 N          │
 │   ± 0.74 m CE90 · ± 0.81 m LE90 · Anchored (ortho+DSM) · Conf obs-high · Scale 1:1 200    ⓘ  │
 └──────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -485,7 +485,7 @@ This screen is the core of the demo: it shows the before/after accuracy table as
 │  [x] Accuracy report                        [ PDF + HTML + JSON ] 4 MB                      │
 │  [x] Measurements                           [ GeoJSON ▾ ] CSV     < 1 MB                    │
 │                                                                                            │
-│  CRS      [ UTM 43N · EPSG:32643 ▾ ]   Heights [ Orthometric EGM2008 ▾ ]                   │
+│  CRS      [ UTM 44N · EPSG:32644 ▾ ]   Heights [ Orthometric EGM2008 ▾ ]                   │
 │  Clip to  ( ) Full extent  (•) Current view box  ( ) Drawn polygon                          │
 │  Include inferred (LoD2) geometry  [x]  (flagged by attribute conf_class = inferred)        │
 │                                                                                            │
@@ -640,7 +640,7 @@ These colours are separate from the confidence palette, and the two overlays are
 | `--text` | `#E6EDF3` | `#1F2328` | `#FFFFFF` |
 | `--text-muted` | `#9DA7B3` | `#59636E` | `#FFFFFF` |
 | `--primary` | `#4C9AFF` | `#0B5CD5` | `#FFFF00` |
-| `--warn` | `#F2B84B` | `#9A6700` | `#FFFF00` |
+| `--warn` | `#F2B84B` | `#8A5A00` | `#FFFF00` |
 | `--danger` | `#FF6B6B` | `#CF222E` | `#FF4040` |
 | `--ok` | `#3FB950` | `#1A7F37` | `#00FF00` |
 
@@ -658,9 +658,9 @@ All text/background pairs must meet WCAG 2.2 AA contrast (4.5 : 1 for body text,
 | 3D engine | CesiumJS (no Cesium ion; `Ion.defaultAccessToken` unset, `baseLayer: false`, local imagery provider) | 3D Tiles, glTF, KHR_gaussian_splatting, geodesy built in. Apache-2.0. |
 | Server state | TanStack Query (REST cache, retries, background refresh) | Simple offline-tolerant caching |
 | Client state | Zustand stores (viewer, layers, tools, measurements, UI) | Small, and works well outside React (Cesium event handlers) |
-| Charts | Lightweight SVG charts (e.g. visx or uPlot) for the histogram, correlation, doming, profile and bias-vs-noise charts | No canvas dependency conflicts with Cesium |
+| Charts | Recharts (SVG) for the histogram, correlation, doming, profile and bias-vs-noise charts — decided in [07 §3.13](07-tech-stack.md) | SVG, no canvas conflicts with Cesium; styled per [18 §10.19](18-design-system.md) |
 | i18n | `react-i18next` with JSON bundles `en.json`, `hi.json` | §13 |
-| Styling | CSS variables (theme tokens §7.4) + CSS modules | Theming without runtime cost |
+| Styling | Tailwind CSS + shadcn/ui (Radix) driven by the CSS-variable tokens in [18 §5](18-design-system.md) — decided in [07 §3.13](07-tech-stack.md) | Theming without runtime cost; accessible primitives |
 | Testing | Vitest + React Testing Library, Playwright for end-to-end, axe-core for accessibility | See doc 11 |
 | Offline assets | Cesium static assets, fonts (Noto Sans + Noto Sans Devanagari) and the geoid grid bundled locally | Air-gapped |
 

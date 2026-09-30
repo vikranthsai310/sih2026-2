@@ -655,7 +655,8 @@ dialog.dlg::backdrop { background: var(--scrim); }
 @container dev (max-width: 1023px) {
   .viewer { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto auto; }
   .vpanel.left { display: none; }
-  .vpanel.right { border-left: 0; border-top: 1px solid var(--border); max-height: 38%; border-radius: var(--r-lg) var(--r-lg) 0 0; box-shadow: var(--elev-3); position: relative; }
+  .canvas { min-height: 260px; }
+  .vpanel.right { border-left: 0; border-top: 1px solid var(--border); max-height: 300px; border-radius: var(--r-lg) var(--r-lg) 0 0; box-shadow: var(--elev-3); position: relative; }
   .vpanel.right::before { content: ""; display: block; width: 40px; height: 4px; border-radius: 2px; background: var(--border-strong); margin: -6px auto 10px; }
   .fab-layers { display: inline-flex !important; }
   .g-3, .g-side, .g-main-side { grid-template-columns: minmax(0, 1fr); }
@@ -690,7 +691,7 @@ dialog.dlg::backdrop { background: var(--scrim); }
   .toolbar .tool span { display: none; }
   .statusbar { font-size: 12px; }
   .statusbar .sb-extra { display: none; }
-  .vpanel.right { max-height: 45%; }
+  .vpanel.right { max-height: 260px; }
   .stepper li + li::before { width: 12px; }
   .stepper li .lbl { display: none; }
   .stepper li[aria-current="step"] .lbl { display: inline; }
@@ -698,8 +699,9 @@ dialog.dlg::backdrop { background: var(--scrim); }
   .dlg-static { margin: 0; width: 100%; border-radius: 0; min-height: 100%; }
   .card { padding: var(--sp-5); }
   .compare .clabel { font-size: 12px; padding: 6px 8px; }
-  .hint { white-space: normal; width: calc(100% - 32px); text-align: center; border-radius: var(--r-md); }
+  .hint { white-space: normal; width: calc(100% - 32px); text-align: center; border-radius: var(--r-md); top: 68px; bottom: auto; }
   .state-grid { grid-template-columns: minmax(0, 1fr); }
 }
 table.t th.rh { position: static; background: transparent; border-top: 1px solid var(--border); font-size: var(--fs-body); }
 table.t tr.hl th.rh { background: var(--accent-subtle); }
+.opt-body .tag { align-self: flex-start; margin: 2px 0; }
