@@ -633,14 +633,14 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v5      # uv + uv.lock per 07 §5
         with:
           python-version: "3.11"
-          cache: pip
+          enable-cache: true
       - name: System deps (CPU only)
         run: sudo apt-get update && sudo apt-get install -y ffmpeg gdal-bin libgdal-dev
-      - name: Install
-        run: pip install -e "pipeline[test]"
+      - name: Install (locked)
+        run: uv sync --frozen --project pipeline --extra test
       - name: Lint and types
         run: |
           ruff check pipeline server tests
@@ -659,16 +659,17 @@ jobs:
         working-directory: web
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4       # pnpm + pnpm-lock.yaml per 07 §5
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: web/package-lock.json
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run typecheck
-      - run: npm run test -- --run
-      - run: npm run build
+          node-version-file: web/.nvmrc  # active LTS, see 07 §2.2
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test -- --run
+      - run: pnpm build
 ```
 
 ### 15.3 Policies

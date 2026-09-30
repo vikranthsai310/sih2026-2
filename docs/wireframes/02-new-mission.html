@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en" data-theme="field" data-viewport="desktop">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New Mission · Drishti3D wireframe</title>
+<link rel="stylesheet" href="assets/wireframe.css">
+<script src="assets/wireframe.js"></script>
+</head>
+<body>
+<div class="stage">
+<div class="device">
+<div class="app">
+  <header class="topbar">
+    <a class="brand" href="01-missions.html" aria-label="Drishti3D, Missions"><i data-icon="logo"></i><span class="wm">Drishti<b>3D</b></span></a>
+    <nav class="crumb" aria-label="Breadcrumb"><a class="crumb-root" href="01-missions.html"><i data-icon="chevl"></i><span data-i18n="nav.missions">Missions</span></a><span class="crumb-root">/</span><strong data-i18n="mission.new">New Mission</strong></nav>
+    <span class="spacer"></span>
+    <div class="sys"><span class="chip"><i data-icon="wifioff"></i><span data-i18n="system.offline">Offline</span></span><span class="chip disk"><i data-icon="disk"></i>Disk 612 GB</span></div>
+    <div class="tb-actions">
+      <button type="button" class="btn btn-ghost lang-btn" data-action="lang" style="min-width:64px">EN | <span lang="hi">हि</span></button>
+      <button type="button" class="btn btn-ghost btn-icon" data-action="theme" aria-label="Toggle theme"><svg class="ic" aria-hidden="true"><use href="#i-sun"/></svg></button>
+    </div>
+  </header>
+
+  <main class="content">
+    <div class="content-narrow" style="max-width:1180px">
+      <div class="phone-block empty card" style="margin-bottom:var(--sp-7)">
+        <i data-icon="lock"></i>
+        <h2>New missions can't be created on a phone</h2>
+        <p class="muted">Phones are read-only viewers. Use the ground-station laptop, or the tablet on the same local network.</p>
+        <a class="btn" href="01-missions.html"><i data-icon="chevl"></i>Back to missions</a>
+      </div>
+
+      <div class="phone-hide">
+      <ol class="stepper" aria-label="Mission steps" data-anno="1">
+        <li aria-current="step"><span class="n">1</span><span class="lbl">Inputs</span></li>
+        <li><span class="n">2</span><span class="lbl" data-i18n="ingest.title">Ingest Check</span></li>
+        <li><span class="n">3</span><span class="lbl">Processing</span></li>
+        <li><span class="n">4</span><span class="lbl">Results</span></li>
+      </ol>
+
+      <div class="grid g-2" style="margin-bottom:var(--sp-7);gap:var(--sp-5)">
+        <div class="field"><label for="mname">Mission name</label><input id="mname" class="input" value="Bridge-Recon-07"></div>
+        <div class="field"><label for="area">Area tag</label><select id="area" class="select"><option>Sector-4</option><option>Sector-9</option><option>+ New tag…</option></select></div>
+      </div>
+
+      <h2 class="overline" style="margin-bottom:var(--sp-4)">1 · Required inputs</h2>
+      <div class="grid g-2" style="margin-bottom:var(--sp-8)">
+        <div class="dropzone" data-anno="2" role="group" aria-label="Video">
+          <div class="dz-call"><i data-icon="upload"></i><div><strong data-i18n="upload.drop">Drop video here or browse</strong><div class="muted sm">MP4 · MOV · TS (1080p / 4K)</div></div><span class="spacer"></span><button type="button" class="btn btn-sm">Browse…</button></div>
+          <div class="file-row">
+            <i data-icon="video"></i>
+            <div><strong class="mono">DJI_0412.MP4</strong> <span class="muted sm">3840×2160 · 29.97 fps · HEVC</span></div>
+            <button type="button" class="btn btn-ghost btn-icon btn-sm" aria-label="Pause upload" data-toast="Upload paused at 91 %. It will resume from here.|info"><i data-icon="pause"></i></button>
+            <div class="fr-meta">
+              <div class="row sm" style="justify-content:space-between"><span class="muted">9 m 48 s · 3.8 GB · chunk 53/58</span><span class="num">91 %</span></div>
+              <div class="progress" style="margin-top:6px" role="progressbar" aria-valuenow="91" aria-valuemin="0" aria-valuemax="100" aria-label="Video upload"><i style="width:91%"></i></div>
+            </div>
+          </div>
+        </div>
+        <div class="dropzone" data-anno="3" role="group" aria-label="Telemetry">
+          <div class="dz-call"><i data-icon="radio"></i><div><strong>Drop telemetry here or browse</strong><div class="muted sm">DJI .SRT · KLV in .TS (MISB 0601)</div></div><span class="spacer"></span><button type="button" class="btn btn-sm">Browse…</button></div>
+          <div class="file-row">
+            <i data-icon="check" class="ok"></i>
+            <div><strong class="mono">DJI_0412.SRT</strong> <span class="muted sm">17 634 entries</span></div>
+            <button type="button" class="btn btn-ghost btn-icon btn-sm" aria-label="Remove file"><i data-icon="x"></i></button>
+            <div class="fr-meta sm"><span class="pass" style="font-weight:600"><i data-icon="check"></i> matched by filename</span> <span class="muted">· SHA-256 verified</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row" style="margin-bottom:var(--sp-4)">
+        <h2 class="overline">2 · Optional accuracy inputs <span class="muted" style="text-transform:none;letter-spacing:0">(each one improves absolute accuracy)</span></h2>
+        <span class="spacer"></span>
+        <button type="button" class="btn btn-link" data-open-dialog="dlg-why" data-anno="4">What's this?</button>
+      </div>
+      <div class="table-wrap" style="margin-bottom:var(--sp-8)">
+        <table class="t">
+          <thead><tr><th scope="col">Input</th><th scope="col">File</th><th scope="col">Expected effect</th></tr></thead>
+          <tbody>
+            <tr><td>RTK / PPK positions</td><td><button type="button" class="btn btn-sm">Browse…</button> <span class="muted sm">.pos / .csv · declare GPST or UTC</span></td><td>≤ 0.10 m CE90 <span class="muted sm">(target)</span></td></tr>
+            <tr><td>Reference orthophoto</td><td><span class="chip ok"><i data-icon="check"></i><span class="mono">hyd_sector4_ortho_30cm.tif</span></span></td><td>≤ 1 m CE90 <span class="muted sm">(target)</span></td></tr>
+            <tr><td>Reference DSM</td><td><span class="chip ok"><i data-icon="check"></i><span class="mono">sector4_dsm_1m.tif</span></span></td><td>Fixes vertical bias + doming check</td></tr>
+            <tr><td>GCP / known point(s)</td><td><button type="button" class="btn btn-sm">Browse…</button> <button type="button" class="btn btn-ghost btn-sm"><i data-icon="plus"></i>Add</button></td><td>1 point removes most of the offset. <span class="muted sm">role=check points are held out.</span></td></tr>
+            <tr><td>Camera intrinsics</td><td><button type="button" class="btn btn-sm">Browse…</button> <span class="muted sm">.json / .yaml</span></td><td>Locks lens model (reduces doming)</td></tr>
+            <tr><td>CORS / GAGAN log</td><td><button type="button" class="btn btn-sm">Browse…</button></td><td>Corrected GNSS (see 06)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 class="overline" style="margin-bottom:var(--sp-4)">3 · Processing profile</h2>
+      <div class="grid g-3" style="gap:var(--sp-4);margin-bottom:var(--sp-5)" role="radiogroup" aria-label="Processing profile" data-anno="5">
+        <label class="opt profile-opt"><input type="radio" name="profile"><span class="opt-body"><strong>preview</strong><small>2D mosaic only · seconds · no 3D</small></span></label>
+        <label class="opt profile-opt"><input type="radio" name="profile" checked><span class="opt-body"><strong>fast <span class="chip" style="min-height:20px;padding:0 8px;font-size:12px">default</span></strong><small>Metric 3D · target ≤ 15 min for a 10-min 4K clip</small></span></label>
+        <label class="opt profile-opt"><input type="radio" name="profile"><span class="opt-body"><strong>quality</strong><small>Maximum detail · no time limit</small></span></label>
+      </div>
+      <div class="grid g-2" style="gap:var(--sp-2) var(--sp-7);margin-bottom:var(--sp-7)">
+        <label class="opt"><input type="checkbox" checked><span class="opt-body">Build photoreal splat layer (S7)<small>Display only · runs after the metric product</small></span></label>
+        <label class="opt"><input type="checkbox" checked><span class="opt-body">Mask vehicles and people (S2)<small>Recommended for roads and settlements</small></span></label>
+        <div class="field"><label for="crs">Output CRS</label><select id="crs" class="select"><option>Auto (UTM 43N · EPSG:32643)</option><option>WGS 84 (EPSG:4326)</option></select></div>
+        <div class="field"><label for="hts">Heights</label><select id="hts" class="select"><option>Orthometric (EGM2008)</option><option>Ellipsoidal (WGS 84)</option></select></div>
+      </div>
+
+      <div class="banner ok card" style="margin-bottom:var(--sp-5)" data-anno="6"><i data-icon="anchor"></i><span><strong>Anchoring available:</strong> reference ortho + DSM overlap the SRT track (98 % of the footprint). Expected absolute accuracy ≤ 1 m CE90 (target). Relative measurements are unaffected by anchoring.</span></div>
+      <details class="sm muted" style="margin-bottom:var(--sp-7)"><summary style="cursor:pointer;min-height:32px">Show the warning you'd see without any anchor</summary>
+        <div class="banner warn card" style="margin-top:var(--sp-3)"><i data-icon="alert"></i><span>No reference ortho, DSM, RTK or GCP given: absolute accuracy will be <strong>GNSS-only (about 3–7 m CE90)</strong>. Relative measurements (lengths, areas, volumes) are unaffected.</span></div>
+      </details>
+
+      <div class="row" style="border-top:1px solid var(--border);padding-top:var(--sp-5)">
+        <a class="btn" href="01-missions.html" data-i18n="common.cancel">Cancel</a>
+        <span class="spacer"></span>
+        <span class="muted sm phone-hide">Uploads continue in the background</span>
+        <a class="btn btn-primary lg" href="03-ingest-check.html" data-anno="7"><span data-i18n="mission.checkInputs">Check inputs</span><i data-icon="arrowr"></i></a>
+      </div>
+      </div>
+    </div>
+  </main>
+
+  <dialog class="dlg" id="dlg-why" aria-labelledby="why-t">
+    <div class="dlg-head"><h2 id="why-t">Why an anchor matters</h2><button type="button" class="btn btn-ghost btn-icon" data-close aria-label="Close"><i data-icon="x"></i></button></div>
+    <div class="dlg-body stack">
+      <p>Consumer drone GPS places the model a few metres off, but the error is mostly a <strong>rigid shift</strong> (the same offset everywhere). One good anchor, such as a reference orthophoto, DSM, RTK/PPK track or a single known point, removes most of it.</p>
+      <p>Shapes, lengths, areas and volumes (<em>relative</em> accuracy) are good either way. Anchoring changes <em>where on Earth</em> the model sits (<em>absolute</em> accuracy).</p>
+      <p class="muted sm">Source: Zhang et al. 2019 (vertical bias 3.93 m with 0.18 m spread). Details in docs 06 §1 and §11.</p>
+    </div>
+    <div class="dlg-foot"><span class="spacer"></span><button type="button" class="btn btn-primary" data-close>Got it</button></div>
+  </dialog>
+</div>
+</div>
+
+<aside class="anno-panel" aria-label="Annotations">
+  <h2>02 · New Mission</h2>
+  <div class="anno-sub">09 §5.2 · Persona: field operator · <span class="mono">POST /api/v1/missions</span>, <span class="mono">POST /api/v1/uploads</span>, <span class="mono">PUT …/chunks/{n}</span>, <span class="mono">POST …/complete</span></div>
+  <ol>
+    <li><strong>Stepper</strong> shows the mission pipeline (Inputs → Ingest check → Processing → Results). Upcoming steps are not clickable until their data exists.</li>
+    <li><strong>Video dropzone</strong>: chunked, resumable upload. The server probes the file (ffprobe). Pause keeps the received chunks; <code>GET /api/v1/uploads/{id}</code> lists them for resume.</li>
+    <li><strong>Telemetry</strong> is matched to the video by basename (case-insensitive). If there's no SRT/KLV, the primary becomes "Continue without GPS (relative model only)" with a red warning (see <a href="11-states.html#no-telemetry">states</a>).</li>
+    <li><strong>"What's this?"</strong> opens a short explainer the first time: anchoring removes the rigid GNSS bias.</li>
+    <li><strong>Profile</strong> defaults to <code>fast</code>. <code>preview</code> disables the 3D tabs for this run.</li>
+    <li><strong>Accuracy expectation</strong> is stated before processing, labelled as a target. The GNSS-only warning is shown when no anchor is supplied.</li>
+    <li><strong>Primary</strong> goes to the Ingest Check (S0 quick pass), never straight to processing (09 U1). Calls <code>POST /api/v1/missions/{id}/ingest-check</code>.</li>
+  </ol>
+  <p class="anno-sub" style="margin-top:8px">Next: <a href="03-ingest-check.html">Ingest Check →</a></p>
+</aside>
+</div>
+</body>
+</html>

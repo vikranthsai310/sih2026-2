@@ -95,6 +95,7 @@ Processing **profiles**: `preview` (2D only, seconds) · `fast` (default, ≤15 
 
 | Layer | Choice | Licence note |
 |---|---|---|
+| Client platform | **One offline-first web app** served locally (127.0.0.1:8080); responsive tablet layout installable as a **PWA** over LAN-mode HTTPS; phone = read-only viewer; no native mobile app; Tauri desktop wrapper = future (ADR-012) | |
 | Language | Python 3.11 (pipeline), TypeScript (web) | |
 | Core CV | OpenCV, PyTorch 2.x (CUDA 12) | |
 | SfM | COLMAP 4.x (global mapper, pycolmap) | BSD |
@@ -105,7 +106,7 @@ Processing **profiles**: `preview` (2D only, seconds) · `fast` (default, ≤15 
 | Geo | GDAL, PDAL, pyproj, rasterio, Open3D | |
 | Splatting | gsplat (nerfstudio) | Apache-2.0 |
 | Backend | FastAPI + local job runner (SQLite) | |
-| Frontend | React + Vite + CesiumJS (3D Tiles, glTF) | Apache-2.0 |
+| Frontend | React + TypeScript + Vite + CesiumJS (3D Tiles, glTF); Zustand + TanStack Query; Tailwind + shadcn/ui; react-i18next (EN/HI); vite-plugin-pwa — full detail in [07 §3.13](07-tech-stack.md) | Apache-2.0 / MIT |
 | Packaging | Docker (CUDA base) + `docker compose`, fully offline | |
 
 **Forbidden for final build:** model weights whose licence excludes military use (e.g. VGGT-1B-Commercial) or non-commercial weights shipped as the default. Record every model licence in `docs/07-tech-stack.md`.

@@ -77,7 +77,7 @@ flowchart TB
 ```mermaid
 flowchart LR
   subgraph Browser["Analyst / operator browser"]
-    WEB["Web viewer<br/>React + Vite + CesiumJS<br/>(static bundle)"]
+    WEB["Web viewer<br/>React + Vite + CesiumJS<br/>(static bundle, PWA — ADR-012)"]
   end
 
   subgraph Host["Workstation — docker compose, internal network"]
@@ -139,9 +139,9 @@ flowchart LR
   IN --> S0
   S0 -- "telemetry.csv<br/>timesync.json<br/>video_info.json" --> S1
   S0 -- "decoded frames +<br/>GPS (stream)" --> P
-  S1 -- "keyframes/*.jpg<br/>keyframes.csv" --> S2
+  S1 -- "01_frames/images/*.jpg<br/>keyframes.csv" --> S2
   S1 --> S3
-  S2 -- "masks/dynamic/*.png<br/>semantic/*.png" --> S3
+  S2 -- "02_masks/dynamic/*.png<br/>semantic/*.png" --> S3
   S3 -- "sparse/0 (COLMAP)<br/>poses.csv" --> S4
   S3 -. "SfM velocity →<br/>refine time offset" .-> S0
   S4 -- "transform.json<br/>georef sparse model<br/>anchoring.json" --> S5
@@ -295,7 +295,7 @@ sequenceDiagram
   A->>A: enqueue job(type="qa_only")
   K->>FS: invalidate 09_qa/stage.json only
   K->>FS: S9 → accuracy.json, report.pdf
-  A-->>E: 202 {job_id}; later GET /api/v1/runs/{id}/report
+  A-->>E: 202 {job_id}, then GET /api/v1/runs/{id}/report
 ```
 
 ---
@@ -656,6 +656,12 @@ Each ADR: context → decision → consequences. Status is *Accepted* unless not
 - **Context.** Self-calibration on near-parallel images causes doming (metre-level in simulation, ~0.2 m real; fixing K1 gives ~10× reduction — James & Robson 2014).
 - **Decision.** Use calibration library or supplied intrinsics and keep them fixed; only focal length may be refined within ±2 % when no calibration exists, and distortion is never freed on strips.
 - **Consequences.** Requires a camera-calibration library for common drones (R6 task); unknown cameras get a doming warning.
+
+### ADR-012 · One offline-first web app (PWA) as the only client
+
+- **Context.** Users include field operators on rugged tablets, analysts at workstations and commanders who may only have a phone ([09 §1](09-viewer-and-ui.md)). All heavy compute runs in the GPU worker on the ground station; the client only needs WebGL 2 for CesiumJS. Options: web app + PWA, native mobile app, desktop wrapper (Tauri or Electron). A weighted matrix (offline, GPU access, dev speed, team skills, 3D performance, deployability on NTRO hardware, security) scored web + PWA 445/500, Electron 390, Tauri 360, native mobile 220 ([07 §2.1](07-tech-stack.md)).
+- **Decision.** Build one React + TypeScript + CesiumJS single-page app, served by the `web` container (nginx, `127.0.0.1:8080`, §6.3). It has a responsive tablet layout and is installable as a PWA (vite-plugin-pwa / Workbox). A phone gets a read-only viewer (no upload or run control; permissions still enforced by server roles). No native mobile app. A Tauri desktop wrapper around the same bundle is future work; Electron is rejected (bundle size, unpatched Chromium on air-gapped hosts).
+- **Consequences.** One codebase and nothing to install on clients. Installing the PWA on a tablet over the LAN needs LAN mode with TLS and a local CA the tablet trusts (§11); without it the app still works as a normal page, without offline caching. The service worker must never cache mutations or authenticated error responses, and needs a prompt-to-update flow ([07 §3.13.5](07-tech-stack.md)). The CSP of §11 gains the worker and blob sources CesiumJS needs.
 
 ---
 

@@ -10,10 +10,10 @@
 
 | If you are… | Read in this order |
 |---|---|
-| **New to the team** | 00 → 01 → 02 → 16 (glossary) → 13 (plan) → your role's docs below |
-| **A judge / evaluator** | 02 → 06 → 11 → 14 |
+| **New to the team** | 00 → 01 → 02 → 17 (PRD) → 16 (glossary) → 13 (plan) → your role's docs below |
+| **A judge / evaluator** | 02 → 17 → 06 → 11 → 14 |
 | **Implementing the pipeline** | 00 → 05 → 06 → 08 → 10 |
-| **Building the web viewer** | 00 → 04 → 08 → 09 |
+| **Building the web viewer** | 00 → 17 → 09 → 18 → wireframes → 04 → 08 |
 | **Flying the drone / collecting data** | 12 → 11 → 06 |
 | **Preparing the pitch** | 02 → 14 → 15 |
 
@@ -38,6 +38,9 @@
 | 14 | [Demo & Pitch](14-demo-and-pitch.md) | PPT outline, pitch scripts, live demo script, judge Q&A bank |
 | 15 | [Research & References](15-research-and-references.md) | Research summary, full bibliography, claims to verify |
 | 16 | [Glossary](16-glossary.md) | Plain-language definitions of every technical term |
+| 17 | [Product Requirements (PRD)](17-product-requirements.md) | Vision, personas, journeys, epics & user stories, releases, KPIs |
+| 18 | [Design System](18-design-system.md) | Tokens, themes (field dark / analyst light), components, accessibility, EN/HI microcopy |
+| — | [Wireframes](wireframes/README.md) | Clickable HTML wireframe prototype of every screen (open `wireframes/index.html`) |
 
 ## Supporting material (outside `docs/`)
 

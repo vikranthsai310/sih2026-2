@@ -363,7 +363,7 @@ GNSS priors fix the 7-DoF gauge; no camera is held fixed. Intrinsics are constan
 | d | **Single known point / GCP** | translation (1 pt); + rotation/scale with ≥ 3 | Zhang: single GPS + 8 GCPs = 2.3 cm XY / 2.6 cm Z; PPK + 1 GCP = 2.3 / 2.9 cm. With consumer GNSS + 1 point: translation error ≈ point accuracy; residual rotation/scale error grows with distance — ≈ 0.1–0.5 m within 1 km (estimate, §12) | sourced + estimate | cheap: one surveyed/known feature (benchmark, road junction from a cadastral map) |
 | e | **GNSS only** (fallback) | nothing absolute | ≈ **3.5 m CE90, 6.5 m LE90** (Zhang converted — derived); Mavic Pro: H "< 1 m" best, V "unacceptable" ([Elkhrachy 2021](https://www.sciencedirect.com/science/article/pii/S1110016821002544), snippet); GS-from-video 5.26 m CE90 ([T&F 2026](https://www.tandfonline.com/doi/abs/10.1080/19479832.2026.2661679)) | sourced | always; reported honestly as "expected ~3–7 m CE90" (charter) |
 
-Anchors combine: e.g. (c) for horizontal and (d) for vertical. `georef.anchor_order` in config sets preference; the report lists every anchor used and its residuals.
+Anchors combine: e.g. (c) for horizontal and (d) for vertical. `georef.anchoring.order` in config (see [08](08-data-formats-and-interfaces.md); default `rtk, gcp, ref_ortho_dsm, corrected_track, gnss_only`) sets the order in which available anchors are *applied* — it differs from the ranking above, which is by expected accuracy of the correction source alone (a surveyed GCP beats GAGAN-level correction); the report lists every anchor used and its residuals.
 
 ### 11.1 RTK/PPK ingest
 
@@ -417,7 +417,7 @@ flowchart TD
     G -- no --> I[keep]
     H --> J[set b from anchor, final BA with GNSS shape priors]
     I --> J
-    J --> Z[transform.json + anchor_report.json]
+    J --> Z[transform.json + anchoring.json]
 ```
 
 ---

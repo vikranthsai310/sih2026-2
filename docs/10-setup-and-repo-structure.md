@@ -81,11 +81,15 @@ sih2026-2/
 │   ├── app/jobs.py              # (proposed) SQLite job table + single-GPU worker
 │   └── tests/                   # (proposed) API tests (httpx TestClient)
 │
-├── web/                         # React + Vite + CesiumJS viewer
-│   ├── package.json             # (proposed) Scripts: dev, build, lint, test
-│   ├── vite.config.ts           # (proposed) Copies Cesium static assets; dev proxy to server
-│   ├── src/                     # (proposed) api/, stores/, pages/, viewer/ (incl. tools/), components/, i18n/ — see 09 §8.2
-│   └── public/                  # (proposed) Offline basemap tiles / icons (no ion)
+├── web/                         # React + Vite + CesiumJS viewer, installable PWA (07 §3.13, ADR-012)
+│   ├── package.json             # (proposed) Scripts: dev, build, lint, typecheck, test, e2e, gen:api; "packageManager": pnpm
+│   ├── pnpm-lock.yaml           # (proposed) Exact web dependency lock (pnpm install --frozen-lockfile)
+│   ├── .nvmrc                   # (proposed) Node active LTS used for builds
+│   ├── vite.config.ts           # (proposed) Copies Cesium static assets; vite-plugin-pwa; dev proxy to server
+│   ├── components.json          # (proposed) shadcn/ui config (components vendored into src/components/ui/)
+│   ├── src/                     # (proposed) api/ (incl. generated schema.d.ts), stores/, pages/, viewer/ (incl. tools/), components/, i18n/ — see 09 §8.2
+│   ├── e2e/                     # (proposed) Playwright + axe tests, offline network guard
+│   └── public/                  # (proposed) Offline basemap tiles / PWA icons (no ion)
 │
 ├── configs/
 │   ├── default.yaml             # Every parameter with its default + comment
@@ -133,7 +137,7 @@ sih2026-2/
 | CUDA toolkit | 12.x (only needed when building COLMAP/OpenMVS from source) | `nvcc --version` |
 | RAM / disk | 64 GB recommended / ≥ 200 GB free | `free -h`, `df -h` |
 | Python | 3.11 via conda-forge | `python --version` |
-| Node | ≥ 20 LTS | `node -v` |
+| Node + pnpm | Current active LTS (pinned in `web/.nvmrc`; Node 20 is end-of-life ⚠ verify) + pnpm (version pinned in `web/package.json#packageManager`) | `node -v`, `pnpm -v` |
 | Docker | Engine + compose v2 + NVIDIA Container Toolkit | `docker run --rm --gpus all nvidia/cuda:<cuda12-base-tag> nvidia-smi` *(any CUDA 12 `base` tag; pin at implementation time)* |
 
 ---
@@ -235,8 +239,9 @@ OpenMVS binaries usually install under `/usr/local/bin/OpenMVS/`. Put that folde
 
 ```bash
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
-exec $SHELL && nvm install 20 && nvm use 20
-cd web && npm ci && npm run dev          # http://localhost:5173
+exec $SHELL && cd web && nvm install && nvm use   # reads web/.nvmrc (active LTS)
+npm install -g pnpm@<version in package.json#packageManager>   # or enable it via corepack if your Node ships it
+pnpm install --frozen-lockfile && pnpm dev      # http://localhost:5173
 ```
 
 ### 3.8 Verify the install
@@ -371,7 +376,7 @@ drishti qa --run data/runs/demo_fast --checkpoints data/reference/demo/checkpoin
 
 # 5) Server + viewer
 uvicorn app.main:app --app-dir server --reload        # :8000
-( cd web && npm run dev )                              # :5173
+( cd web && pnpm dev )                                 # :5173
 ```
 
 The CLI contract (charter §9) is fixed: `drishti run --video … --srt … [--rtk] [--ref-ortho] [--ref-dsm] [--gcp] --profile … --out data/runs/<run_id>`.
@@ -403,9 +408,10 @@ The CLI contract (charter §9) is fixed: `drishti run --video … --srt … [--r
 
 ### 7.2 TypeScript
 
-- **eslint** (typescript-eslint, react-hooks) and **prettier** (2-space indent, single quotes, width 100).
+- **eslint** (typescript-eslint, react-hooks, jsx-a11y) and **prettier** (2-space indent, single quotes, width 100, Tailwind class sorting). Full web stack: [07 §3.13](07-tech-stack.md).
 - `strict: true` in `tsconfig.json`. No `any` in measurement code.
-- Measurement maths lives in pure functions under `web/src/tools/` with **vitest** unit tests against known geodesic distances.
+- Measurement maths lives in pure functions under `web/src/viewer/tools/` (09 §8.2) with **vitest** unit tests against known geodesic distances.
+- `web/src/api/schema.d.ts` is generated from the server's OpenAPI (`pnpm gen:api`); never edit it by hand. CI fails if it is stale.
 
 ### 7.3 Git workflow
 
@@ -516,7 +522,7 @@ Example override:
 
 ```bash
 drishti run --video f.mp4 --srt f.srt --profile fast \
-  --set frames.target_fps=1.5 --set sfm.mapper=global --set sfm.intrinsics=fixed \
+  --set frames.target_fps=1.5 --set sfm.mapper=global --set sfm.intrinsics.refine_distortion=false \
   --out data/runs/exp_fps15
 ```
 
@@ -555,11 +561,11 @@ Example: adding `S4b · Barometric altitude fusion`.
 | Version-mismatch errors between CUDA toolkit and driver | Toolkit newer than the driver supports | Upgrade the driver, or install an older 12.x toolkit. Under WSL, update the **Windows** driver. |
 | COLMAP runs but is slow and the logs say SIFT on CPU / "without CUDA" | Binary built without CUDA (common with some packages) | `colmap -h` must say *with CUDA*. Rebuild (§3.5A). In Docker, check `--gpus all` / compose `deploy.resources`. |
 | COLMAP GPU works on the host but not in Docker | NVIDIA Container Toolkit missing | Install `nvidia-container-toolkit`, run `sudo nvidia-ctk runtime configure --runtime=docker`, restart Docker |
-| `CUDA out of memory` in S2/S3/S5/S7 | Too many keyframes, resolution too high, too many Gaussians | Use the `fast` profile. Lower `dense.resolution_level`, `sfm.max_image_size`, `splat.max_gaussians`. Close browser GPU tabs. On 12 GB, never run S7 concurrently with S5. |
+| `CUDA out of memory` in S2/S3/S5/S7 | Too many keyframes, resolution too high, too many Gaussians | Use the `fast` profile. Lower `dense.resolution_level`, `sfm.features.resize_max_px`, `splat.max_gaussians`. Close browser GPU tabs. On 12 GB, never run S7 concurrently with S5. |
 | System RAM OOM / WSL crashes | WSL memory cap too low, or ODM ultra settings | Raise `.wslconfig` memory. Use `high`, not `ultra`, in ODM. Add swap. |
 | `SRT not matched` / zero GPS rows | SRT name differs from the video (case matters: ODM is case-sensitive), a different SRT dialect for the drone model, or subtitles were disabled during recording | Keep `DJI_0001.MP4` + `DJI_0001.SRT` together. Run `drishti ingest --inspect-srt f.SRT` to see the detected dialect. Add a golden sample and parser variant. If there is no SRT at all, use `--gnss` from the flight log (CSV). |
-| GPS track looks shifted in time along the path | SRT↔frame offset | Check the `timesync` report. It should show a single clear correlation peak. Force it with `--set ingest.time_offset_s=<value>` if you measured it. |
-| Model is "bowl-shaped" | Doming: free K1 on a near-nadir strip | Use `sfm.intrinsics=fixed` with a calibrated camera file. Fly forward-oblique (see [12](12-flight-and-data-capture-guide.md)). |
+| GPS track looks shifted in time along the path | SRT↔frame offset | Check the `timesync` report. It should show a single clear correlation peak. Force it with `--set ingest.timesync.manual_offset_s=<value>` if you measured it. |
+| Model is "bowl-shaped" | Doming: free K1 on a near-nadir strip | Set `sfm.intrinsics.source=file` and keep `sfm.intrinsics.refine_distortion=false` with a calibrated camera file. Fly forward-oblique (see [12](12-flight-and-data-capture-guide.md)). |
 | Windows paths break (`\`, spaces, `D:\…`) | Tools running in WSL/Docker receive Windows paths | Keep data in the WSL filesystem. Use `pathlib` everywhere. Never build paths by string concatenation. Avoid spaces in run IDs. `wslpath -u 'D:\x'` converts a path if needed. |
 | Very slow I/O under WSL | Repo or data on `/mnt/c` or `/mnt/d` | Move everything to `~/` inside WSL |
 | Cesium viewer is blank or requests `cesium.com` | ion default token or imagery provider | Set `Ion.defaultAccessToken = undefined`. Use local imagery/terrain providers (§5.3). |

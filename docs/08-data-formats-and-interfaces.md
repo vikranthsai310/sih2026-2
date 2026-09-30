@@ -376,6 +376,7 @@ ingest:
     search_window_s: 2.0
     refine_after_sfm: true
     min_peak_ratio: 1.5          # below → warning W-SYNC-01, offset=0
+    manual_offset_s: null        # set to force a measured offset (skips estimation)
   color:
     log_profile_tonemap: auto
   overlays:
@@ -388,18 +389,24 @@ frames:
   max_frames: 900
   min_frames: 30
   parallax:
-    target_overlap: 0.85         # forward overlap target
+    target_overlap: 0.85         # forward overlap target o* (05 S1.1)
     min_flow_px: 20              # at 1080p-normalised scale (est.)
+    min_tri_angle_deg: 1.0       # θ_min: telemetry baseline / AGL (05 S1.1)
+    min_track_survival: 0.5      # ρ_min: force a keyframe below this surviving-track fraction (05 S1.1)
   blur:
     method: var_laplacian
-    window_s: 1.0                # choose sharpest in each window
-    reject_below_ratio: 0.6      # vs rolling median (est.)
+    window_s: 1.0                # sliding window W for the adaptive sharpness threshold (05 S1.2)
+    reject_below_ratio: 0.6      # α: × rolling-window P90 sharpness (05 S1.2) (est.)
+    k_mad: 1.5                   # k: median − k·1.4826·MAD term (05 S1.2) (est.)
+    abs_floor: 15                # τ_abs on 8-bit 960-px frames; rejects fully smeared frames (est.)
+    search_eps_s: 0.25           # ε: pick the sharpest frame within ±ε of a trigger (05 S1.2)
   hover:
-    max_interval_s: 5.0
+    max_interval_s: 5.0          # keyframe cadence inside detected hover segments
   shot_cut:
     enabled: true
     threshold: 0.4
-  max_gap_s: 3.0
+  min_interval_s: 0.3            # Δt_min between keyframes (05 S1.1)
+  max_gap_s: 3.0                 # Δt_max: force a keyframe after this gap (05 S1.1)
   image_format: jpg
   jpeg_quality: 95
 
@@ -410,7 +417,8 @@ masking:
     detector_weights: models/yolo/yolo-seg-aerial.pt
     classes: [car, truck, bus, motorcycle, bicycle, person, animal]
     conf_threshold: 0.35
-    dilate_px: 8
+    dilate_px: 8                 # SfM mask dilation
+    dilate_mvs_px: 4             # MVS mask dilation (05 S2.3)
   segmenter:
     enabled: true
     model: sam2                  # sam2 | none   (Apache-2.0)
@@ -439,6 +447,7 @@ sfm:
     use_gps: true
     gps_sigma_m: [3.0, 3.0, 5.0] # consumer GNSS; RTK overrides
     use_gravity: true
+    gravity_sigma_deg: 2.0       # gravity prior σ from gimbal pitch/roll (05 S3.6; quality: 1.0) (est.)
     use_gimbal: true
   intrinsics:
     source: library              # library | file | metadata | self_calibrate
@@ -447,12 +456,17 @@ sfm:
     refine_distortion: false     # never true on near-nadir strips (ADR-011)
     focal_tolerance: 0.02        # when refine_focal is enabled
   rolling_shutter:
-    enabled: auto                # auto → from camera library
+    enabled: auto                # auto → on when predicted shift > min_shift_px
+    readout_time_s: null         # null → camera library; else override (seconds, as in 08 §2.6)
+    min_shift_px: 0.5            # predicted RS shift f·v·τ/H that switches the model on (05 S3.5)
   split:
     enabled: auto
     chunk_frames: 600
     overlap_frames: 50
   min_registered_ratio: 0.70     # below → fallback (FR-SFM-06)
+  fallback:
+    dpvo: true                   # DPVO local poses if the mapper fails (licence check required, 07)
+    feedforward: false           # GeoFF3D / MapAnything; stays false until licences are verified (07)
   ba:
     gpu: true
     max_iterations: 100
@@ -485,9 +499,11 @@ georef:
 
 dense:
   engine: openmvs
+  openmvs_bin: null              # directory of OpenMVS binaries; null → search PATH
   resolution_level: 2            # 0=full, 1=half, 2=quarter (fast)
   max_resolution_px: 2560
   min_views: 2
+  number_views: 5                # views per depth map (OpenMVS --number-views; 05 S5.2)
   number_views_fuse: 3
   mesh:
     decimate: 0.5
@@ -497,7 +513,9 @@ dense:
       seam_leveling: true
       exposure_compensation: true
   rasters:
-    gsd_m: auto                  # auto → 2 × native GSD (est.)
+    gsd_m: auto                  # DSM GSD; auto → 2 × native GSD (est.)
+    dtm_gsd_m: auto              # auto → 2 × DSM GSD (est.)
+    ortho_gsd_m: auto            # auto → native GSD (est.)
     dsm_method: max              # max | idw
     ortho_from: mesh             # mesh | points
   tiles:
@@ -514,11 +532,14 @@ completion:
     min_roof_area_m2: 20
     plane_ransac_threshold_m: 0.15
     extrude_to: dtm
+    face_selection: extrusion    # extrusion | milp (PolyFit-style, quality profile; 05 S6.3)
+    observed_coverage: 0.5       # face is "observed" above this fraction of supported area (05 S6.2)
     flag_inferred: true          # always true; cannot be disabled in production
 
 splat:
   engine: gsplat
   iterations: 15000
+  max_gaussians: 3000000         # densification cap (05 S7.2 fast; quality 8 M) (est.)
   exposure_compensation: true
   priority: background
   export: [ply, glb_khr]
@@ -553,9 +574,11 @@ qa:
   asprs_min_checkpoints: 30
   ce90_factor: 2.146             # × per-axis RMSE (valid when RMSE_x ≈ RMSE_y); computed as 1.5175 × RMSE_H
   le90_factor: 1.6449            # × RMSE_z
+  bootstrap_resamples: 1000      # 95 % CIs (05 S9.2; quality 10,000)
   doming:
     enabled: auto                # requires reference DSM or LiDAR
     detrend: plane
+    poly_order: 2                # along/across-track polynomial (05 S9.2; quality 3)
     profile_spacing_m: 10
   confidence:
     high:                        # observed-high thresholds (est.)

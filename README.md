@@ -40,8 +40,9 @@ Everything is in [`docs/`](docs/README.md). Start with the [Project Charter](doc
 
 | | |
 |---|---|
-| Problem & solution | [01 Problem](docs/01-problem-statement.md) · [02 Solution](docs/02-solution-overview.md) |
-| Engineering | [03 Requirements](docs/03-requirements.md) · [04 Architecture](docs/04-system-architecture.md) · [05 Pipeline](docs/05-pipeline-design.md) · [06 Georeferencing & Accuracy](docs/06-georeferencing-and-accuracy.md) · [07 Tech stack](docs/07-tech-stack.md) · [08 Interfaces](docs/08-data-formats-and-interfaces.md) · [09 Viewer](docs/09-viewer-and-ui.md) · [10 Setup](docs/10-setup-and-repo-structure.md) |
+| Problem & product | [01 Problem](docs/01-problem-statement.md) · [02 Solution](docs/02-solution-overview.md) · [17 PRD](docs/17-product-requirements.md) |
+| Design | [09 Viewer & UI](docs/09-viewer-and-ui.md) · [18 Design system](docs/18-design-system.md) · [Wireframes](docs/wireframes/README.md) |
+| Engineering | [03 Requirements](docs/03-requirements.md) · [04 Architecture](docs/04-system-architecture.md) · [05 Pipeline](docs/05-pipeline-design.md) · [06 Georeferencing & Accuracy](docs/06-georeferencing-and-accuracy.md) · [07 Tech stack](docs/07-tech-stack.md) · [08 Interfaces](docs/08-data-formats-and-interfaces.md) · [10 Setup](docs/10-setup-and-repo-structure.md) |
 | Validation & ops | [11 Testing](docs/11-testing-and-evaluation.md) · [12 Flight guide](docs/12-flight-and-data-capture-guide.md) |
 | Delivery | [13 Plan](docs/13-project-plan.md) · [14 Demo & pitch](docs/14-demo-and-pitch.md) · [15 References](docs/15-research-and-references.md) · [16 Glossary](docs/16-glossary.md) |
 

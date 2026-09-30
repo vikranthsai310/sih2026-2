@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en" data-theme="field" data-viewport="desktop">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Missions · Drishti3D wireframe</title>
+<link rel="stylesheet" href="assets/wireframe.css">
+<script src="assets/wireframe.js"></script>
+</head>
+<body>
+<div class="stage">
+<div class="device">
+<div class="app">
+  <header class="topbar">
+    <a class="brand" href="01-missions.html" aria-label="Drishti3D, Missions"><i data-icon="logo"></i><span class="wm">Drishti<b>3D</b></span></a>
+    <nav class="gnav" aria-label="Global">
+      <a href="01-missions.html" aria-current="page"><i data-icon="folder"></i><span data-i18n="nav.missions">Missions</span></a>
+      <a href="09-settings.html"><i data-icon="sliders"></i><span data-i18n="nav.settings">Settings</span></a>
+    </nav>
+    <span class="spacer"></span>
+    <div class="sys" data-anno="1">
+      <span class="chip" title="Local-only. No internet is used or needed."><i data-icon="wifioff"></i><span data-i18n="system.offline">Offline</span></span>
+      <span class="chip gpu"><i data-icon="cpu"></i>GPU 12 GB</span>
+      <span class="chip disk"><i data-icon="disk"></i>Disk 612 GB</span>
+    </div>
+    <div class="tb-actions">
+      <button type="button" class="btn btn-ghost lang-btn" data-action="lang" style="min-width:64px">EN | <span lang="hi">हि</span></button>
+      <button type="button" class="btn btn-ghost btn-icon" data-action="theme" aria-label="Toggle theme"><svg class="ic" aria-hidden="true"><use href="#i-sun"/></svg></button>
+    </div>
+  </header>
+
+  <div class="banner ro-banner" role="note"><i data-icon="eye"></i><span><strong data-i18n="system.readOnly">Read-only on phone</strong> · Browse missions, open the 3D view and reports. Create and process missions on the ground-station laptop or tablet.</span></div>
+
+  <main class="content">
+    <div class="content-narrow">
+      <div class="page-head">
+        <h1 data-i18n="nav.missions">Missions</h1>
+        <a class="btn btn-primary lg rw-only" href="02-new-mission.html" data-anno="2"><i data-icon="plus"></i><span data-i18n="mission.new">New Mission</span></a>
+      </div>
+
+      <div class="row-wrap" style="margin-bottom:var(--sp-5)">
+        <div class="input-wrap" style="flex:1 1 280px;max-width:420px"><i data-icon="search"></i><input class="input" type="search" placeholder="Search missions…" aria-label="Search missions"></div>
+        <div class="field" style="flex:0 0 160px"><select class="select" aria-label="Filter by status"><option>All statuses</option><option>Complete</option><option>Processing</option><option>Needs attention</option><option>Failed</option></select></div>
+        <div class="field" style="flex:0 0 160px"><select class="select" aria-label="Sort"><option>Newest first</option><option>Oldest first</option><option>Name A–Z</option><option>Best CE90</option></select></div>
+        <span class="spacer"></span>
+        <span class="muted sm">4 missions · <span class="tag example">example data</span></span>
+      </div>
+
+      <div class="mlist" role="list" aria-label="Missions">
+        <!-- 1 complete, anchored -->
+        <div class="mrow" role="listitem">
+          <a class="thumb" href="05-viewer-3d.html" aria-label="Open Bridge-Recon-07 in 3D"><div class="map" data-map="thumb" data-view="380 120 420 260"></div></a>
+          <div>
+            <div class="m-name">Bridge-Recon-07</div>
+            <div class="muted sm">DJI M3E · SRT · Sector-4</div>
+            <div class="mono muted xs">m_5d21e0</div>
+          </div>
+          <div class="sm">
+            <div class="num">2026-11-14 10:42 IST</div>
+            <div class="muted">Latest run: <span class="mono">20261114-051205-7c2e91</span></div>
+            <div class="muted">profile fast · 2 runs</div>
+          </div>
+          <div class="sm m-src">
+            <div>4K · 9 m 48 s</div>
+            <div class="muted">ref ortho + DSM</div>
+          </div>
+          <div class="m-actions">
+            <div class="row-wrap">
+              <span class="chip ok"><i data-icon="check"></i><span data-i18n="status.complete">Complete</span></span>
+              <a class="chip accent acc-badge" href="07-accuracy-report.html" data-anno="3" title="Anchoring tier and headline CE90 · opens Accuracy Report"><i data-icon="anchor"></i>Anchored · <span class="num">0.74 m</span> CE90</a>
+            </div>
+            <div class="row rel">
+              <a class="btn btn-sm" href="05-viewer-3d.html"><i data-icon="map"></i><span data-i18n="viewer.open">Open 3D Viewer</span></a>
+              <button type="button" class="btn btn-ghost btn-icon btn-sm" data-menu aria-haspopup="menu" aria-expanded="false" aria-label="More actions for Bridge-Recon-07" data-anno="4"><i data-icon="more"></i></button>
+              <div class="menu" role="menu">
+                <a role="menuitem" href="02-new-mission.html"><i data-icon="refresh"></i>Re-run with another profile</a>
+                <a role="menuitem" href="10-compare.html"><i data-icon="columns"></i>Compare runs</a>
+                <a role="menuitem" href="#" data-toast="Settings copied. Paste them into a new mission.|ok"><i data-icon="copy"></i>Duplicate settings</a>
+                <a role="menuitem" href="08-export.html"><i data-icon="download"></i>Export bundle…</a>
+                <a role="menuitem" href="#" data-toast="Renaming is inline in the product; shown here as a toast.|info"><i data-icon="file"></i>Rename</a>
+                <div class="sep"></div>
+                <a role="menuitem" class="danger-item" href="#" data-open-dialog="dlg-delete"><i data-icon="trash"></i>Delete mission…</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2 processing -->
+        <div class="mrow" role="listitem">
+          <a class="thumb" href="04-processing.html" aria-label="View progress of Village-Flood-02"><div class="map" data-map="mosaic" data-view="0 200 600 360"></div></a>
+          <div>
+            <div class="m-name">Village-Flood-02</div>
+            <div class="muted sm">DJI Mini 4 Pro · SRT · Sector-9</div>
+            <div class="mono muted xs">m_a91c3f</div>
+          </div>
+          <div class="sm">
+            <div class="num">2026-11-14 09:10 IST</div>
+            <div class="muted">Run: <span class="mono">20261114-034010-c05d2a</span></div>
+            <div class="muted">profile fast</div>
+          </div>
+          <div class="sm m-src">
+            <div>1080p · 6 m 02 s</div>
+            <div class="muted">GNSS only</div>
+          </div>
+          <div class="m-actions">
+            <div class="row-wrap">
+              <span class="chip running accent" title="S5 Dense Reconstruction &amp; Mesh, 62 %"><span class="bar"><i style="width:62%"></i></span><span class="num">S5 62 %</span></span>
+              <span class="muted sm"><span data-i18n="run.eta">Time remaining</span> 4–6 min</span>
+            </div>
+            <a class="btn btn-sm" href="04-processing.html"><i data-icon="gauge"></i>View progress</a>
+          </div>
+        </div>
+
+        <!-- 3 needs attention -->
+        <div class="mrow" role="listitem">
+          <a class="thumb" href="02-new-mission.html" aria-label="Fix inputs of Test-Clip-Unknown"><div class="map" data-map="thumb" data-view="700 300 300 180"></div></a>
+          <div>
+            <div class="m-name">Test-Clip-Unknown</div>
+            <div class="muted sm">No SRT found</div>
+            <div class="mono muted xs">m_0f77e2</div>
+          </div>
+          <div class="sm">
+            <div class="num">2026-11-13 18:05 IST</div>
+            <div class="muted">No run yet</div>
+          </div>
+          <div class="sm m-src">
+            <div>4K · 3 m 12 s</div>
+            <div class="muted">—</div>
+          </div>
+          <div class="m-actions">
+            <span class="chip warn"><i data-icon="alert"></i><span data-i18n="status.attention">Needs attention</span></span>
+            <a class="btn btn-sm rw-only" href="11-states.html#no-telemetry"><i data-icon="upload"></i>Fix inputs</a>
+          </div>
+        </div>
+
+        <!-- 4 complete, GNSS only, estimated -->
+        <div class="mrow" role="listitem">
+          <a class="thumb" href="05-viewer-3d.html" aria-label="Open Hill-Road-Slide-01 in 3D"><div class="map" data-map="thumb" data-view="0 0 420 260"></div></a>
+          <div>
+            <div class="m-name">Hill-Road-Slide-01</div>
+            <div class="muted sm">DJI Mavic 3 · SRT · Sector-2</div>
+            <div class="mono muted xs">m_33b8a0</div>
+          </div>
+          <div class="sm">
+            <div class="num">2026-11-12 14:45 IST</div>
+            <div class="muted">Run: <span class="mono">20261112-091530-e4a1f9</span></div>
+            <div class="muted">profile quality</div>
+          </div>
+          <div class="sm m-src">
+            <div>4K · 7 m 30 s</div>
+            <div class="muted">no checkpoints</div>
+          </div>
+          <div class="m-actions">
+            <div class="row-wrap">
+              <span class="chip ok"><i data-icon="check"></i>Complete</span>
+              <a class="chip warn acc-badge est" href="11-states.html#no-checkpoints" title="Predicted from anchoring residuals; not validated with checkpoints" data-anno="5"><i data-icon="alert"></i>GNSS only · <span class="val num">3.4 m CE90 est.</span></a>
+            </div>
+            <a class="btn btn-sm" href="05-viewer-3d.html"><i data-icon="map"></i>Open 3D Viewer</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="row-wrap" style="margin-top:var(--sp-7)">
+        <span class="muted sm"><i data-icon="disk" class="ic-sm"></i> Storage: 4 missions · 41.2 GB</span>
+        <span class="spacer"></span>
+        <button type="button" class="btn btn-sm rw-only" aria-disabled="true" title="Future: no import endpoint in the API yet (08 §9)" data-anno="6"><i data-icon="upload"></i>Import mission bundle… <span class="tag future">future</span></button>
+        <a class="btn btn-sm rw-only" href="11-states.html#disk-low"><i data-icon="trash"></i>Clean up temp files</a>
+      </div>
+    </div>
+  </main>
+
+  <dialog class="dlg" id="dlg-delete" aria-labelledby="dlg-delete-t">
+    <div class="dlg-head"><h2 id="dlg-delete-t">Delete Bridge-Recon-07?</h2><button type="button" class="btn btn-ghost btn-icon" data-close aria-label="Close"><i data-icon="x"></i></button></div>
+    <div class="dlg-body stack">
+      <p>This permanently removes the mission, its <strong>2 runs</strong> and all their files (38.6 GB) from this machine. Exports already copied elsewhere are not affected.</p>
+      <p class="muted sm">API: <span class="mono">DELETE /api/v1/runs/{run_id}?confirm=true</span> for each run. A running job must be cancelled first (409).</p>
+    </div>
+    <div class="dlg-foot"><button type="button" class="btn btn-danger" data-close data-toast="Bridge-Recon-07 deleted (prototype: nothing was removed).|warn"><i data-icon="trash"></i>Delete mission</button><span class="spacer"></span><button type="button" class="btn" data-close data-i18n="common.cancel">Cancel</button></div>
+  </dialog>
+</div>
+</div>
+
+<aside class="anno-panel" aria-label="Annotations">
+  <h2>01 · Missions list</h2>
+  <div class="anno-sub">09 §5.1 · Personas: operator, analyst, commander · <span class="mono">GET /api/v1/missions</span></div>
+  <ol>
+    <li><strong>System status</strong> is always in the top bar. "Offline" is neutral, not an error: the app is local-only by design. GPU and disk come from <code>GET /api/v1/health</code> (polled every 2 s). On tablet the GPU/disk chips hide; on phone the whole cluster moves into the menu.</li>
+    <li><strong>One primary action</strong> per view (09 U7). Hidden on phone (read-only).</li>
+    <li><strong>Accuracy badge</strong> = anchoring tier + headline CE90. It links to the Accuracy Report. Validated values are upright; predicted ones are italic with "est.".</li>
+    <li><strong>⋯ menu</strong>: rename, re-run with another profile, duplicate settings, export bundle, delete. Delete is separated and confirmed in a dialog that names the object.</li>
+    <li><strong>No checkpoints</strong> → badge says <em>est.</em> and uses the warn tone. It never shows PASS.</li>
+    <li><strong>Import mission bundle</strong> is shown disabled and tagged <em>Future</em>: 08 §9 has no import endpoint (only a per-run <code>bundle</code> artefact for export).</li>
+  </ol>
+  <p class="anno-sub" style="margin-top:8px">Responsive: rows become cards under 900 px (switch to Tablet or Phone above). Next: <a href="02-new-mission.html">New Mission →</a></p>
+</aside>
+</div>
+</body>
+</html>

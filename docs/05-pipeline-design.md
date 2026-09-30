@@ -420,7 +420,7 @@ flowchart TD
 - **Water**: masked in S2; SfM covers shores; S6 fills water with a flat plane at median shoreline height, flagged *inferred*.
 - **Night / IR**: CLAHE pre-processing, SIFT (more robust on thermal than learned features trained on RGB — estimate), lower resolution; expect lower accuracy; report flags `night_ir`.
 - **Pose fallback 1 — DPVO** (< 3 GB GPU, the most practical learned VO in the nadir UAV benchmark, but it drifted 5.75 % on the DJI flights — [arXiv 2608.18632](https://arxiv.org/html/2608.18632)): run on the keyframes (or 10 fps subsample) for local relative poses, then Sim(3)-align per 30-s window to GNSS, then triangulate with COLMAP `point_triangulator` using fixed poses, then our prior BA. **Licence check required** before it ships.
-- **Pose fallback 2 — feed-forward (GeoFF3D, MapAnything)**: GeoFF3D feeds GPS translations into the network, predicts poses and point maps in a gravity-aligned metric frame, processes ~2,000 images in ~5 min and is stated stable on near-collinear trajectories ([arXiv 2608.28288](https://arxiv.org/abs/2608.28288)); MapAnything accepts optional intrinsics/poses ([arXiv 2509.13414](https://arxiv.org/abs/2509.13414)). **Both licences are unverified** — disabled by default (`sfm.fallback_feedforward: false`) until R2 records the licence in [07](07-tech-stack.md). VGGT-1B-Commercial is **forbidden** (excludes military use); DUSt3R/MASt3R/original VGGT are non-commercial and never shipped as default.
+- **Pose fallback 2 — feed-forward (GeoFF3D, MapAnything)**: GeoFF3D feeds GPS translations into the network, predicts poses and point maps in a gravity-aligned metric frame, processes ~2,000 images in ~5 min and is stated stable on near-collinear trajectories ([arXiv 2608.28288](https://arxiv.org/abs/2608.28288)); MapAnything accepts optional intrinsics/poses ([arXiv 2509.13414](https://arxiv.org/abs/2509.13414)). **Both licences are unverified** — disabled by default (`sfm.fallback.feedforward: false`) until R2 records the licence in [07](07-tech-stack.md). VGGT-1B-Commercial is **forbidden** (excludes military use); DUSt3R/MASt3R/original VGGT are non-commercial and never shipped as default.
 - **Degenerate straight strip** (roll about track unobservable) is not a failure of S3 but of alignment; handled by gravity priors in S3.5 and gravity-first alignment in S4.
 
 ### S3.8 Quality checks (gate to S4)
@@ -710,7 +710,7 @@ flowchart LR
 2. Build a **quadtree** over the mesh XY extent: split a node while its face count > 100 k (fast) or its extent > 64 m; leaf tiles contain full-resolution faces.
 3. For each internal node: merge children geometry, **quadric-error decimate** to ≈ 25 % faces (Open3D `simplify_quadric_decimation`), bake a downscaled texture atlas (½ per level).
 4. `geometricError` of a node = max Hausdorff distance between its simplified mesh and the leaf geometry beneath it (sampled); leaves = 0; root = diagonal/10.
-5. Write each node as `.glb` (Draco compression optional; KTX2 textures optional), with per-vertex `_CONFIDENCE` attribute and feature ids via `EXT_mesh_features` / `EXT_structural_metadata` (class, confidence_class, inferred flag).
+5. Write each node as `.glb` (Draco compression optional; KTX2 textures optional), with per-vertex `_CONFIDENCE` attribute and feature ids via `EXT_mesh_features` / `EXT_structural_metadata` (class, conf_class, inferred flag).
 6. `refine: "REPLACE"`; bounding volumes as oriented boxes in ENU.
 7. Point cloud: `py3dtiles convert pointcloud/<run_id>.laz --out tiles/pointcloud --srs_in <EPSG> --srs_out 4978`. Alternative mesh tiler: ODM's `obj2tiles` (licence to verify in [07](07-tech-stack.md)).
 
@@ -848,25 +848,91 @@ gantt
 
 ## 12. Configuration keys (excerpt)
 
-Profiles live in `configs/{preview,fast,quality}.yaml` and override `configs/default.yaml`. Key names used above:
+Profiles live in `configs/{preview,fast,quality}.yaml` and override `configs/default.yaml`. **Key names and defaults are defined in [08 §4.1](08-data-formats-and-interfaces.md#41-full-configsdefaultyaml), which is canonical**; this excerpt uses exactly those names and shows 08's `default.yaml` values (the `fast` profile) for the parameters used in this document:
 
 ```yaml
-frames:   {overlap_target: 0.85, theta_min_deg: 1.0, rho_min: 0.5, dt_min_s: 0.3, dt_max_s: 3.0,
-           blur: {window_s: 2.0, k_mad: 1.5, alpha_p90: 0.6, abs_floor: 15}, max_keyframes: 1200}
-masking:  {detector_conf: 0.35, sam2_propagate: false, dilate_sfm_px: 8, dilate_mvs_px: 4}
-sfm:      {features: aliked_n16rot, max_image_size: 2048, max_kp: 4096, seq_overlap: 15,
-           loop_detection: true, spatial_neighbors: 30, spatial_max_dist_m: 120,
-           mapper: global, intrinsics: fixed, gnss_sigma_h: 1.5, gnss_sigma_v: 3.0,
-           gravity_sigma_deg: 2.0, rolling_shutter: auto, rs_readout_ms: null,
-           chunk_size: 250, chunk_overlap: 50, fallback_dpvo: true, fallback_feedforward: false}
-georef:   {sync_search_s: 2.0, gnss_subsample_hz: 1.0, ransac_iters: 1000, collinear_ratio: 0.05,
-           lever_arm_m: [0, 0, 0], anchor_order: [rtk, cors, ortho_dsm, gcp, gnss]}
-dense:    {resolution_level: 1, max_resolution: 2560, number_views: 5, refine_mesh: false,
-           dsm_gsd_m: 0.25, dtm_gsd_m: 0.5, ortho_gsd_m: 0.10}
-completion: {lod2: extrusion, ransac_dist_m: 0.20, observed_cov: 0.5}
-splat:    {enabled: false, iterations: 7000, exposure_comp: true}
-qa:       {min_checkpoints: 30, bootstrap: 1000, doming_order: 2}
+run:
+  stages: { S7_splat: false }                 # S7 on/off (was splat.enabled)
+ingest:
+  timesync: { search_window_s: 2.0 }          # coarse / fine δ search (S0.1, S4.1)
+frames:
+  parallax: { target_overlap: 0.85, min_tri_angle_deg: 1.0, min_track_survival: 0.5 }
+  min_interval_s: 0.3                         # Δt_min
+  max_gap_s: 3.0                              # Δt_max
+  blur: { window_s: 1.0, k_mad: 1.5, reject_below_ratio: 0.6, abs_floor: 15, search_eps_s: 0.25 }
+  max_frames: 900                             # hard cap on keyframes
+masking:
+  dynamic:   { conf_threshold: 0.35, dilate_px: 8, dilate_mvs_px: 4 }
+  segmenter: { temporal_propagation: false }  # SAM 2 propagation
+sfm:
+  features: { type: aliked, resize_max_px: 1600, max_keypoints: 4096 }   # aliked → COLMAP ALIKED_N16ROT
+  matching: { sequential_overlap: 15, loop_detection: false, gps_neighbours: 20, gps_radius_m: 150 }
+  mapper: global
+  intrinsics: { refine_focal: false, refine_principal_point: false, refine_distortion: false }  # "fixed"
+  priors: { gps_sigma_m: [3.0, 3.0, 5.0], gravity_sigma_deg: 2.0 }
+  rolling_shutter: { enabled: auto, readout_time_s: null, min_shift_px: 0.5 }
+  split: { chunk_frames: 600, overlap_frames: 50 }
+  fallback: { dpvo: true, feedforward: false }
+georef:
+  align: { subsample_hz: 1.0, ransac_iterations: 500 }
+  collinearity_pca_ratio: 0.02
+  lever_arm_m: auto
+  anchoring: { order: [rtk, gcp, ref_ortho_dsm, corrected_track, gnss_only] }
+dense:
+  resolution_level: 2
+  max_resolution_px: 2560
+  number_views: 5
+  number_views_fuse: 3
+  mesh: { refine: false }
+  rasters: { gsd_m: auto, dtm_gsd_m: auto, ortho_gsd_m: auto }         # DSM / DTM / ortho GSD
+completion:
+  lod2: { face_selection: extrusion, plane_ransac_threshold_m: 0.15, observed_coverage: 0.5 }
+splat: { iterations: 15000, max_gaussians: 3000000, exposure_compensation: true }
+qa:    { asprs_min_checkpoints: 30, bootstrap_resamples: 1000, doming: { poly_order: 2 } }
 ```
+
+**Old name → canonical name** (names used in earlier drafts of this document):
+
+| Old (05 draft) | Canonical (08) |
+|---|---|
+| `frames.overlap_target`, `theta_min_deg`, `rho_min` | `frames.parallax.target_overlap`, `.min_tri_angle_deg`, `.min_track_survival` |
+| `frames.dt_min_s`, `dt_max_s`, `max_keyframes` | `frames.min_interval_s`, `frames.max_gap_s`, `frames.max_frames` |
+| `frames.blur.alpha_p90` | `frames.blur.reject_below_ratio` |
+| `masking.detector_conf`, `sam2_propagate`, `dilate_sfm_px` | `masking.dynamic.conf_threshold`, `masking.segmenter.temporal_propagation`, `masking.dynamic.dilate_px` |
+| `sfm.features`, `max_image_size`, `max_kp` | `sfm.features.type`, `.resize_max_px`, `.max_keypoints` |
+| `sfm.seq_overlap`, `spatial_neighbors`, `spatial_max_dist_m` | `sfm.matching.sequential_overlap`, `.gps_neighbours`, `.gps_radius_m` |
+| `sfm.intrinsics: fixed` | `sfm.intrinsics.refine_focal/refine_principal_point/refine_distortion: false` |
+| `sfm.gnss_sigma_h`, `gnss_sigma_v`, `gravity_sigma_deg` | `sfm.priors.gps_sigma_m: [h, h, v]`, `sfm.priors.gravity_sigma_deg` |
+| `sfm.rolling_shutter`, `rs_readout_ms` | `sfm.rolling_shutter.enabled`, `sfm.rolling_shutter.readout_time_s` (seconds) |
+| `sfm.chunk_size`, `chunk_overlap` | `sfm.split.chunk_frames`, `.overlap_frames` |
+| `sfm.fallback_dpvo`, `fallback_feedforward` | `sfm.fallback.dpvo`, `sfm.fallback.feedforward` |
+| `georef.sync_search_s` | `ingest.timesync.search_window_s` |
+| `georef.gnss_subsample_hz`, `ransac_iters`, `collinear_ratio` | `georef.align.subsample_hz`, `georef.align.ransac_iterations`, `georef.collinearity_pca_ratio` |
+| `georef.anchor_order` | `georef.anchoring.order` (values `rtk, gcp, ref_ortho_dsm, corrected_track, gnss_only`) |
+| `dense.max_resolution`, `refine_mesh` | `dense.max_resolution_px`, `dense.mesh.refine` |
+| `dense.dsm_gsd_m`, `dtm_gsd_m`, `ortho_gsd_m` | `dense.rasters.gsd_m`, `.dtm_gsd_m`, `.ortho_gsd_m` |
+| `completion.lod2`, `ransac_dist_m`, `observed_cov` | `completion.lod2.face_selection`, `.plane_ransac_threshold_m`, `.observed_coverage` |
+| `splat.enabled`, `exposure_comp` | `run.stages.S7_splat`, `splat.exposure_compensation` |
+| `qa.min_checkpoints`, `bootstrap`, `doming_order` | `qa.asprs_min_checkpoints`, `qa.bootstrap_resamples`, `qa.doming.poly_order` |
+
+**Open value differences (to reconcile at M2 tuning).** The key names now match, but some `fast` values in this document's parameter tables differ from 08's defaults. Until the owners agree and update 08, **08's `default.yaml` values are what the code uses**:
+
+| Key | 05 tables (`fast`) | 08 default | Owner |
+|---|---|---|---|
+| `frames.blur.window_s` | 2 s | 1.0 s | R1 |
+| `frames.max_frames` | 1,200 | 900 | R1 |
+| `sfm.features.resize_max_px` | 2048 | 1600 | R1 |
+| `sfm.matching.loop_detection` / `gps_neighbours` / `gps_radius_m` | on / 30 / 120 m | off / 20 / 150 m | R1 |
+| `sfm.priors.gps_sigma_m` | [1.5, 1.5, 3.0] | [3.0, 3.0, 5.0] | R2 |
+| `sfm.split.chunk_frames` | 250 | 600 | R1 |
+| `georef.align.ransac_iterations` | 1,000 | 500 | R2 |
+| `georef.collinearity_pca_ratio` | 0.05 | 0.02 | R2 |
+| `georef.lever_arm_m` | [0, 0, 0] | auto (camera library) | R2 |
+| `georef.anchoring.order` | RTK → CORS/GAGAN → ortho/DSM → GCP → GNSS (S4.1 step 4, as in 06 §11) | RTK → GCP → ortho/DSM → corrected track → GNSS (as in 04 ADR-004) | R2 |
+| `dense.resolution_level` | 1 | 2 | R3 |
+| `dense.rasters.gsd_m` / `dtm_gsd_m` / `ortho_gsd_m` | 0.25 / 0.5 / 0.10 m | auto | R3 |
+| `completion.lod2.plane_ransac_threshold_m` | 0.20 m | 0.15 m | R3 |
+| `splat.iterations` | 7,000 | 15,000 | R3 |
 
 ---
 

@@ -274,7 +274,7 @@ Priority key: **M** Must · **S** Should · **C** Could · **W** Won't (this edi
 | FR-QA-06 | The system shall produce a **confidence map** (raster + per-point attribute) with classes *observed-high*, *observed-low*, *inferred*. | M | S9 | Confidence COG and LAS extra byte present; class definitions in report. |
 | FR-QA-07 | The system shall produce the accuracy report as HTML, PDF and JSON (schema in `08`). | M | S9 | JSON validates against schema; PDF renders offline. |
 | FR-QA-08 | The system shall compute **completeness** (% of visible ground footprint reconstructed). | S | S9 | Target ≥ 90 %. |
-| FR-QA-09 | The system shall allow checkpoints to be uploaded **after** a run and recompute S9 only. | M | S9 | `POST /runs/{id}/checkpoints` re-runs S9 without touching S0–S8 outputs. |
+| FR-QA-09 | The system shall allow checkpoints to be uploaded **after** a run and recompute S9 only. | M | S9 | `POST /api/v1/runs/{id}/checkpoints` re-runs S9 without touching S0–S8 outputs. |
 
 ### 5.11 FR-PRV — Live Preview (P, `drishti.preview`)
 
@@ -298,6 +298,13 @@ Priority key: **M** Must · **S** Should · **C** Could · **W** Won't (this edi
 | FR-UI-07 | The viewer shall show a cross-section / elevation profile tool. | S | Profile plotted from DSM. |
 | FR-UI-08 | The viewer should allow picking checkpoints on the model and comparing to surveyed coordinates. | C | Residual displayed per checkpoint. |
 | FR-UI-09 | The viewer shall display the splat layer (if present) as a separate, non-metric layer. | C | Label "Photoreal – not for measurement". |
+| FR-UI-10 | The viewer shall provide a Compare view (swipe / side-by-side / difference DSM) between two runs or accuracy tiers, with synchronised cameras. | M | Swipe handle works; checkpoint CE90 of left and right shown. (PRD US-E3-05) |
+| FR-UI-11 | The web app shall provide a responsive tablet layout (768–1279 px) installable as a PWA over LAN-mode HTTPS, with app-shell caching. | S | Installs on a tablet; shell loads with server unreachable and shows connection-lost state. (PRD US-E3-07, US-E7-05, US-E7-06) |
+| FR-UI-12 | The web app shall provide a read-only phone layout (≤ 767 px). | C | Upload/measure/export hidden with explanatory note. (PRD US-E3-08) |
+| FR-UI-13 | The web app shall provide dark "field" and light "analyst" themes plus high-contrast mode, with full English/Hindi localisation. | S | 0 missing i18n keys; WCAG 2.2 AA contrast in all themes. (PRD US-E8-07) |
+| FR-UI-14 | The web app should provide onboarding: bundled sample mission, skippable guided tour, contextual explainers. | S | Sample opens offline; tour ≤ 5 min. (PRD US-E8-01, US-E8-02) |
+| FR-UI-15 | The web app shall present an Ingest Check screen as a mandatory gate before compute starts. | M | Fail states disable Start and name a remedy; warnings never block. (PRD US-E1-03) |
+| FR-UI-16 | The viewer should encode camera and layer state in the URL so a view can be shared on the LAN. | C | Link opened on another LAN device reproduces the view. (PRD US-E3-06) |
 
 Details in [`09-viewer-and-ui.md`](09-viewer-and-ui.md).
 
@@ -306,8 +313,8 @@ Details in [`09-viewer-and-ui.md`](09-viewer-and-ui.md).
 | ID | Requirement | Pri | Acceptance criterion |
 |---|---|---|---|
 | FR-API-01 | The system shall provide the CLI `drishti run --video … --srt … [--rtk …] [--ref-ortho …] [--ref-dsm …] [--gcp …] --profile fast --out data/runs/<run_id>` exactly as the charter contract (§9). | M | Command runs end-to-end on golden clip. |
-| FR-API-02 | The CLI shall provide subcommands `ingest`, `preview`, `qa`, `export`, `benchmark` (reference in `08`). | M (`ingest`, `qa`, `export`) · S (`preview`, `benchmark`) | `--help` documents all flags; smoke tests pass. |
-| FR-API-03 | The system shall expose a REST API: create/list/get/delete/cancel/resume runs, list/download artefacts, upload checkpoints, get report; and a WebSocket progress stream. | M | OpenAPI schema published at `/docs` (offline); contract tests pass. |
+| FR-API-02 | The CLI shall provide subcommands `ingest`, `preview`, `qa`, `export`, `benchmark`, `validate`, `selftest`, `check-licences` (reference in `08` §8). | M (`ingest`, `qa`, `export`, `selftest`, `check-licences`) · S (`preview`, `benchmark`, `validate`) | `--help` documents all flags; smoke tests pass. |
+| FR-API-03 | The system shall expose a REST API: create/list/get/delete/cancel/resume runs, list/download artefacts, upload checkpoints, get report, missions, saved and server-side measurements; and a WebSocket progress stream (base `/api/v1`, 08 §9). | M | OpenAPI schema published at `/api/v1/docs` (offline); contract tests pass. |
 | FR-API-04 | Runs shall be **resumable** from the last completed stage checkpoint (`--resume`). | M | Kill worker during S5 → resume skips S0–S4 (verified by timings). |
 | FR-API-05 | All configuration shall be via YAML (`configs/*.yaml`) with CLI overrides (`--set key=value`); the resolved config is saved per run. | M | `config.resolved.yaml` in run directory reproduces the run. |
 | FR-API-06 | The system shall return machine-readable errors (RFC 7807 JSON with `code`) and documented CLI exit codes. | M | Contract tests cover each error code. |
@@ -482,7 +489,7 @@ PS 26158 lists eight challenges (per PS mirrors; verify on sih.gov.in):
 | Metrically accurate | FR-GEO-*, FR-QA-01…05 | S4, S9 | Accuracy report JSON/PDF |
 | Textured model | FR-DNS-02 | S5 | OBJ+MTL, GLB |
 | Point cloud / mesh in standard formats (OBJ, PLY, LAS, GeoTIFF, glTF, FBX reported by mirrors) | FR-EXP-01…05 | S8 | Export folder |
-| Visualisation, measurement and analysis | FR-UI-01…09 | Viewer | Web app |
+| Visualisation, measurement and analysis | FR-UI-01…16 | Viewer | Web app |
 | Fast / near-real-time | FR-PRV-*, NFR-PERF-01, -02 | P, all | Benchmark report |
 | Minimal GCPs | FR-GEO-02, FR-GEO-05 | S4 | Anchoring log |
 | Uses optional IMU, baro, intrinsics, RTK/PPK | FR-ING-07, FR-ING-10, FR-GEO-03 | S0, S3, S4 | Manifest inputs section |
